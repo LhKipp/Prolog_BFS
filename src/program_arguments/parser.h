@@ -10,9 +10,10 @@
 namespace po = boost::program_options;
 
 namespace program_arguments {
-    const char* prolog_file_option = "prolog-file";
-    const char* help_option = "help";
-    const char* socket_option = "socket-connection";
+    const char * const prolog_file_option = "prolog-file";
+    const char* const help_option = "help";
+    const char*  const socket_option = "socket-connection";
+
     class parser {
     public:
         parser() { init(); };

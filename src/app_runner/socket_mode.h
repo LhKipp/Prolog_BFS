@@ -6,7 +6,10 @@
 #define PROLOG_BFS_SOCKET_MODE_H
 
 
-void socket_mode(boost::program_options::variables_map& map);
+#include <boost/program_options/variables_map.hpp>
 
+namespace app_runner{
+int socket_mode(boost::program_options::variables_map& map);
+};
 
 #endif //PROLOG_BFS_SOCKET_MODE_H

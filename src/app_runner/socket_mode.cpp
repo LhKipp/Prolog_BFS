@@ -3,3 +3,7 @@
 //
 
 #include "socket_mode.h"
+
+namespace app_runner{
+    int socket_mode(boost::program_options::variables_map& map){}
+};
