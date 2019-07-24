@@ -10,6 +10,9 @@
 namespace prolog {
     struct variable {
         std::string name;
+        variable(){
+         name = "";
+        }
         variable(const std::string name){
             this->name= name;
         }

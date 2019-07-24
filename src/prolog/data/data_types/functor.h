@@ -16,8 +16,10 @@ namespace prolog {
         std::string name;
         std::vector<prolog::term> args;
 
-        functor(){}
-        functor(const std::string name, const std::vector<prolog::term>& args) {
+        functor(): args{0}{
+            name = "";
+        }
+        functor(const std::string &name, const std::vector<prolog::term>& args) {
             this->name = name;
             this->args = args;
         }
