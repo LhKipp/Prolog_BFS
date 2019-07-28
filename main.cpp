@@ -1,3 +1,5 @@
+#define CATCH_CONFIG_RUNNER
+#include "catch.hpp"
 #include <iostream>
 #include "src/program_arguments/parser.h"
 
@@ -6,6 +8,9 @@
 
 int main(int argc, const char *argv[]) {
     using namespace std;
+
+    int result = Catch::Session().run(argc, argv);
+
 
     //Parsing CommandLine Arguments
     program_arguments::parser parser{};

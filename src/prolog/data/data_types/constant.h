@@ -19,5 +19,4 @@ namespace prolog {
         }
     };
 }
-
 #endif PROLOG_BFS_CONSTANT_H
