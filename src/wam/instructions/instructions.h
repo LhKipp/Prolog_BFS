@@ -6,23 +6,24 @@
 #define PROLOG_BFS_INSTRUCTIONS_H
 
 #include "../executor/executor.h"
-#include "../parser/util/node.h"
 
 namespace wam {
-    void put_structure(executor& executor, const regist& functor, regist& x_reg){
-        executor.heap.emplace_back(heap_tag::STR, executor.heap.size() + 1);
-        x_reg = executor.heap.back();
-        executor.heap.push_back(functor);
-    }
+    void put_structure(executor& executor, const functor_view& functor, size_t x_reg);
 
-    void set_variable(executor& executor , regist& x_reg){
-        executor.heap.emplace_back(heap_tag::REF, executor.heap.size());
-        x_reg = executor.heap.back();
-    }
+    void set_variable(executor& executor , size_t x_reg);
 
-    void set_value(executor& executor, regist& x_reg){
-        executor.heap.push_back(x_reg);
-    }
+    void set_value(executor& executor,size_t x_reg);
+
+    void get_structure(executor& executor,const functor_view& functor, size_t x_reg);
+
+    void unify_variable(executor& executor,  size_t x_reg);
+
+    void unify_value(executor& executor, size_t x_reg);
+
+
+    void bind(std::vector<regist>& store, size_t address_a,size_t address_b);
+
+    void unify(executor& executor, size_t addr_a, size_t addr_b);
 }
 
 #endif //PROLOG_BFS_INSTRUCTIONS_H

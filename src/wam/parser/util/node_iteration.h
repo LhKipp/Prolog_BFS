@@ -9,34 +9,35 @@
 #include <vector>
 #include <queue>
 #include <functional>
+#include "../../../prolog/data/data_types/data_enums.h"
 
- #include "node.h"
+// #include "node.h"
 //Util functions to make accessing nodes in a tree in a given order easier
 
-template<typename Functor>
-void bfs_order(const node &top_node, Functor func) {
-    std::queue<const node*> queue;
-
-    if(top_node.type == STORED_OBJECT_FLAG::NONE){
-        queue.push(&top_node.children->operator[](0));
-    } else{
-        queue.push(&top_node);
-    }
-
-
-    while(!queue.empty()){
-        const node* cur = queue.front();
-        queue.pop();
-        std::invoke(func, cur);
-
-        if(cur->children){
-            for(auto& node : *cur->children){
-                queue.push(&node);
-            }
-        }
-    }
-}
-template<typename Functor>
+//template<typename Functor>
+//void bfs_order(const node &top_node, Functor func) {
+//    std::queue<const node*> queue;
+//
+//    if(top_node.type == STORED_OBJECT_FLAG::NONE){
+//        queue.push(&top_node.children->operator[](0));
+//    } else{
+//        queue.push(&top_node);
+//    }
+//
+//
+//    while(!queue.empty()){
+//        const node* cur = queue.front();
+//        queue.pop();
+//        std::invoke(func, cur);
+//
+//        if(cur->children){
+//            for(auto& node : *cur->children){
+//                queue.push(&node);
+//            }
+//        }
+//    }
+//}
+template<typename node,typename Functor>
 void bfs_order(node &top_node, Functor func) {
     std::queue<node*> queue;
 
@@ -53,8 +54,8 @@ void bfs_order(node &top_node, Functor func) {
         std::invoke(func, cur);
 
         if(cur->children){
-            for(auto& node : *cur->children){
-                queue.push(&node);
+            for(auto& cur_node : *cur->children){
+                queue.push(&cur_node);
             }
         }
     }
