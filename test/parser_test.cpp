@@ -95,30 +95,3 @@ TEST_CASE("Parser tree_build", "[Parser]"){
     }
 }
 
-//TEST_CASE("Parser register assignments", "[Parser]"){
-//    wam::executor exe;
-//    node top_node = wam::build_tree("p(Z,h(Z,W),f(W))");
-//    wam::assign_registers(exe.registers, exe.functors, top_node);
-//
-//    std::vector<wam::regist>& regs = exe.registers;
-//    REQUIRE(regs.size()== 5);
-//    REQUIRE(regs[0].type == wam::heap_tag::FUN);
-//    REQUIRE(exe.functors[regs[0].index].name == "p");
-//    REQUIRE(exe.functors[regs[0].index].arity == 3);
-//
-//    REQUIRE(regs[1].type == wam::heap_tag::REF);
-//    REQUIRE(regs[1].index == 1);
-//
-//    REQUIRE(regs[2].type == wam::heap_tag::FUN);
-//    REQUIRE(exe.functors[regs[2].index].name == "h");
-//    REQUIRE(exe.functors[regs[2].index].arity == 2);
-//
-//    REQUIRE(regs[3].type == wam::heap_tag::FUN);
-//    REQUIRE(exe.functors[regs[3].index].name == "f");
-//    REQUIRE(exe.functors[regs[3].index].arity == 1);
-//
-//    REQUIRE(regs[4].type == wam::heap_tag::REF);
-//    REQUIRE(regs[4].index == 4);
-//}
-
-//

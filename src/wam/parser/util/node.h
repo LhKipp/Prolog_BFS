@@ -20,11 +20,12 @@ struct node {
     //functor exclusive field
     std::unique_ptr<std::vector<node>> children;
 
-//    //Variable exclusive field (If a variable has been declared before, first declaration will point to the register
-//    node* first_declaration;
-
     //
     size_t regist;
+
+    inline bool is_constant()const{
+        return type == STORED_OBJECT_FLAG::CONSTANT;
+    }
 
     explicit node(const STORED_OBJECT_FLAG type) : node(type, "") {};
 

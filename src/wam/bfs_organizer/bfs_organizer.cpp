@@ -18,7 +18,7 @@ std::tuple<std::vector<wam::var_substitution>, bool> wam::bfs_organizer::get_ans
     while(!executors.empty()){
         executor& next_exec = executors.front();
         executors.pop();
-        for(auto& instruction : next_exec.cur_prog_code.instructions){
+        for(auto& instruction : next_exec.cur_prog_code->instructions){
             instruction(next_exec);
             //if the executor fails we stop executing
             if(next_exec.fail){
@@ -64,8 +64,9 @@ void wam::bfs_organizer::load_query(const std::string &query_line) {
 
     auto prog_functors = program_code.equal_range(query.term_functor_name);
     for_each(prog_functors.first, prog_functors.second,
-             [&](const auto &entry) {
-                 init_executor.cur_prog_code = entry.second;
+             [&](auto &entry) {
+                 init_executor.cur_prog_code = &entry.second;
+                 init_executor.registers.resize(entry.second.expected_register_count.reg_count);
                  executors.push(init_executor);
              });
 }

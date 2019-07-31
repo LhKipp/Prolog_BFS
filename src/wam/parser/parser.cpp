@@ -152,6 +152,9 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term) {
                 std::bind(wam::put_structure, _1, functor_view, node->regist));
         seen_registers[node->regist] = true;
 
+        if(node->is_constant()){//No need to process any children
+            return;
+        }
         for (auto &childs : *node->children) {
             if (seen_registers[childs.regist]) {
                 functions.emplace_back(std::bind(wam::set_value, _1, childs.regist));
@@ -181,7 +184,7 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term) {
                 std::bind(wam::get_structure, _1, functor_view, node->regist));
         seen_registers[node->regist] = true;
 
-        if (!node->children) {//If node is a constant
+        if (node->is_constant()) {//no need to process children if node is constant
             return;
         }
         //If node is functor

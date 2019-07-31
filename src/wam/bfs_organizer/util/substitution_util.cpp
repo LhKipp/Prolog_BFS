@@ -26,6 +26,12 @@ std::string string_representation_of(const wam::executor& executor, size_t index
 
     //At this point the register will be an FUN cell
     const functor_view& functor = executor.functor_of(wam::FUN_index{index});
+
+    //If the functor is a constant, we return the name
+    if(functor.arity == 0 ){
+        return functor.name;
+    }
+
     std::string result = functor.name + '(';
     //-1 for correct formatting of the ,
     for(int i= 1; i <= functor.arity -1; ++i){
@@ -41,20 +47,7 @@ wam::substitution_for(const wam::var_reg_substitution &var_reg_sub, const wam::e
 
     result.substitute = string_representation_of(executor, var_reg_sub.register_index);
 
-    regist reg = executor.heap[var_reg_sub.register_index];
-
-    //If reg is Ref we try to dereference it
-    if(reg.is_REF()){
-        reg = executor.heap[wam::deref(executor.heap, reg)];
-    }
-
-    //If reg is still Ref it is a unbound Variable
-    if(reg.is_REF()){
-        result.substitute = result.var_name;
-    }else if (reg.is_FUN()){
-        //If reg is Fun we need to copy the whole! functor
-
-    }
+    return result;
 }
 
 wam::var_substitutions

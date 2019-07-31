@@ -71,7 +71,7 @@ namespace wam {
         //Pointer to global functor_to_index map
         std::unordered_map<functor_view, size_t>* functor_view_regs;
 
-        wam::term_code cur_prog_code;
+        wam::term_code* cur_prog_code;
     };
 }
 
