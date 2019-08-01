@@ -271,9 +271,10 @@ std::tuple<wam::term_code, std::vector<wam::var_reg_substitution>> wam::parse_qu
     node& outer_functor = top_node.children->at(0);
     wam::helper::reg_func_counts counts = assign_registers(outer_functor);
 
+    std::vector<const node *> flattened_form = flatten_query(outer_functor);
+
     std::vector<var_reg_substitution> substitutions = find_substitutions(outer_functor);
 
-    std::vector<const node *> flattened_form = flatten_query(outer_functor);
 
     return std::make_tuple(wam::term_code{counts,
                                           outer_functor.to_functor_view(),
@@ -314,7 +315,12 @@ std::vector<wam::var_reg_substitution> wam::find_substitutions(const node &top_n
 std::vector<const node *> wam::flatten_query(const node &outer_functor) {
     std::vector<const node*> flattened_term = flatten(outer_functor);
 
+    /*
+     * If the tree would be traversed in postorder with the arguments as roots (skip_root = true) these
+     * functions would be unnecessary
+     */
     std::rotate(flattened_term.begin(), flattened_term.begin() + outer_functor.children->size(), flattened_term.end());
+    std::reverse(flattened_term.begin(), flattened_term.end() - outer_functor.children->size());
     return flattened_term;
 }
 

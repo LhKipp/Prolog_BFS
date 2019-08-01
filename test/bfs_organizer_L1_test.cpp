@@ -100,4 +100,49 @@ TEST_CASE("BFS_Organizer Tests", "[BFS_Organizer]") {
             REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
         }
     }
+    SECTION("Query: r(f(f(f(X))),h(f(f(f(f(Z)))),b)) : Program: ") {
+        program_code.emplace_back("r(f(f(f(a))),h(f(f(f(f(b)))),b))");
+
+        setup_org("r(f(f(f(X))),h(f(f(f(f(Z)))),b))");
+
+        bool found_answer;
+        var_substitutions substitutions;
+        std::tie(substitutions, found_answer) = org.get_answer();
+        REQUIRE(found_answer);
+        map<std::string, std::string> actual_substs;
+        actual_substs["X"] = "a";
+        actual_substs["Z"] = "b";
+        REQUIRE(found_answer);
+        for (auto &subst : substitutions) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+        }
+    }
+    SECTION("Query: r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),b)) : Program: ") {
+        program_code.emplace_back("r(f(h(a,f(f(b)))),h(f(f(f(f(b)))),b))");
+
+        setup_org("r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),Y))");
+
+        bool found_answer;
+        var_substitutions substitutions;
+        std::tie(substitutions, found_answer) = org.get_answer();
+        REQUIRE(found_answer);
+        map<std::string, std::string> actual_substs;
+        actual_substs["X"] = "a";
+        actual_substs["Z"] = "b";
+        actual_substs["Y"] = "b";
+        REQUIRE(found_answer);
+        for (auto &subst : substitutions) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+        }
+    }
+    SECTION("Query: r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),b)) : Program: ") {
+        program_code.emplace_back("r(f(h(a,f(f(b)))),h(f(f(f(f(b)))),b))");
+
+        setup_org("r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),X))");
+
+        bool found_answer;
+        var_substitutions substitutions;
+        std::tie(substitutions, found_answer) = org.get_answer();
+        REQUIRE(!found_answer);
+    }
 }
