@@ -7,7 +7,7 @@
 #include <vector>
 
 /*
- * Assumes init_regist is a REF regist
+ * Assumes init_regist is a REF x_reg
  * Returns a index to a register the init_regist points to.
  * The heap register will be either FUN or REF
  */

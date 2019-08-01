@@ -4,8 +4,10 @@
 #include "../catch.hpp"
 
 #include "../src/wam/bfs_organizer/bfs_organizer.h"
+#include "../src/wam/data/var_substitution.h"
 #include <map>
 #include <string>
+#include<iostream>
 
 using namespace wam;
 using namespace std;
@@ -15,7 +17,6 @@ TEST_CASE("BFS_Organizer Tests", "[BFS_Organizer]") {
     bfs_organizer org;
 
     auto setup_org = [&](string query) {
-
         org.load_program(program_code);
         org.load_query(query);
     };
@@ -53,7 +54,7 @@ TEST_CASE("BFS_Organizer Tests", "[BFS_Organizer]") {
     }
     SECTION("Query: r(x,h(Z,W),f(g)) : Program: ") {
         program_code.emplace_back("r(Z,h(Z,f(a)),f(Z)");
-
+        //Z/x, W/f(a) , Z/g
         setup_org("r(x,h(Z,W),f(g))");
 
         bool found_answer;
@@ -80,5 +81,23 @@ TEST_CASE("BFS_Organizer Tests", "[BFS_Organizer]") {
         var_substitutions substitutions;
         std::tie(substitutions, found_answer) = org.get_answer();
         REQUIRE(!found_answer);
+    }
+    SECTION("Query: r(f(X),h(a,b),x) : Program: ") {
+        program_code.emplace_back("r(f(a),h(X,Z),J)");
+
+        setup_org("r(f(X),h(a,b),x)");
+
+        bool found_answer;
+        var_substitutions substitutions;
+        std::tie(substitutions, found_answer) = org.get_answer();
+        REQUIRE(found_answer);
+        map<std::string, std::string> actual_substs;
+        actual_substs["X"] = "a";
+        actual_substs["Z"] = "b";
+        actual_substs["J"] = "x";
+        REQUIRE(found_answer);
+        for (auto &subst : substitutions) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+        }
     }
 }

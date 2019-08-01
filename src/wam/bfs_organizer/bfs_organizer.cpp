@@ -4,6 +4,8 @@
 
 #include "bfs_organizer.h"
 #include "util/substitution_util.h"
+#include "../parser/parser.h"
+
 
 void wam::bfs_organizer::load_program(const std::vector<std::string> &lines) {
     program_code.reserve(lines.size());
@@ -16,8 +18,10 @@ void wam::bfs_organizer::load_program(const std::vector<std::string> &lines) {
 
 std::tuple<std::vector<wam::var_substitution>, bool> wam::bfs_organizer::get_answer() {
     while(!executors.empty()){
-        executor& next_exec = executors.front();
+        executor next_exec = executors.front();
         executors.pop();
+
+        next_exec.registers.resize(next_exec.cur_prog_code->expected_register_count.reg_count);
         for(auto& instruction : next_exec.cur_prog_code->instructions){
             instruction(next_exec);
             //if the executor fails we stop executing
@@ -50,24 +54,37 @@ void wam::bfs_organizer::load_query(const std::string &query_line) {
 
     //create one initialiser executor
     executor init_executor;
-    init_executor.functors = &functors;
-    init_executor.functor_view_regs = &functor_index_map;
+    init_executor.organizer = this;
     init_executor.registers.resize(query.expected_register_count.reg_count);
     init_executor.heap.reserve(query.expected_register_count.reg_count * 2);
     for (auto &instruction : query.instructions) {
         instruction(init_executor);
     }
+    if(init_executor.fail){//If the call instruction failed --> return
+        return;
+    }else{
+        executors.push(init_executor);
+    }
+
     //Now we let the substitutions point into the heap
     for (auto &substitution : substitutions) {
         substitution.register_index = init_executor.registers[substitution.register_index].index;
     }
 
-    auto prog_functors = program_code.equal_range(query.term_functor_name);
-    for_each(prog_functors.first, prog_functors.second,
-             [&](auto &entry) {
-                 init_executor.cur_prog_code = &entry.second;
-                 init_executor.registers.resize(entry.second.expected_register_count.reg_count);
-                 executors.push(init_executor);
-             });
+}
+
+bool wam::bfs_organizer::has_code_for(const functor_view& functor)const {
+    return program_code.find(functor) != program_code.end();
+}
+
+std::vector<wam::term_code *>wam::bfs_organizer::get_code_for(const functor_view &functor) {
+    auto programs_range = program_code.equal_range(functor);
+
+    std::vector<wam::term_code*> result;
+    std::for_each(programs_range.first, programs_range.second,
+            [&](auto &entry){
+        result.push_back(&entry.second);
+    });
+    return result;
 }
 

@@ -23,16 +23,18 @@ namespace wam {
     term_code parse_program_term(const std::string &line);
 
 
-    helper::reg_func_counts assign_registers(node &top_node);
+    helper::reg_func_counts assign_registers(node &functor);
     node build_tree(const std::string &line);
-    std::vector<const node *> flatten( const node &top_node);
+    std::vector<const node *> flatten(const node &outer_functor);
 
-    std::vector<std::function<void(executor & )>> to_query_instructions(const std::vector<const node *>& flattened_term);
+    std::vector<std::function<void(executor & )>> to_query_instructions(const std::vector<const node *>& flattened_term, const node& outer_functor);
     std::vector<std::function<void(executor & )>> to_program_instructions(const std::vector<const node *>& flattened_term);
 
     functor_view make_functor_view(const node &node);
 
     std::vector<var_reg_substitution> find_substitutions(const node &top_node);
+
+    std::vector<const node *> flatten_query(const node &node);
 }
 
 
