@@ -50,7 +50,10 @@ namespace wam {
 
         bool fail = false;
         bool finished = false;
+
         wam::term_code *cur_prog_code;//P
+        wam::term_code * continuation_point; //CP
+        std::forward_list<term_code*> instructions;
 
         inline bfs_organizer *get_organizer() const {
             return organizer;
@@ -70,6 +73,9 @@ namespace wam {
 
         size_t index_of(const functor_view &functor);
 
+        inline void push_back_FUN(const functor_view & functor){
+            heap.emplace_back(heap_tag::FUN, index_of(functor));
+        }
         inline void push_back_unbound_REF() {
             heap.emplace_back(heap_tag::REF, heap.size() );
         }

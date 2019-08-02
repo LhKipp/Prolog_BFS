@@ -11,6 +11,11 @@
 #include <functional>
 
 template<typename node, typename Functor>
+void bfs_order(node& top_node, Functor func){
+    bfs_order(top_node, false, func);
+}
+
+template<typename node, typename Functor>
 void bfs_order(node &top_node, bool skip_top_node, Functor func) {
     std::queue<node *> queue;
 

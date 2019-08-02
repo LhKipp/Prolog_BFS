@@ -19,8 +19,8 @@ namespace wam {
     /*
      * Parses a query term e.G. p(Z,h(Z,W),f(W))
      */
-    std::tuple<term_code, std::vector<var_reg_substitution>> parse_query(const std::string &line);
-    term_code parse_program_term(const std::string &line);
+    std::tuple<std::vector<term_code>, std::vector<var_reg_substitution>> parse_query(const std::string &line);
+    std::vector<term_code> parse_program_term(const std::string &line);
 
 
     helper::reg_func_counts assign_registers(node &functor);
@@ -35,6 +35,9 @@ namespace wam {
     std::vector<var_reg_substitution> find_substitutions(const node &top_node);
 
     std::vector<const node *> flatten_query(const node &node);
+
+    size_t assign_permanent_registers(const node &program_node, bool program_term);
+
 }
 
 

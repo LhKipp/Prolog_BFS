@@ -10,20 +10,55 @@
 #include <vector>
 #include <memory>
 #include <variant>
+#include <cassert>
 #include "../../../prolog/data/data_types/data_enums.h"
 #include "../../data/regist.h"
 #include "../../data/functor_view.h"
 
 struct node {
-    STORED_OBJECT_FLAG type;
+private:
+    size_t x_reg = std::numeric_limits<size_t>::max();
+    size_t a_reg = std::numeric_limits<size_t>::max();
+    size_t y_reg = std::numeric_limits<size_t>::max();
+    STORED_OBJECT_FLAG type = STORED_OBJECT_FLAG ::NONE;
+
+public:
     std::string name;
 
     //functor exclusive field
     std::unique_ptr<std::vector<node>> children;
 
-    //
-    size_t x_reg = std::numeric_limits<size_t>::max();
-    size_t a_reg = std::numeric_limits<size_t>::max();
+    inline bool is_argument() const {
+        return a_reg != std::numeric_limits<size_t>::max();
+    }
+    inline size_t get_a_reg() const{
+        assert(is_argument());
+        return a_reg;
+    }
+    inline void set_a_reg(size_t index){
+        a_reg= index;
+    }
+
+    inline size_t get_x_reg() const {
+        assert(x_reg != std::numeric_limits<size_t>::max());
+        return x_reg;
+    }
+
+    inline void set_x_reg(size_t index) {
+        x_reg = index;
+    }
+
+    inline bool is_permanent() const{
+        return y_reg != std::numeric_limits<size_t>::max();
+    }
+    inline size_t get_y_reg() const {
+        assert(is_permanent() && y_reg != std::numeric_limits<size_t>::max());
+        return y_reg;
+    }
+
+    inline void set_y_reg(size_t index) {
+        y_reg = index;
+    }
 
     inline bool is_constant() const {
         return type == STORED_OBJECT_FLAG::CONSTANT;
@@ -36,16 +71,15 @@ struct node {
     inline bool is_functor() const {
         return type == STORED_OBJECT_FLAG::FUNCTOR;
     }
-
-    inline bool has_a_reg() const {
-        return a_reg != std::numeric_limits<size_t>::max();
+    inline bool is_none()const{
+        return type == STORED_OBJECT_FLAG ::NONE;
     }
 
-    inline functor_view to_functor_view()const{
-        if(is_constant()){
+    inline functor_view to_functor_view() const {
+        if (is_constant()) {
             return functor_view{name, 0};
-        }else{
-            return functor_view{name, (int)children->size()};
+        } else {
+            return functor_view{name, (int) children->size()};
         }
     }
 
@@ -64,7 +98,7 @@ struct node {
 
     node(node &&other) = default;
 
-    node(const node &other) : type{other.type}, name{other.name}, a_reg{other.a_reg}, x_reg{other.x_reg} {
+    node(const node &other) : type{other.type}, name{other.name}, a_reg{other.a_reg}, x_reg{other.x_reg}{
         if (other.children) {
             children = std::make_unique<std::vector<node>>(*other.children);
         }
@@ -75,7 +109,6 @@ struct node {
         this->type = other.type;
         this->x_reg = other.x_reg;
         this->a_reg = other.a_reg;
-//        this->first_declaration = other.first_declaration;
         if (other.children) {
             children = std::make_unique<std::vector<node>>(*other.children);
         }

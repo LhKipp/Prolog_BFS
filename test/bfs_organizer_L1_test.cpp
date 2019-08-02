@@ -138,7 +138,7 @@ TEST_CASE("BFS_Organizer Tests", "[BFS_Organizer]") {
     SECTION("Query: r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),b)) : Program: ") {
         program_code.emplace_back("r(f(h(a,f(f(b)))),h(f(f(f(f(b)))),b))");
 
-        setup_org("r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),X))");
+        setup_org("r(f(h(X,f(fkZ)))),h(f(f(f(f(Z)))),X))");
 
         bool found_answer;
         var_substitutions substitutions;

@@ -21,7 +21,7 @@ std::tuple<std::vector<wam::var_substitution>, bool> wam::bfs_organizer::get_ans
         executor next_exec = executors.front();
         executors.pop();
 
-        next_exec.registers.resize(next_exec.cur_prog_code->expected_register_count.reg_count);
+        next_exec.registers.resize(next_exec.cur_prog_code->expected_register_count.x_a_regs_counts);
         for(auto& instruction : next_exec.cur_prog_code->instructions){
             instruction(next_exec);
             //if the executor fails we stop executing
@@ -45,7 +45,8 @@ std::tuple<std::vector<wam::var_substitution>, bool> wam::bfs_organizer::get_ans
 void wam::bfs_organizer::load_query(const std::string &query_line) {
     //parse the query and save the results
     auto result = parse_query(query_line);
-    auto query = std::get<0>(result);
+    auto q = std::get<0>(result);
+    auto query = q[0];
     //Right now the substitutions point to some x_regs
     substitutions = std::get<1>(result);
     //Increase the size of the functor vector
@@ -55,8 +56,8 @@ void wam::bfs_organizer::load_query(const std::string &query_line) {
     //create one initialiser executor
     executor init_executor;
     init_executor.organizer = this;
-    init_executor.registers.resize(query.expected_register_count.reg_count);
-    init_executor.heap.reserve(query.expected_register_count.reg_count * 2);
+    init_executor.registers.resize(query.expected_register_count.x_a_regs_counts);
+    init_executor.heap.reserve(query.expected_register_count.x_a_regs_counts * 2);
     for (auto &instruction : query.instructions) {
         instruction(init_executor);
     }

@@ -11,6 +11,7 @@ namespace wam {
     void put_structure(executor& executor, const functor_view& functor, size_t x_reg);
 
     void set_variable(executor& executor , size_t x_reg);
+    void set_permanent_variable(executor& executor , size_t y_reg);
 
     void set_value(executor& executor,size_t x_reg);
 
