@@ -14,26 +14,31 @@
 #include "../data/term_code.h"
 #include "../data/var_reg_substitution.h"
 #include "../executor/executor.h"
+#include "../instructions/instructions.h"
 
 namespace wam {
 
     using var_substitutions = std::vector<wam::var_substitution>;
-
     class bfs_organizer {
         friend struct executor;
+        friend void wam::call(wam::executor &executor, const functor_view &functor);
     private:
+        std::queue<executor> executors;
         //Global storage for all executors
         std::unordered_map<functor_view, size_t> functor_index_map;
         std::vector<functor_view> functors;
 
-        std::unordered_multimap<functor_view, term_code> program_code;
+        std::unordered_multimap<functor_view, std::vector<term_code>> program_code;
+        std::vector<term_code> current_query_code;
 
         std::vector<var_reg_substitution> substitutions;
+        std::vector<var_reg_substitution>::iterator tmp_sub_end;
+        std::vector<var_reg_substitution>::iterator cur_atom_begin;
+        void find_temporary_substitutions(executor&, size_t atom_number);
+        void find_permanent_substitutions(executor &executor);
 
-        std::queue<executor> executors;
 
     public:
-        std::vector<term_code*> get_code_for(const functor_view& functor);
 
         void load_program(const std::vector<std::string> &lines);
 
@@ -44,9 +49,10 @@ namespace wam {
          * Returns a bool indicating whether an answer has been found (true = has answer) and a var_substitution.
          * Note: This may run into an endless loop
          */
-        std::tuple<var_substitutions, bool> get_answer();
+        std::optional<std::vector<wam::var_substitution>> get_answer();
 
         bool has_code_for(const functor_view &functor) const;
+
     };
 
 

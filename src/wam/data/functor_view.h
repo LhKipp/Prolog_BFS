@@ -7,23 +7,26 @@
 
 #include <string>
 
-struct functor_view{
-    std::string name;
-    int arity;
+namespace wam {
+    struct functor_view {
+        std::string name;
+        int arity;
 
-    functor_view()= default;
-    functor_view(std::string name, int arity): name{name} , arity{arity}{}
+        functor_view() = default;
 
-};
+        functor_view(std::string name, int arity) : name{name}, arity{arity} {}
 
-inline bool operator==(const functor_view& a,const functor_view& b){
-    return a.arity == b.arity && a.name == b.name;
+    };
+
+    inline bool operator==(const functor_view &a, const functor_view &b) {
+        return a.arity == b.arity && a.name == b.name;
+    }
+
 }
-
 namespace std{
     template<>
-    struct hash<functor_view>{
-        std::size_t operator()(const functor_view& elem)const{
+    struct hash<wam::functor_view>{
+        std::size_t operator()(const wam::functor_view& elem)const{
            return (std::hash<std::string>()(elem.name)) ^ (std::hash<int>()(elem.arity) << 1);
         }
     };

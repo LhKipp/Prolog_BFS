@@ -160,10 +160,10 @@ std::vector<const node *> wam::flatten(const node &outer_functor) {
 }
 
 
-std::vector<std::function<void(wam::executor &)>>
-wam::to_query_instructions(const std::vector<const node *> &flattened_term, const node &outer_functor) {
+template<typename OutputIter>
+void
+wam::to_query_instructions(const std::vector<const node *> &flattened_term, const node &outer_functor, OutputIter out) {
     using namespace std::placeholders;
-    std::vector<std::function<void(wam::executor &)>> functions;
 
     //TODO isnt a set enough?
     std::unordered_map<size_t, bool> seen_registers;
@@ -171,25 +171,29 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term, cons
     std::for_each(flattened_term.begin(), flattened_term.end(), [&](const node *node) {
         if (node->is_variable()) {//Every node in flattened term, beeing an variable is an argument!
             if (seen_registers[node->get_x_reg()]) {//If the var has been seen
-                if(node->is_permanent()){
-                    functions.emplace_back(std::bind(wam::put_permanent_value, _1, node->get_y_reg(), node->get_a_reg()));
-                }else{
-                    functions.emplace_back(std::bind(wam::put_value, _1, node->get_x_reg(), node->get_a_reg()));
+                if (node->is_permanent()) {
+                    *out = std::bind(wam::put_permanent_value, _1, node->get_y_reg(), node->get_a_reg());
+                    ++out;
+                } else {
+                    *out = std::bind(wam::put_value, _1, node->get_x_reg(), node->get_a_reg());
+                    ++out;
                 }
             } else { //If the var hasn't been seen
                 seen_registers[node->get_x_reg()] = true;
-                if(node->is_permanent()){
-                    functions.emplace_back(std::bind(wam::put_permanent_variable, _1, node->get_y_reg(), node->get_a_reg()));
-                }else{
-                    functions.emplace_back(std::bind(wam::put_variable, _1, node->get_x_reg(), node->get_a_reg()));
+                if (node->is_permanent()) {
+                    *out = std::bind(wam::put_permanent_variable, _1, node->get_y_reg(), node->get_a_reg());
+                    ++out;
+                } else {
+                    *out = std::bind(wam::put_variable, _1, node->get_x_reg(), node->get_a_reg());
+                    ++out;
                 }
             }
             return;
         }
         functor_view functor_view = node->to_functor_view();
 
-        functions.emplace_back(
-                std::bind(wam::put_structure, _1, functor_view, node->get_x_reg()));
+        *out = std::bind(wam::put_structure, _1, functor_view, node->get_x_reg());
+        ++out;
         seen_registers[node->get_x_reg()] = true;
 
         if (node->is_constant()) {//No need to process any children
@@ -197,32 +201,33 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term, cons
         }
         for (auto &childs : *node->children) {
             if (seen_registers[childs.get_x_reg()]) {
-                if(node->is_permanent()){//Node
-                    functions.emplace_back(std::bind(wam::set_permanent_value, _1, childs.get_y_reg()));
-                }else{
-                    functions.emplace_back(std::bind(wam::set_value, _1, childs.get_x_reg()));
+                if (node->is_permanent()) {//Node
+                    *out = std::bind(wam::set_permanent_value, _1, childs.get_y_reg());
+                    ++out;
+                } else {
+                    *out = std::bind(wam::set_value, _1, childs.get_x_reg());
+                    ++out;
                 }
             } else {//if not encountered yet
-                if(node->is_permanent()){
-                    functions.emplace_back(std::bind(wam::set_permanent_variable, _1, childs.get_y_reg()));
-                }else{
-                    functions.emplace_back(std::bind(wam::set_variable, _1, childs.get_x_reg()));
+                if (node->is_permanent()) {
+                    *out = std::bind(wam::set_permanent_variable, _1, childs.get_y_reg());
+                    ++out;
+                } else {
+                    *out = std::bind(wam::set_variable, _1, childs.get_x_reg());
+                    ++out;
                 }
                 seen_registers[childs.get_x_reg()] = true;
             }
         }
     });
 
-    functions.emplace_back(std::bind(wam::call, _1, outer_functor.to_functor_view()));
-
-    return functions;
+    *out = std::bind(wam::call, _1, outer_functor.to_functor_view());
+    ++out;
 }
 
-std::vector<std::function<void(wam::executor &)>>
-wam::to_program_instructions(const std::vector<const node *> &flattened_term) {
+template<typename OutputIter>
+void wam::to_program_instructions(const std::vector<const node *> &flattened_term, OutputIter out) {
     using namespace std::placeholders;
-    std::vector<std::function<void(wam::executor &)>> functions;
-
     //TODO isnt a set enough?
     std::unordered_map<size_t, bool> seen_registers;
 
@@ -231,28 +236,32 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term) {
 
         if (node->is_variable()) {//If the node is an variable argument
             if (seen_registers[node->get_x_reg()]) {//If the var has been seen
-                if(node->is_permanent()){
-                    functions.emplace_back(std::bind(wam::get_permanent_value, _1, node->get_y_reg(), node->get_a_reg()));
-                }else{
-                    functions.emplace_back(std::bind(wam::get_value, _1, node->get_x_reg(), node->get_a_reg()));
+                if (node->is_permanent()) {
+                    *out = std::bind(wam::get_permanent_value, _1, node->get_y_reg(), node->get_a_reg());
+                    ++out;
+                } else {
+                    *out = std::bind(wam::get_value, _1, node->get_x_reg(), node->get_a_reg());
+                    ++out;
                 }
             } else { //If the var hasn't been seen
                 //TODO Test if it works without
 //                seen_registers[node->get_a_reg()] = true;
                 seen_registers[node->get_x_reg()] = true;
-                if(node->is_permanent()){
-                    functions.emplace_back(std::bind(wam::get_permanent_variable, _1, node->get_y_reg(), node->get_a_reg()));
-                }else{
-                    functions.emplace_back(std::bind(wam::get_variable, _1, node->get_x_reg(), node->get_a_reg()));
+                if (node->is_permanent()) {
+                    *out = std::bind(wam::get_permanent_variable, _1, node->get_y_reg(), node->get_a_reg());
+                    ++out;
+                } else {
+                    *out = std::bind(wam::get_variable, _1, node->get_x_reg(), node->get_a_reg());
+                    ++out;
                 }
             }
             //It is a var, no need to process children
             return;
         }
 
-        functor_view functor_view = node->to_functor_view();
-        functions.emplace_back(
-                std::bind(wam::get_structure, _1, functor_view, node->get_x_reg()));
+        const functor_view functor_view = node->to_functor_view();
+        *out = std::bind(wam::get_structure, _1, functor_view, node->get_x_reg());
+        ++out;
         seen_registers[node->get_x_reg()] = true;
 
         if (node->is_constant()) {//no need to process children if node is constant
@@ -261,106 +270,146 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term) {
         //If node is functor
         for (auto &childs : *node->children) {
             if (seen_registers[childs.get_x_reg()]) {
-                if(childs.is_permanent()){
-                    functions.emplace_back(std::bind(wam::unify_permanent_value, _1, childs.get_y_reg()));
-                }else{
-                    functions.emplace_back(std::bind(wam::unify_value, _1, childs.get_x_reg()));
+                if (childs.is_permanent()) {
+                    *out = std::bind(wam::unify_permanent_value, _1, childs.get_y_reg());
+                    ++out;
+                } else {
+                    *out = std::bind(wam::unify_value, _1, childs.get_x_reg());
+                    ++out;
                 }
             } else {//if not encountered yet
-                if(childs.is_permanent()){
-                    functions.emplace_back(std::bind(wam::unify_permanent_variable, _1, childs.get_y_reg()));
-                }else{
-                    functions.emplace_back(std::bind(wam::unify_variable, _1, childs.get_x_reg()));
+                if (childs.is_permanent()) {
+                    *out = std::bind(wam::unify_permanent_variable, _1, childs.get_y_reg());
+                    ++out;
+                } else {
+                    *out = std::bind(wam::unify_variable, _1, childs.get_x_reg());
+                    ++out;
                 }
                 seen_registers[childs.get_x_reg()] = true;
             }
         }
     });
 
-    functions.emplace_back(std::bind(wam::proceed, _1));
-
-    return functions;
+    *out = std::bind(wam::proceed, _1);
+    ++out;
 }
 
 
 std::tuple<std::vector<wam::term_code>, std::vector<wam::var_reg_substitution>>
 wam::parse_query(const std::string &line) {
+    using namespace std::placeholders;
+
     //todo add some logic to remove ?- and . ???
     node program_node = wam::build_tree(line);
+    auto &atoms = *program_node.children;
 
-    //The instructions for each head.
+    const auto permanent_count = assign_permanent_registers(program_node, false);
+
     std::vector<term_code> instructions;
-    const size_t permanent_count = assign_permanent_registers(program_node, false);
+    std::vector<var_reg_substitution> substitutions;
 
-    for (auto &outer_functor : *program_node.children) {
-        wam::helper::reg_func_counts counts = assign_registers(outer_functor);
-        counts.y_regs_counts = permanent_count;
-
-        std::vector<const node *> flattened_form = flatten_query(outer_functor);
-
-        instructions.emplace_back(counts,
-                                  outer_functor.to_functor_view(),
-                                  to_query_instructions(flattened_form, outer_functor));
+    //Generate the Instructions
+    //Instruction container
+    std::vector<std::function<void(wam::executor &)>> functions;
+    //The first iteration has a allocate instruction, if there are permanent registers
+    if (permanent_count.y_regs_counts) {
+        functions.emplace_back(std::bind(wam::allocate, _1, permanent_count.y_regs_counts));
     }
+    for (int atom_number = 0; atom_number < atoms.size(); ++atom_number) {
+        auto &atom = atoms[atom_number];
+        const wam::helper::reg_func_counts counts = assign_registers(atom) + permanent_count;
 
-    std::vector<var_reg_substitution> substitutions = find_substitutions(program_node);
+        const std::vector<const node *> flattened_form = flatten_query(atom);
+        find_substitutions(atom, atom_number, std::back_inserter(substitutions));
+
+        to_query_instructions(flattened_form, atom, std::back_inserter(functions));
+        instructions.emplace_back(counts,
+                                  functions,
+                                  atom_number);
+
+        //Clear the functions generated so far
+        functions.clear();
+    }
+    //No deallocate instruction so that bfs::find_permanent_variables wont crash
+
+    //Permanent variables will occure more than once. Only one instance is needed
+    //So we do: partition --> sort the y_subs --> unique --> erase
+    const auto middle = std::stable_partition(substitutions.begin(), substitutions.end(),
+                                              [](const auto &sub) { return !sub.is_permanent_register; });
+    std::sort(middle, substitutions.end(),
+              [](const auto &sub_a, const auto &sub_b) { return sub_a.var_name < sub_b.var_name; });
+    const auto last_perm = std::unique(middle, substitutions.end());
+    substitutions.erase(last_perm, substitutions.end());
+    substitutions.shrink_to_fit();
+    //Iterator validity is to hard to keep here.
+    //I dont advocate for returning the partition point in the tuple
+
     return std::make_tuple(instructions, substitutions);
-
 }
 
-std::vector<wam::term_code> wam::parse_program_term(const std::string &line) {
+std::pair<wam::functor_view, std::vector<wam::term_code>> wam::parse_program_term(const std::string &line) {
+    using namespace std::placeholders;
     //todo add some logic to remove . ???
     node program_node = build_tree(line);
+    std::vector<node> &atoms = *program_node.children;
 
-    const size_t permanent_count = assign_permanent_registers(program_node, true);
-    std::vector<node> & atoms = *program_node.children;
+    const auto permanent_count = assign_permanent_registers(program_node, true);
 
-    std::vector<term_code> instructions;
+
+    //Generate the term_codes
+    std::vector<term_code> term_codes;
+    std::vector<std::function<void(wam::executor &)>> instructions;
 
     //Treat the head as an fact
-    node &outer_functor = atoms.at(0);
-    wam::helper::reg_func_counts counts = assign_registers(outer_functor);
-    counts.y_regs_counts= permanent_count;
-    std::vector<const node *> flattened_form = flatten(outer_functor);
-    instructions.emplace_back(counts,
-                                outer_functor.to_functor_view(),
-                                to_program_instructions(flattened_form));
+    node &head_atom = atoms.at(0);
+    const wam::helper::reg_func_counts counts = assign_registers(head_atom) + permanent_count;
+    const std::vector<const node *> flattened_form = flatten(head_atom);
+    //The head may have an allocate instruction
+    if (permanent_count.y_regs_counts) {
+        instructions.emplace_back(std::bind(wam::allocate, _1, permanent_count.y_regs_counts));
+    }
+    to_program_instructions(flattened_form, std::back_inserter(instructions));
+    //Build the head
+    term_codes.emplace_back(counts, instructions);
+    //Clear the generated instructions
+    instructions.clear();
 
-//    if(program_node.children->size() == 1){
-//        //it is a simple fact, translation is finished
-//        return instructions;
-//    }
-//    The term is a rule
-
-    for_each(std::next(atoms.begin()), atoms.end(),[&](node& atom){
-        wam::helper::reg_func_counts counts = assign_registers(atom);
-        std::vector<const node *> flattened_form = flatten(atom);
-        instructions.emplace_back(counts,
-                                outer_functor.to_functor_view(),
-                                to_program_instructions(flattened_form));
+    //Treat the body as queries
+    for_each(std::next(atoms.begin()), atoms.end(), [&](node &atom) {
+        wam::helper::reg_func_counts counts = assign_registers(atom) + permanent_count;
+        std::vector<const node *> flattened_form = flatten_query(atom);
+        to_query_instructions(flattened_form, atom, std::back_inserter(instructions));
+        term_codes.emplace_back(counts,
+                                instructions);
+        //Clear the generated instructions
+        instructions.clear();
     });
 
-    return instructions;
+    //All body atoms have been built append a optional deallocate instruction
+    if (permanent_count.y_regs_counts) {
+        term_codes.back().instructions.emplace_back(std::bind(wam::deallocate, _1));
+    }
+
+    return std::make_pair(head_atom.to_functor_view(), term_codes);
 }
 
 /*
  * Finds and lists the variable name to register substitutions
  */
-std::vector<wam::var_reg_substitution> wam::find_substitutions(const node &top_node) {
-    std::vector<wam::var_reg_substitution> result;
-
-    bfs_order(top_node, true, [&](const node *cur_node) {
+template<typename Output_Iter>
+void wam::find_substitutions(const node &atom, size_t atom_number, Output_Iter out) {
+    bfs_order(atom, true, [&](const node *cur_node) {
         if (cur_node->is_variable()) {
             //TODO is x_reg enough?
-            if(cur_node->is_permanent()){
-                result.emplace_back(cur_node->name, cur_node->get_y_reg(), true);
-            }else{
-                result.emplace_back(cur_node->name, cur_node->get_x_reg(), false);
+            if (cur_node->is_permanent()) {
+                *out = var_reg_substitution{cur_node->name, cur_node->get_y_reg(), atom_number, true};
+                ++out;
+            } else {
+                *out = var_reg_substitution{cur_node->name, cur_node->get_x_reg(), atom_number, false};
+                ++out;
             }
         }
     });
-
-    return result;
 }
 
 std::vector<const node *> wam::flatten_query(const node &outer_functor) {
@@ -384,10 +433,10 @@ struct var_information {
     std::vector<node *> nodes;
 };
 
-size_t wam::assign_permanent_registers(const node &program_node, bool program_term) {
+wam::helper::reg_func_counts wam::assign_permanent_registers(const node &program_node, bool program_term) {
     //If there is only 1 child or a program term with only head and one body, there is no work to be done
     if (program_node.children->size() <= 1 || (program_node.children->size() == 2 && program_term)) {
-        return 0;
+        return {};
     }
     //Contains a var and the specific information;
     std::unordered_map<std::string, var_information> seen_variables;
@@ -440,7 +489,7 @@ size_t wam::assign_permanent_registers(const node &program_node, bool program_te
         }
     }
 
-    return y_reg_index;
+    return wam::helper::reg_func_counts{0, 0, y_reg_index};
 }
 
 

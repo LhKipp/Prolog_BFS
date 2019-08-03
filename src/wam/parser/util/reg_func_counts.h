@@ -15,9 +15,19 @@ namespace wam::helper {
         //For non Head, non first atoms the size may be 0
         size_t y_regs_counts; //==needed y_regs
 
-        reg_func_counts() =default;
-        reg_func_counts(size_t regs, size_t funcs, size_t y_regs): x_a_regs_counts{regs}, func_count{funcs}, y_regs_counts{y_regs}{}
-        reg_func_counts(size_t regs, size_t funcs ): x_a_regs_counts{regs}, func_count{funcs}, y_regs_counts{0}{}
+        reg_func_counts() = default;
+
+        reg_func_counts(size_t regs, size_t funcs, size_t y_regs) : x_a_regs_counts{regs}, func_count{funcs},
+                                                                    y_regs_counts{y_regs} {}
+
+        reg_func_counts(size_t regs, size_t funcs) : x_a_regs_counts{regs}, func_count{funcs}, y_regs_counts{0} {}
+
+        reg_func_counts operator+(const reg_func_counts &other) const{
+            return {x_a_regs_counts + other.x_a_regs_counts,
+                    func_count + other.func_count,
+                    y_regs_counts + other.y_regs_counts
+            };
+        }
     };
 }
 

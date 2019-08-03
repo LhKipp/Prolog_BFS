@@ -5,17 +5,11 @@
 #ifndef PROLOG_BFS_SUBSTITUTION_UTIL_H
 #define PROLOG_BFS_SUBSTITUTION_UTIL_H
 
-#include "../../data/var_substitution.h"
-#include "../../data/var_reg_substitution.h"
 #include "../../executor/executor.h"
 
 namespace wam {
-    using var_substitutions = std::vector<var_substitution>;
-    using var_reg_substitutions = std::vector<var_reg_substitution>;
-
-    var_substitution substitution_for(const var_reg_substitution &var_reg_sub, const executor &executor);
-
-    var_substitutions substitutions_for(const var_reg_substitutions& substitutions, const executor &executor);
+    std::string
+    string_representation_of(const std::vector<wam::regist> &store, size_t index, const std::vector<functor_view> &functors);
 
 };
 #endif //PROLOG_BFS_SUBSTITUTION_UTIL_H

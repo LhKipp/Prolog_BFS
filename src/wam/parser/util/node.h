@@ -75,11 +75,11 @@ public:
         return type == STORED_OBJECT_FLAG ::NONE;
     }
 
-    inline functor_view to_functor_view() const {
+    inline wam::functor_view to_functor_view() const {
         if (is_constant()) {
-            return functor_view{name, 0};
+            return wam::functor_view{name, 0};
         } else {
-            return functor_view{name, (int) children->size()};
+            return wam::functor_view{name, (int) children->size()};
         }
     }
 

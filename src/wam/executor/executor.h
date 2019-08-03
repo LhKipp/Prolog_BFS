@@ -12,9 +12,13 @@
 #include "../data/var_reg_substitution.h"
 #include "../data/term_code.h"
 #include "../../util/named_type.h"
+#include "../data/var_substitution.h"
+#include "../data/environment.h"
 
 #include <vector>
+#include <stack>
 #include <unordered_map>
+#include <cassert>
 
 
 namespace wam {
@@ -49,11 +53,17 @@ namespace wam {
         size_t S;
 
         bool fail = false;
-        bool finished = false;
+        size_t solves_atom_number = 0;
 
-        wam::term_code *cur_prog_code;//P
-        wam::term_code * continuation_point; //CP
-        std::forward_list<term_code*> instructions;
+        std::stack<const term_code*> instructions;
+        std::stack<wam::environment> environments;
+
+        inline std::vector<wam::regist>& cur_permanent_registers(){
+            assert(!environments.empty());
+            return environments.top().permanent_registers;
+        }
+
+        std::vector<var_substitution> found_substitutions;
 
         inline bfs_organizer *get_organizer() const {
             return organizer;
@@ -71,7 +81,7 @@ namespace wam {
 
         const functor_view &functor_of(FUN_index FUN_index) const;
 
-        size_t index_of(const functor_view &functor);
+        size_t index_of(const functor_view &functor)const;
 
         inline void push_back_FUN(const functor_view & functor){
             heap.emplace_back(heap_tag::FUN, index_of(functor));
