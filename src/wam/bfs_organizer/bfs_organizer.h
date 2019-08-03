@@ -22,6 +22,7 @@ namespace wam {
     class bfs_organizer {
         friend struct executor;
         friend void wam::call(wam::executor &executor, const functor_view &functor);
+        friend void wam::proceed(wam::executor &executor);
     private:
         std::queue<executor> executors;
         //Global storage for all executors
@@ -34,7 +35,7 @@ namespace wam {
         std::vector<var_reg_substitution> substitutions;
         std::vector<var_reg_substitution>::iterator tmp_sub_end;
         std::vector<var_reg_substitution>::iterator cur_atom_begin;
-        void find_temporary_substitutions(executor&, size_t atom_number);
+        void find_temporary_substitutions(executor&);
         void find_permanent_substitutions(executor &executor);
 
 
@@ -53,6 +54,7 @@ namespace wam {
 
         bool has_code_for(const functor_view &functor) const;
 
+        void point_reg_substs_to_heap(const executor &executor);
     };
 
 

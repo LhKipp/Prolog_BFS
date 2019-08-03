@@ -266,7 +266,8 @@ void wam::call(wam::executor &executor, const functor_view &functor) {
 }
 
 void wam::proceed(wam::executor &executor) {
-    //No op
+    bfs_organizer* organizer = executor.get_organizer();
+    organizer->executors.push(executor);
 }
 
 void wam::allocate(wam::executor &executor, size_t permanent_var_count) {

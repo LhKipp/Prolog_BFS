@@ -37,6 +37,30 @@ namespace wam {
         bool operator!=(const var_reg_substitution &rhs) const {
             return !(rhs == *this);
         }
+
+        bool operator<(const var_reg_substitution &rhs) const {
+            if(rhs.is_permanent_register && this->is_permanent_register){
+                return var_name < rhs.var_name;
+            }else if(this->is_permanent_register){
+                return false;
+            }else if(rhs.is_permanent_register){
+                return true;
+            }else{
+                return var_name < rhs.var_name;
+            }
+        }
+
+        bool operator>(const var_reg_substitution &rhs) const {
+            return rhs < *this;
+        }
+
+        bool operator<=(const var_reg_substitution &rhs) const {
+            return !(rhs < *this);
+        }
+
+        bool operator>=(const var_reg_substitution &rhs) const {
+            return !(*this < rhs);
+        }
     };
 }
 #endif //PROLOG_BFS_SUBSTITUTION_H

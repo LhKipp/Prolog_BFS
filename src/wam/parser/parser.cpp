@@ -334,11 +334,10 @@ wam::parse_query(const std::string &line) {
 
     //Permanent variables will occure more than once. Only one instance is needed
     //So we do: partition --> sort the y_subs --> unique --> erase
-    const auto middle = std::stable_partition(substitutions.begin(), substitutions.end(),
-                                              [](const auto &sub) { return !sub.is_permanent_register; });
-    std::sort(middle, substitutions.end(),
-              [](const auto &sub_a, const auto &sub_b) { return sub_a.var_name < sub_b.var_name; });
-    const auto last_perm = std::unique(middle, substitutions.end());
+//    const auto middle = std::stable_partition(substitutions.begin(), substitutions.end(),
+//                                              [](const auto &sub) { return !sub.is_permanent_register; });
+    std::sort(substitutions.begin(), substitutions.end());
+    const auto last_perm = std::unique(substitutions.begin(), substitutions.end());
     substitutions.erase(last_perm, substitutions.end());
     substitutions.shrink_to_fit();
     //Iterator validity is to hard to keep here.
