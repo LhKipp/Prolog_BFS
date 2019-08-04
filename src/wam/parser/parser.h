@@ -13,6 +13,7 @@
 #include "util/reg_func_counts.h"
 #include "../data/term_code.h"
 #include "../data/functor_view.h"
+#include "util/seen_register.h"
 
 namespace wam {
 
@@ -25,21 +26,18 @@ namespace wam {
     std::pair<functor_view, std::vector<term_code>> parse_program_term(const std::string &line);
 
 
-    helper::reg_func_counts assign_registers(node &functor);
+    helper::reg_func_counts assign_registers(node &functor, node* first_body_atom = nullptr);
     node build_tree(const std::string &line);
     std::vector<const node *> flatten(const node &outer_functor);
 
     template<typename OutputIter>
     void
     to_query_instructions(const std::vector<const node *> &flattened_term, const node &outer_functor, OutputIter out,
-                          std::unordered_map<size_t, bool> &seen_registers);
+                          std::unordered_map<wam::helper::seen_register, bool> &seen_regs);
 
     template<typename OutputIter>
-    void
-    to_query_instructions(const std::vector<const node *> &flattened_term, const node &outer_functor, OutputIter out);
-    template<typename OutputIter>
     void to_program_instructions(const std::vector<const node *> &flattened_term, OutputIter out,
-                                 std::unordered_map<size_t,bool> &seen_registers);
+                                 std::unordered_map<wam::helper::seen_register,bool> &seen_regs);
 
     functor_view make_functor_view(const node &node);
 
