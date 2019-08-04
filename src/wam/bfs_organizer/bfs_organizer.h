@@ -21,8 +21,9 @@ namespace wam {
     using var_substitutions = std::vector<wam::var_substitution>;
     class bfs_organizer {
         friend struct executor;
-        friend void wam::call(wam::executor &executor, const functor_view &functor);
+        friend void wam::call(wam::executor &executor, const functor_view &functor, bool from_original_query);
         friend void wam::proceed(wam::executor &executor);
+        friend void wam::deallocate(wam::executor &executor);
     private:
         std::queue<executor> executors;
         //Global storage for all executors

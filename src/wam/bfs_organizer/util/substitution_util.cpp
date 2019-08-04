@@ -35,7 +35,7 @@ wam::string_representation_of(const std::vector<wam::regist> &registers, size_t 
     std::string result = functor.name + '(';
     //-1 for correct formatting of the ,
     for (int i = 1; i <= functor.arity - 1; ++i) {
-        result += string_representation_of(registers, index + i, functors);
+        result += string_representation_of(registers, index + i, functors) +',';
     }
     return result + string_representation_of(registers, index + functor.arity, functors) + ')';
 }

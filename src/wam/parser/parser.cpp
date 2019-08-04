@@ -195,7 +195,8 @@ std::vector<const node *> wam::flatten(const node &outer_functor) {
 template<typename OutputIter>
 void
 wam::to_query_instructions(const std::vector<const node *> &flattened_term, const node &outer_functor, OutputIter out,
-                           std::unordered_map<wam::helper::seen_register, bool> &seen_registers) {
+                           std::unordered_map<wam::helper::seen_register, bool> &seen_registers,
+                           bool from_original_query) {
     using namespace std::placeholders;
     using namespace wam::helper;
 
@@ -271,7 +272,7 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term, cons
         }
     });
 
-    *out = std::bind(wam::call, _1, outer_functor.to_functor_view());
+    *out = std::bind(wam::call, _1,outer_functor.to_functor_view(), from_original_query);
     ++out;
 }
 
@@ -396,7 +397,7 @@ wam::parse_query(const std::string &line) {
         const std::vector<const node *> flattened_form = flatten_query(atom);
         find_substitutions(atom, atom_number, std::back_inserter(substitutions));
 
-        to_query_instructions(flattened_form, atom, std::back_inserter(functions), seen_registers);
+        to_query_instructions(flattened_form, atom, std::back_inserter(functions), seen_registers, true);
         instructions.emplace_back(counts,
                                   functions,
                                   atom_number);
@@ -408,8 +409,10 @@ wam::parse_query(const std::string &line) {
     //No deallocate instruction so that bfs::find_permanent_variables wont crash
 
     //Variables will occure more than once in the substitutions. Only one instance is needed
-    //So we do: sort --> unique --> erase
-    std::sort(substitutions.begin(), substitutions.end());
+    //So we do: sort sort by name --> unique --> erase
+    std::sort(substitutions.begin(), substitutions.end(), [](const auto& sub_a, const auto& sub_b){
+        return sub_a.var_name < sub_b.var_name;
+    });
     const auto last_perm = std::unique(substitutions.begin(), substitutions.end());
     substitutions.erase(last_perm, substitutions.end());
     substitutions.shrink_to_fit();
@@ -451,7 +454,7 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::parse_program_ter
     if (first_body_atom) {
         const std::vector<const node *> first_body_flattened_form = flatten_query(*first_body_atom);
         to_query_instructions(first_body_flattened_form, *first_body_atom, std::back_inserter(instructions),
-                              seen_registers);
+                              seen_registers, false);
         term_codes.emplace_back(counts,
                                 instructions);
         //Clear the generated instructions
@@ -466,7 +469,7 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::parse_program_ter
 
             const wam::helper::reg_func_counts counts = assign_registers(atom) + permanent_count;
             const std::vector<const node *> flattened_form = flatten_query(atom);
-            to_query_instructions(flattened_form, atom, std::back_inserter(instructions), seen_registers);
+            to_query_instructions(flattened_form, atom, std::back_inserter(instructions), seen_registers, false);
             term_codes.emplace_back(counts,
                                     instructions);
             //Clear the generated instructions

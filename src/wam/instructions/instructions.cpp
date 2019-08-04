@@ -247,13 +247,14 @@ void wam::get_permanent_value(wam::executor &executor, size_t y_reg, size_t a_re
     unify(executor, executor.cur_permanent_registers()[y_reg].index, executor.registers.at(a_reg).index);
 }
 
-void wam::call(wam::executor &executor, const functor_view &functor) {
+void wam::call(wam::executor &executor, const functor_view &functor, bool from_original_query) {
     bfs_organizer *organizer = executor.get_organizer();
     if (!organizer->has_code_for(functor)) {
         executor.fail = true;
         return;
     }
 
+    executor.solves_atom_number += from_original_query;
     auto range = organizer->program_code.equal_range(functor);
     std::for_each(range.first, range.second,
                   [&](const auto &entries) {
@@ -276,6 +277,8 @@ void wam::allocate(wam::executor &executor, size_t permanent_var_count) {
 
 void wam::deallocate(wam::executor &executor) {
     executor.environments.pop();
+    bfs_organizer *organizer = executor.get_organizer();
+    organizer->executors.push(executor);
 }
 
 

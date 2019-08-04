@@ -23,6 +23,7 @@ TEST_CASE("BFS_Organizer L2 Tests") {
     program_code.push_back("d(d,e).");
     program_code.push_back("e(e,f).");
     program_code.push_back("f(f,a).");
+    program_code.push_back("h(g(f(A),X),f(b),f(g(h(X,Y,B),c))) :- c(c,d), a(A,B), p(X,Y),e(E,F).");
     bfs_organizer org;
 
     auto setup_org = [&](string query) {
@@ -57,16 +58,54 @@ TEST_CASE("BFS_Organizer L2 Tests") {
             REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
         }
     }
-    SECTION("Deep easy Chain"){
-        setup_org("a(A, B).");
+    SECTION("Deep hard Chain"){
+//        program_code.push_back("h(g(f(A),X),f(b),f(g(h(X,Y,B),c))) :- c(c,d), a(A,B), p(X,Y),e(E,F).");
+        setup_org("h(g(f(A),X),f(b),f(F))");
         auto answer = org.get_answer();
         REQUIRE(answer.has_value());
 
         map<std::string, std::string> actual_substs;
         actual_substs["A"] = "a";
-        actual_substs["B"] = "b";
+        actual_substs["X"] = "x";
+        actual_substs["F"] = "g(h(x,y,b),c)";
         REQUIRE(answer.has_value());
-        REQUIRE(answer->size() == 2);
+        REQUIRE(answer->size() == 3);
+        for (auto &subst : *answer) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+        }
+    }
+    SECTION("Multiple Queries in once"){
+//        program_code.push_back("h(g(f(A),X),f(b),f(g(h(X,Y,B),c))) :- c(c,d), a(A,B), p(X,Y),e(E,F).");
+        setup_org("h(g(f(A),X),f(b),f(F)), p(X,Y), a(A,B).");
+        auto answer = org.get_answer();
+        REQUIRE(answer.has_value());
+
+        map<std::string, std::string> actual_substs;
+        actual_substs["A"] = "a";
+        actual_substs["X"] = "x";
+        actual_substs["B"] = "b";
+        actual_substs["Y"] = "y";
+        actual_substs["F"] = "g(h(x,y,b),c)";
+        REQUIRE(answer.has_value());
+        REQUIRE(answer->size() == 7);
+        for (auto &subst : *answer) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+        }
+    }
+    SECTION("Many Queries in once"){
+//        program_code.push_back("h(g(f(A),X),f(b),f(g(h(X,Y,B),c))) :- c(c,d), a(A,B), p(X,Y),e(E,F).");
+        setup_org("h(g(f(A),X),f(b),f(F)), p(X,Y), a(A,B),p(X,Y), a(A,B)");
+        auto answer = org.get_answer();
+        REQUIRE(answer.has_value());
+
+        map<std::string, std::string> actual_substs;
+        actual_substs["A"] = "a";
+        actual_substs["X"] = "x";
+        actual_substs["B"] = "b";
+        actual_substs["Y"] = "y";
+        actual_substs["F"] = "g(h(x,y,b),c)";
+        REQUIRE(answer.has_value());
+        REQUIRE(answer->size() == 11);
         for (auto &subst : *answer) {
             REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
         }

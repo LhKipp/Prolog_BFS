@@ -33,7 +33,8 @@ namespace wam {
     template<typename OutputIter>
     void
     to_query_instructions(const std::vector<const node *> &flattened_term, const node &outer_functor, OutputIter out,
-                          std::unordered_map<wam::helper::seen_register, bool> &seen_regs);
+                          std::unordered_map<wam::helper::seen_register, bool> &seen_registers,
+                          bool from_original_query=false);
 
     template<typename OutputIter>
     void to_program_instructions(const std::vector<const node *> &flattened_term, OutputIter out,
