@@ -30,9 +30,16 @@ namespace wam {
     std::vector<const node *> flatten(const node &outer_functor);
 
     template<typename OutputIter>
-    void to_query_instructions(const std::vector<const node *>& flattened_term, const node& outer_functor, OutputIter out);
+    void
+    to_query_instructions(const std::vector<const node *> &flattened_term, const node &outer_functor, OutputIter out,
+                          std::unordered_map<size_t, bool> &seen_registers);
+
     template<typename OutputIter>
-    void to_program_instructions(const std::vector<const node *>& flattened_term, OutputIter out);
+    void
+    to_query_instructions(const std::vector<const node *> &flattened_term, const node &outer_functor, OutputIter out);
+    template<typename OutputIter>
+    void to_program_instructions(const std::vector<const node *> &flattened_term, OutputIter out,
+                                 std::unordered_map<size_t,bool> &seen_registers);
 
     functor_view make_functor_view(const node &node);
 

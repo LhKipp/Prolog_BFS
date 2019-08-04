@@ -1,6 +1,8 @@
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 #include <iostream>
+#include <string>
+
 #include "src/program_arguments/parser.h"
 
 #include "src/app_runner/normal_mode.h"
@@ -9,7 +11,8 @@
 int main(int argc, const char *argv[]) {
     using namespace std;
 
-    int result = Catch::Session().run(argc, argv);
+    const char*args[] = {"<\"BFS_Organizer L2 Tests\">"};
+    int result = Catch::Session().run(1, args);
 
 
     //Parsing CommandLine Arguments

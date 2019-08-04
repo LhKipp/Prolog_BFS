@@ -162,11 +162,19 @@ std::vector<const node *> wam::flatten(const node &outer_functor) {
 
 template<typename OutputIter>
 void
-wam::to_query_instructions(const std::vector<const node *> &flattened_term, const node &outer_functor, OutputIter out) {
+wam::to_query_instructions(const std::vector<const node *> &flattened_term, const node &outer_functor, OutputIter out){
+    std::unordered_map<size_t,bool> seen_registers;
+    to_query_instructions(flattened_term,outer_functor, out, seen_registers);
+}
+
+
+template<typename OutputIter>
+void
+wam::to_query_instructions(const std::vector<const node *> &flattened_term, const node &outer_functor, OutputIter out,
+                           std::unordered_map<size_t, bool> &seen_registers) {
     using namespace std::placeholders;
 
     //TODO isnt a set enough?
-    std::unordered_map<size_t, bool> seen_registers;
 
     std::for_each(flattened_term.begin(), flattened_term.end(), [&](const node *node) {
         if (node->is_variable()) {//Every node in flattened term, beeing an variable is an argument!
@@ -226,10 +234,11 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term, cons
 }
 
 template<typename OutputIter>
-void wam::to_program_instructions(const std::vector<const node *> &flattened_term, OutputIter out) {
+void
+wam::to_program_instructions(const std::vector<const node *> &flattened_term, OutputIter out,
+                             std::unordered_map<size_t, bool> &seen_registers) {
     using namespace std::placeholders;
     //TODO isnt a set enough?
-    std::unordered_map<size_t, bool> seen_registers;
 
     //The first element is the outer functor
     std::for_each(flattened_term.begin(), flattened_term.end(), [&](const node *node) {
@@ -333,15 +342,11 @@ wam::parse_query(const std::string &line) {
     //No deallocate instruction so that bfs::find_permanent_variables wont crash
 
     //Permanent variables will occure more than once. Only one instance is needed
-    //So we do: partition --> sort the y_subs --> unique --> erase
-//    const auto middle = std::stable_partition(substitutions.begin(), substitutions.end(),
-//                                              [](const auto &sub) { return !sub.is_permanent_register; });
+    //So we do: sort --> unique --> erase
     std::sort(substitutions.begin(), substitutions.end());
     const auto last_perm = std::unique(substitutions.begin(), substitutions.end());
     substitutions.erase(last_perm, substitutions.end());
     substitutions.shrink_to_fit();
-    //Iterator validity is to hard to keep here.
-    //I dont advocate for returning the partition point in the tuple
 
     return std::make_tuple(instructions, substitutions);
 }
@@ -358,6 +363,7 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::parse_program_ter
     //Generate the term_codes
     std::vector<term_code> term_codes;
     std::vector<std::function<void(wam::executor &)>> instructions;
+    std::unordered_map<size_t, bool> seen_registers;
 
     //Treat the head as an fact
     node &head_atom = atoms.at(0);
@@ -367,7 +373,7 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::parse_program_ter
     if (permanent_count.y_regs_counts) {
         instructions.emplace_back(std::bind(wam::allocate, _1, permanent_count.y_regs_counts));
     }
-    to_program_instructions(flattened_form, std::back_inserter(instructions));
+    to_program_instructions(flattened_form, std::back_inserter(instructions),seen_registers );
     //Build the head
     term_codes.emplace_back(counts, instructions);
     //Clear the generated instructions
@@ -377,7 +383,7 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::parse_program_ter
     for_each(std::next(atoms.begin()), atoms.end(), [&](node &atom) {
         wam::helper::reg_func_counts counts = assign_registers(atom) + permanent_count;
         std::vector<const node *> flattened_form = flatten_query(atom);
-        to_query_instructions(flattened_form, atom, std::back_inserter(instructions));
+        to_query_instructions(flattened_form, atom, std::back_inserter(instructions), seen_registers);
         term_codes.emplace_back(counts,
                                 instructions);
         //Clear the generated instructions
@@ -386,7 +392,8 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::parse_program_ter
 
     //All body atoms have been built append a optional deallocate instruction
     if (permanent_count.y_regs_counts) {
-        term_codes.back().instructions.emplace_back(std::bind(wam::deallocate, _1));
+        instructions.emplace_back(std::bind(wam::deallocate, _1));
+        term_codes.emplace_back(wam::helper::reg_func_counts{0, 0, 0}, instructions);
     }
 
     return std::make_pair(head_atom.to_functor_view(), term_codes);
@@ -444,22 +451,27 @@ wam::helper::reg_func_counts wam::assign_permanent_registers(const node &program
 
     bfs_order(program_node.children->at(0), true, [&](node *cur_node) {
         if (cur_node->is_variable()) {
-            seen_variables[cur_node->name].first_occurrence = atom_number;
+            auto& var_info = seen_variables[cur_node->name];
+            var_info.first_occurrence = atom_number;
+            var_info.nodes.push_back(cur_node);
         }
     });
+    ++atom_number;
 
     if (program_term) {
         bfs_order(program_node.children->at(1), true, [&](node *cur_node) {
             if (cur_node->is_variable()) {
-                seen_variables[cur_node->name].first_occurrence = atom_number;
+                auto& var_info = seen_variables[cur_node->name];
+                var_info.first_occurrence = atom_number;
+                var_info.nodes.push_back(cur_node);
             }
         });
+        ++atom_number;
     }
 
     for_each(program_node.children->begin() + 1 + program_term, program_node.children->end(),
              [&](node &cur_top_node) {
-                 ++atom_number;
-                 bfs_order(program_node.children->at(1), true, [&](node *cur_node) {
+                 bfs_order(cur_top_node, true, [&](node *cur_node) {
                      if (cur_node->is_variable()) {
                          /*
                           * if this var has been seen, we check if the var has encountered in an earlier atom.
@@ -476,6 +488,7 @@ wam::helper::reg_func_counts wam::assign_permanent_registers(const node &program
                          }
                      }
                  });
+                 ++atom_number;
              });
 
     size_t y_reg_index = 0;

@@ -12,7 +12,7 @@
 using namespace wam;
 using namespace std;
 
-TEST_CASE("BFS_Organizer Tests", "[BFS_Organizer]") {
+TEST_CASE("BFS_Organizer Tests", "[L1]") {
     std::vector<std::string> program_code;
     bfs_organizer org;
 
