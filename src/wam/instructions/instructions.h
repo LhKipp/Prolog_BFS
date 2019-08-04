@@ -40,7 +40,7 @@ namespace wam {
     void get_value(executor& executor, size_t x_reg, size_t a_reg);
     void get_permanent_value(executor& executor, size_t y_reg, size_t a_reg);
 
-    void call(wam::executor &executor, const functor_view &functor, bool from_original_query);
+    void call(wam::executor &old_executor, const functor_view &functor, bool from_original_query);
     void proceed(executor& executor);
 
     void allocate(executor& executor, size_t permanent_var_count);

@@ -43,7 +43,14 @@ namespace wam {
         //The organizer holds data like, Functors, Code, etc.
         bfs_organizer *organizer;
     public:
+
+        std::vector<var_reg_substitution> substitutions;
+        int cur_atom_begin;
+
         executor() = default;
+        executor(const executor& other) = default;
+        executor& operator=(const executor & other)=default;
+        executor& operator=(executor && other)=default;
 
         std::vector<regist> registers;
         std::vector<regist> heap;

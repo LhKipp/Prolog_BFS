@@ -28,10 +28,7 @@ namespace wam {
                 from_atom_number{from_atom_number}{}
 
         bool operator==(const var_reg_substitution &rhs) const {
-            return var_name == rhs.var_name &&
-                   register_index == rhs.register_index &&
-                   from_atom_number == rhs.from_atom_number &&
-                   is_permanent_register == rhs.is_permanent_register;
+            return var_name == rhs.var_name;
         }
 
         bool operator!=(const var_reg_substitution &rhs) const {

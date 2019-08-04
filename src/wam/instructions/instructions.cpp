@@ -247,28 +247,29 @@ void wam::get_permanent_value(wam::executor &executor, size_t y_reg, size_t a_re
     unify(executor, executor.cur_permanent_registers()[y_reg].index, executor.registers.at(a_reg).index);
 }
 
-void wam::call(wam::executor &executor, const functor_view &functor, bool from_original_query) {
-    bfs_organizer *organizer = executor.get_organizer();
+void wam::call(wam::executor &old_executor, const functor_view &functor, bool from_original_query) {
+    bfs_organizer *organizer = old_executor.get_organizer();
     if (!organizer->has_code_for(functor)) {
-        executor.fail = true;
+        old_executor.fail = true;
         return;
     }
 
-    executor.solves_atom_number += from_original_query;
+    old_executor.solves_atom_number += from_original_query;
     auto range = organizer->program_code.equal_range(functor);
     std::for_each(range.first, range.second,
                   [&](const auto &entries) {
+                      executor new_executor{old_executor};
                       std::for_each(entries.second.rbegin(), entries.second.rend(),
                                     [&](const wam::term_code &term_code) {
-                                        executor.instructions.push(&term_code);
+                                        new_executor.instructions.push(&term_code);
                                     });
-                      organizer->executors.push(executor);
+                      organizer->executors.push_back(new_executor);
                   });
 }
 
 void wam::proceed(wam::executor &executor) {
-    bfs_organizer* organizer = executor.get_organizer();
-    organizer->executors.push(executor);
+    bfs_organizer *organizer = executor.get_organizer();
+    organizer->executors.push_back(executor);
 }
 
 void wam::allocate(wam::executor &executor, size_t permanent_var_count) {
@@ -278,7 +279,7 @@ void wam::allocate(wam::executor &executor, size_t permanent_var_count) {
 void wam::deallocate(wam::executor &executor) {
     executor.environments.pop();
     bfs_organizer *organizer = executor.get_organizer();
-    organizer->executors.push(executor);
+    organizer->executors.push_back(executor);
 }
 
 

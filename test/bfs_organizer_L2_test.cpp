@@ -87,13 +87,12 @@ TEST_CASE("BFS_Organizer L2 Tests") {
         actual_substs["Y"] = "y";
         actual_substs["F"] = "g(h(x,y,b),c)";
         REQUIRE(answer.has_value());
-        REQUIRE(answer->size() == 7);
+        REQUIRE(answer->size() == 5);
         for (auto &subst : *answer) {
             REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
         }
     }
     SECTION("Many Queries in once"){
-//        program_code.push_back("h(g(f(A),X),f(b),f(g(h(X,Y,B),c))) :- c(c,d), a(A,B), p(X,Y),e(E,F).");
         setup_org("h(g(f(A),X),f(b),f(F)), p(X,Y), a(A,B),p(X,Y), a(A,B)");
         auto answer = org.get_answer();
         REQUIRE(answer.has_value());
@@ -105,7 +104,7 @@ TEST_CASE("BFS_Organizer L2 Tests") {
         actual_substs["Y"] = "y";
         actual_substs["F"] = "g(h(x,y,b),c)";
         REQUIRE(answer.has_value());
-        REQUIRE(answer->size() == 11);
+        REQUIRE(answer->size() == 5);
         for (auto &subst : *answer) {
             REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
         }
