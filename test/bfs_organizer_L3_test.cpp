@@ -1,7 +1,6 @@
 //
 // Created by leonhard on 04.08.19.
 //
-
 #include "../catch.hpp"
 
 #include "../src/wam/bfs_organizer/bfs_organizer.h"

@@ -39,7 +39,7 @@ node wam::build_tree(const std::string &line) {
         }
             //If the inner term starts Capital it is a variable
         else if (std::isupper(line[cur_pos])) {
-            const size_t inner_term_end = line.find_first_of(",).", cur_pos);
+            const size_t inner_term_end = line.find_first_of(",). ", cur_pos);
             const size_t name_len = inner_term_end - cur_pos;
             //Assign the inner_term as a child of the current parent
             current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::VARIABLE, line.substr(cur_pos, name_len));
@@ -47,7 +47,7 @@ node wam::build_tree(const std::string &line) {
             cur_pos += name_len;
 
         } else if (std::islower(line[cur_pos])) {//Inner term is either functor or constant
-            const auto inner_term_end = line.find_first_of(",).", cur_pos);
+            const auto inner_term_end = line.find_first_of(",). ", cur_pos);
             const auto opening_brack_pos = line.find_first_of('(', cur_pos);
             //If there is no ( or ,) is before ( the current inner_term is a constant
             if (opening_brack_pos == std::string::npos || inner_term_end < opening_brack_pos) {

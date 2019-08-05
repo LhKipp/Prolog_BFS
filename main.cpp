@@ -11,7 +11,7 @@
 int main(int argc, const char *argv[]) {
     using namespace std;
 
-    const char*args[] = {"<\"BFS_Organizer L2 Tests\">"};
+    const char*args[] = {""};
     int result = Catch::Session().run(1, args);
 
 
