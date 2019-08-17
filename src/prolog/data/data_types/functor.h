@@ -23,6 +23,14 @@ namespace prolog {
             this->name = name;
             this->args = args;
         }
+
+        bool is_list() const {
+            return name == "[";
+        }
+
+        bool is_empty_list()const{
+            return is_list() && args.empty();
+        }
     };
 
 }

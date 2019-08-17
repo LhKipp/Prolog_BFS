@@ -25,7 +25,7 @@ private:
 public:
     std::string name;
 
-    //functor exclusive field
+    //FUNCTOR / LIST exclusive field
     std::unique_ptr<std::vector<node>> children;
 
     inline bool is_argument() const {
@@ -71,6 +71,15 @@ public:
     inline bool is_functor() const {
         return type == STORED_OBJECT_FLAG::FUNCTOR;
     }
+    inline bool is_list() const {
+        return name == "[";
+    }
+    inline bool is_empty_list() const {
+        return is_list() && children->empty();
+    }
+    inline bool is_non_empty_list()const{
+        return is_list() && !children->empty();
+    }
     inline bool is_none()const{
         return type == STORED_OBJECT_FLAG ::NONE;
     }
@@ -85,7 +94,6 @@ public:
 
 
     explicit node(const STORED_OBJECT_FLAG type) : node(type, "") {};
-
     node(const STORED_OBJECT_FLAG type, const std::string name) : name(name), type(type) {
         if (type == STORED_OBJECT_FLAG::FUNCTOR) {
             children = std::make_unique<std::vector<node>>();

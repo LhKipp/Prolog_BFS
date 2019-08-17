@@ -29,25 +29,75 @@ node wam::build_tree(const std::string &line) {
     //At the begin, its the outer pred
     current_parent.push(&top_node);
 
+    //Variables for handling list
+    int list_len = 0;
+    bool handling_list = false;
+
     size_t cur_pos = 0;
+
+    const char *const inner_term_end_signs = ",)]. ";
+
     while (cur_pos < line.size()) {
-        if (line[cur_pos] == '.') {
+        const char cur_char = line[cur_pos];
+        //if term end
+        if (cur_char == '.') {
             break;
-        } else if (line[cur_pos] == ')') {
+            //if functor end
+        } else if (cur_char == ')') {
             current_parent.pop();
             ++cur_pos;
+
+            //if term end
+        } else if (cur_char == ',') {
+            //If handling list then list len +1
+            if (handling_list) {
+                list_len += 1;
+                current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
+                current_parent.push(&current_parent.top()->children->back());
+            }
+            ++cur_pos;
+        } else if (cur_char == '|') {
+            //If handling appending of list
+            //TODO This part wildly assumes it handles a list
+            list_len += 1;
+            current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "|");
+            current_parent.push(&current_parent.top()->children->back());
+            ++cur_pos;
         }
-            //If the inner term starts Capital it is a variable
-        else if (std::isupper(line[cur_pos])) {
-            const size_t inner_term_end = line.find_first_of(",). ", cur_pos);
+        else if (cur_char == ']') {
+            //if List end
+            //Every list ends with an empty list
+            if (current_parent.top()->is_non_empty_list()) {
+                current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
+            }
+            current_parent.pop();
+            for (int i = 0; i < list_len; ++i) {
+                current_parent.pop();
+            }
+            ++cur_pos;
+            handling_list = false;
+        }
+            //If list begin
+        else if (cur_char == '[') {
+            list_len = 0;
+            handling_list = true;
+
+            current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
+            cur_pos += 1;
+            current_parent.push(&current_parent.top()->children->back());
+        }
+            //if variable begin
+        else if (std::isupper(cur_char)) {
+            const size_t inner_term_end = line.find_first_of(inner_term_end_signs, cur_pos);
             const size_t name_len = inner_term_end - cur_pos;
             //Assign the inner_term as a child of the current parent
             current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::VARIABLE, line.substr(cur_pos, name_len));
 
             cur_pos += name_len;
 
-        } else if (std::islower(line[cur_pos])) {//Inner term is either functor or constant
-            const auto inner_term_end = line.find_first_of(",). ", cur_pos);
+            //If functor or constant begin
+        } else if (std::islower(cur_char)) {
+            const auto inner_term_end = line.find_first_of(inner_term_end_signs, cur_pos);
             const auto opening_brack_pos = line.find_first_of('(', cur_pos);
             //If there is no ( or ,) is before ( the current inner_term is a constant
             if (opening_brack_pos == std::string::npos || inner_term_end < opening_brack_pos) {
@@ -65,14 +115,17 @@ node wam::build_tree(const std::string &line) {
 
                 //+1 to overread the (
                 cur_pos += name_len + 1;
+
+                handling_list = false;
             }
         } else {//sign may be " " , \n
             ++cur_pos;
         }
     }
 
-    //The line is now in tree structure
-    return top_node;
+//The line is now in tree structure
+    return
+            top_node;
 }
 
 /*
@@ -272,7 +325,7 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term, cons
         }
     });
 
-    *out = std::bind(wam::call, _1,outer_functor.to_functor_view(), from_original_query);
+    *out = std::bind(wam::call, _1, outer_functor.to_functor_view(), from_original_query);
     ++out;
 }
 
@@ -374,6 +427,7 @@ wam::parse_query(const std::string &line) {
 
     //todo add some logic to remove ?- and . ???
     node program_node = wam::build_tree(line);
+
     auto &atoms = *program_node.children;
 
     const auto permanent_count = assign_permanent_registers(program_node, false);
@@ -410,7 +464,7 @@ wam::parse_query(const std::string &line) {
 
     //Variables will occure more than once in the substitutions. Only one instance is needed
     //So we do: sort sort by name --> unique --> erase
-    std::sort(substitutions.begin(), substitutions.end(), [](const auto& sub_a, const auto& sub_b){
+    std::sort(substitutions.begin(), substitutions.end(), [](const auto &sub_a, const auto &sub_b) {
         return sub_a.var_name < sub_b.var_name;
     });
     const auto last_perm = std::unique(substitutions.begin(), substitutions.end());

@@ -8,14 +8,23 @@
 #include "util/substitution_util.h"
 #include "../parser/parser.h"
 #include <iterator>
-//#include "../../util/vector_util.h"
+#include <term.h>
+#include "util/read_program_code.h"
 
-void wam::bfs_organizer::load_program(const std::vector<std::string> &lines) {
-    program_code.reserve(lines.size());
+void wam::bfs_organizer::load_program(const std::string &file_path) {
+    load_term_lines(read_program_code(file_path));
+}
+
+void wam::bfs_organizer::load_program(const std::vector<std::string> &program_lines) {
+    load_term_lines(read_program_code(program_lines));
+}
+
+void wam::bfs_organizer::load_term_lines(const std::vector<std::string> &term_lines) {
+    program_code.reserve(term_lines.size());
     //Assumes at max there is a different head at every line
-    functor_index_map.reserve(lines.size());
-    functors.reserve(lines.size());
-    for (auto &line : lines) {
+    functor_index_map.reserve(term_lines.size());
+    functors.reserve(term_lines.size());
+    for (auto &line : term_lines) {
         const auto[head_functor, code] = parse_program_term(line);
         program_code.emplace(head_functor, code);
 
@@ -26,6 +35,7 @@ void wam::bfs_organizer::load_program(const std::vector<std::string> &lines) {
             functors.push_back(head_functor);
         }
     }
+
 }
 
 
@@ -156,6 +166,9 @@ void wam::bfs_organizer::point_reg_substs_to_heap(executor &executor) {
 //    std::cout << "cur_atom_begin is now: " << executor.cur_atom_begin<< std::endl;
 
 }
+
+
+
 
 
 

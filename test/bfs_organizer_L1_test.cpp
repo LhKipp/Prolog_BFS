@@ -22,9 +22,9 @@ TEST_CASE("BFS_Organizer Tests", "[L1]") {
     };
 
     SECTION("Query: p(Z,h(Z,W),f(W)) : Program: ") {
-        program_code.emplace_back("p(f(X),h(Y,f(a)),Y)");
+        program_code.emplace_back("p(f(X),h(Y,f(a)),Y).");
 
-        setup_org("p(Z,h(Z,W),f(W))");
+        setup_org("p(Z,h(Z,W),f(W)).");
 
         auto found_answer = org.get_answer();
 
@@ -40,7 +40,7 @@ TEST_CASE("BFS_Organizer Tests", "[L1]") {
         }
     }
     SECTION("Query: f(g) : Program: f(X)") {
-        program_code.emplace_back("f(X)");
+        program_code.emplace_back("f(X).");
 
         setup_org("f(g)");
 
@@ -50,7 +50,7 @@ TEST_CASE("BFS_Organizer Tests", "[L1]") {
         REQUIRE(found_answer->empty());
     }
     SECTION("Query: r(x,h(Z,W),f(g)) : Program: ") {
-        program_code.emplace_back("r(Z,h(Z,f(a)),f(Z)");
+        program_code.emplace_back("r(Z,h(Z,f(a)),f(Z).");
         //Z/x, W/f(a) , Z/g
         setup_org("r(x,h(Z,W),f(g))");
 
@@ -58,7 +58,7 @@ TEST_CASE("BFS_Organizer Tests", "[L1]") {
         REQUIRE(!(found_answer.has_value()));
     }
     SECTION("Query: r(x,x) : Program: ") {
-        program_code.emplace_back("r(x)");
+        program_code.emplace_back("r(x).");
 
         setup_org("r(x,x)");
 
@@ -66,7 +66,7 @@ TEST_CASE("BFS_Organizer Tests", "[L1]") {
         REQUIRE(!(found_answer.has_value()));
     }
     SECTION("Query: r(f(X),h(a,b),x) : Program: ") {
-        program_code.emplace_back("r(x)");
+        program_code.emplace_back("r(x).");
 
         setup_org("r(f(X),h(a,b),x)");
 
@@ -74,7 +74,7 @@ TEST_CASE("BFS_Organizer Tests", "[L1]") {
         REQUIRE(!(found_answer.has_value()));
     }
     SECTION("Query: r(f(X),h(a,b),x) : Program: ") {
-        program_code.emplace_back("r(f(a),h(D,Z))");
+        program_code.emplace_back("r(f(a),h(D,Z)).");
 
         setup_org("r(f(X),h(a,b))");
         auto found_answer = org.get_answer();
@@ -88,7 +88,7 @@ TEST_CASE("BFS_Organizer Tests", "[L1]") {
         }
     }
     SECTION("Query: r(f(X),h(a,b),x) : Program: ") {
-        program_code.emplace_back("r(f(a),h(D,Z),J)");
+        program_code.emplace_back("r(f(a),h(D,Z),J).");
 
         setup_org("r(f(X),h(a,b),x)");
         auto found_answer = org.get_answer();
@@ -102,7 +102,7 @@ TEST_CASE("BFS_Organizer Tests", "[L1]") {
         }
     }
     SECTION("Query: r(f(f(f(X))),h(f(f(f(f(Z)))),b)) : Program: ") {
-        program_code.emplace_back("r(f(f(f(a))),h(f(f(f(f(b)))),b))");
+        program_code.emplace_back("r(f(f(f(a))),h(f(f(f(f(b)))),b)).");
 
         setup_org("r(f(f(f(X))),h(f(f(f(f(Z)))),b))");
         auto found_answer = org.get_answer();
@@ -116,7 +116,7 @@ TEST_CASE("BFS_Organizer Tests", "[L1]") {
         }
     }
     SECTION("Query: r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),b)) : Program: ") {
-        program_code.emplace_back("r(f(h(a,f(f(b)))),h(f(f(f(f(b)))),b))");
+        program_code.emplace_back("r(f(h(a,f(f(b)))),h(f(f(f(f(b)))),b)).");
 
         setup_org("r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),Y))");
 
@@ -135,7 +135,7 @@ TEST_CASE("BFS_Organizer Tests", "[L1]") {
         }
     }
     SECTION("Query: r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),b)) : Program: ") {
-        program_code.emplace_back("r(f(h(a,f(f(b)))),h(f(f(f(f(b)))),b))");
+        program_code.emplace_back("r(f(h(a,f(f(b)))),h(f(f(f(f(b)))),b)).");
 
         setup_org("r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),X))");
 

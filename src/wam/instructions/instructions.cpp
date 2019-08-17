@@ -15,6 +15,9 @@ void wam::put_structure(wam::executor &executor, const functor_view &functor, si
     size_t functor_reg_index = executor.index_of(functor);
     executor.heap.emplace_back(heap_tag::FUN, functor_reg_index);
 }
+//void wam::put_list(wam::executor &executor, const size_t regist_index) {
+//    executor.registers[regist_index] = regist{heap_tag ::LIS, executor.heap.size()};
+//}
 
 void wam::set_variable(wam::executor &executor, size_t x_reg) {
     executor.heap.emplace_back(heap_tag::REF, executor.heap.size());
@@ -281,6 +284,7 @@ void wam::deallocate(wam::executor &executor) {
     bfs_organizer *organizer = executor.get_organizer();
     organizer->executors.push_back(executor);
 }
+
 
 
 

@@ -16,11 +16,22 @@ namespace wam {
 
         functor_view(std::string name, int arity) : name{name}, arity{arity} {}
 
+        inline bool is_list()const{
+            return this->name == "[";
+        }
+        inline bool is_empty_list()const{
+            return this->name == "[" && arity ==0;
+        }
+
+        inline bool is_constant()const{
+            return arity ==0 && !is_empty_list();
+        }
     };
 
     inline bool operator==(const functor_view &a, const functor_view &b) {
         return a.arity == b.arity && a.name == b.name;
     }
+
 
 }
 namespace std{

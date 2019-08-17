@@ -37,11 +37,13 @@ namespace wam {
         std::vector<var_reg_substitution> permanent_substitutions;
         void find_temporary_substitutions(executor&);
         void find_permanent_substitutions(executor &executor);
+        void load_term_lines(const std::vector<std::string>& term_lines);
 
 
     public:
 
         void load_program(const std::vector<std::string> &lines);
+        void load_program(const std::string &file_path);
 
         void load_query(const std::string &query_line);
 
