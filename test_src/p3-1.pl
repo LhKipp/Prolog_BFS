@@ -5,20 +5,20 @@ baum(e).
 %n stelliger baum
 baum(n(X,Lb,Rb)):- baum(Lb),baum(Rb).
 
-%präfix
-präfix([],Xs).
-präfix([X|Xs],[X|Ys]) :- präfix(Xs,Ys).
+%prafix
+prafix([],Xs).
+prafix([X|Xs],[X|Ys]) :- prafix(Xs,Ys).
 
 %Aufgabe 1.1 postfix(Xs,Ys) : Ys endet mit der Liste Xs.
-%mit reverse und präfix
+%mit reverse und prafix
 postfix1([X],[]).
-postfix1(Xs,Ys):-reverse(Xs,Xs1),reverse(Ys,Ys1),präfix(Xs1,Ys1).
-%postfix(Xs,Ys):-präfix(Xs,Ys).
+postfix1(Xs,Ys):-reverse(Xs,Xs1),reverse(Ys,Ys1),prafix(Xs1,Ys1).
+%postfix(Xs,Ys):-prafix(Xs,Ys).
 %mit append
 postfix2([X],[]).
 postfix2(Xs,Ys):-append(_,Xs,Ys).
 
-%Aufgabe 2 membertree(X,Xb) : Baum Xb enthält den Eintrag X.
+%Aufgabe 2 membertree(X,Xb) : Baum Xb enthaelt den Eintrag X.
 
 membertree(X,n(X,Lb,Rb)):-baum(n(X,Lb,Rb)).
 membertree(X,n(Y,Lb,Rb)):-baum(n(Y,Lb,Rb)),membertree(X,Lb).

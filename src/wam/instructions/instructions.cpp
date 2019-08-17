@@ -252,7 +252,11 @@ void wam::get_permanent_value(wam::executor &executor, size_t y_reg, size_t a_re
 
 void wam::call(wam::executor &old_executor, const functor_view &functor, bool from_original_query) {
     bfs_organizer *organizer = old_executor.get_organizer();
+
+    //TODO Debug
+//    std::cout << "call to: " << functor.name << std::endl;
     if (!organizer->has_code_for(functor)) {
+//        std::cout << "call failed" << std::endl;
         old_executor.fail = true;
         return;
     }
