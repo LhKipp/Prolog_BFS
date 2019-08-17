@@ -35,7 +35,7 @@ node wam::build_tree(const std::string &line) {
 
     size_t cur_pos = 0;
 
-    const char *const inner_term_end_signs = ",)]. ";
+    const char *const inner_term_end_signs = ",)]|. ";
 
     while (cur_pos < line.size()) {
         const char cur_char = line[cur_pos];
@@ -58,17 +58,15 @@ node wam::build_tree(const std::string &line) {
             ++cur_pos;
         } else if (cur_char == '|') {
             //If handling appending of list
-            //TODO This part wildly assumes it handles a list
-            list_len += 1;
-            current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "|");
             current_parent.push(&current_parent.top()->children->back());
             ++cur_pos;
         }
         else if (cur_char == ']') {
             //if List end
             //Every list ends with an empty list
-            if (current_parent.top()->is_non_empty_list()) {
-                current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
+            if (current_parent.top()->is_non_empty_list() || current_parent.top()->is_append_functor()) {
+                current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "|");
+                current_parent.top()->children->back().children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
             }
             current_parent.pop();
             for (int i = 0; i < list_len; ++i) {

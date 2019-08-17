@@ -46,6 +46,15 @@ wam::string_representation_of(const std::vector<wam::regist> &registers, size_t 
         return functor.name;
     }
 
+    if(functor.is_append_functor()){
+        std::string appended_elem = string_representation_of(registers, index + 1, functors, false);
+        if(appended_elem == "[]"){
+            //If it only appended the empty list, no need to output it too
+            return "]";
+        }else{
+           return appended_elem + ",]";
+        }
+    }
     //Either list or normal functor
     std::string result;
 

@@ -80,6 +80,9 @@ public:
     inline bool is_non_empty_list()const{
         return is_list() && !children->empty();
     }
+    inline bool is_append_functor()const{
+        return name == "|";
+    }
     inline bool is_none()const{
         return type == STORED_OBJECT_FLAG ::NONE;
     }

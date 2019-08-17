@@ -26,10 +26,15 @@ namespace wam {
         inline bool is_constant()const{
             return arity ==0 && !is_empty_list();
         }
+        inline bool is_append_functor()const{
+            return name == "|";
+        }
     };
 
     inline bool operator==(const functor_view &a, const functor_view &b) {
-        return a.arity == b.arity && a.name == b.name;
+        return( a.arity == b.arity && a.name == b.name) ||
+                (a.name == "[" && b.name == "|" && a.arity == b.arity) ||
+                (b.name == "[" && a.name == "|" && a.arity == b.arity);
     }
 
 
