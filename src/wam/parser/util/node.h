@@ -25,8 +25,12 @@ private:
 public:
     std::string name;
 
+
     //FUNCTOR / LIST exclusive field
     std::unique_ptr<std::vector<node>> children;
+
+    //LIST exlusiv field
+    bool is_list_begin = false;
 
     inline bool is_argument() const {
         return a_reg != std::numeric_limits<size_t>::max();
@@ -79,6 +83,13 @@ public:
     }
     inline bool is_non_empty_list()const{
         return is_list() && !children->empty();
+    }
+    inline bool is_non_full_list()const{
+       return is_list() && children->size() < 2;
+    }
+    inline bool has_tail()const{
+        assert(is_list());
+        return children->size() == 2;
     }
     inline bool is_append_functor()const{
         return name == "|";

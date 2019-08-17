@@ -35,25 +35,7 @@ TEST_CASE("BFS Organizer List Test"){
         }
     }
 
-    SECTION("Easy unification") {
-        program_code.emplace_back("p([a,b],[a,b,c],[a,b,c,d]).");
-
-        setup_org("p([A,B], [A,b,C], Z).");
-
-        auto found_answer = org.get_answer();
-
-        map<std::string, std::string> actual_substs;
-        actual_substs["A"] = "a";
-        actual_substs["B"] = "b";
-        actual_substs["C"] = "c";
-        actual_substs["Z"] = "[a,b,c,d]";
-        REQUIRE(found_answer.has_value());
-        REQUIRE(found_answer->size() == 4);
-        for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
-        }
-    }
-    SECTION("Easy Unification") {
+    SECTION("Easy Unification 2") {
         program_code.emplace_back("append([a | B]).");
 
         setup_org("append([a,b]).");
@@ -91,22 +73,7 @@ TEST_CASE("BFS Organizer List Test"){
         auto found_answer = org.get_answer();
 
         map<std::string, std::string> actual_substs;
-        actual_substs["B"] = "b";
-        REQUIRE(found_answer.has_value());
-        REQUIRE(found_answer->size() == 1);
-        for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
-        }
-    }
-    SECTION("List with append operator") {
-        program_code.emplace_back("f([a,b,c | d]).");
-
-        setup_org("f(Z)");
-
-        auto found_answer = org.get_answer();
-
-        map<std::string, std::string> actual_substs;
-        actual_substs["Z"] = "[a,b,c,d]";
+        actual_substs["B"] = "[b]";
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
@@ -129,7 +96,7 @@ TEST_CASE("BFS Organizer List Test"){
             REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
         }
     }
-    SECTION("Append list properly coded - Easy append") {
+    SECTION("Append list properly coded - append") {
         program_code.emplace_back("append([X| Xs], Ys, [X | Rs]) :- append(Xs, Ys, Rs).");
         program_code.emplace_back("append([], Xs, Xs).");
 
@@ -145,7 +112,7 @@ TEST_CASE("BFS Organizer List Test"){
             REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
         }
     }
-    SECTION("Append list properly coded - Easy append 2") {
+    SECTION("Append list properly coded - append 2") {
         program_code.emplace_back("append([X| Xs], Ys, [X | Rs]) :- append(Xs, Ys, Rs).");
         program_code.emplace_back("append([], Xs, Xs).");
 
@@ -157,6 +124,54 @@ TEST_CASE("BFS Organizer List Test"){
         actual_substs["Z"] = "[b,c]";
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
+        for (auto &subst : *found_answer) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+        }
+    }
+    SECTION("Append list properly coded - append 3") {
+        program_code.emplace_back("append([X| Xs], Ys, [X | Rs]) :- append(Xs, Ys, Rs).");
+        program_code.emplace_back("append([], Xs, Xs).");
+
+        setup_org("append([a,b,c],[d,e], Z).");
+
+        auto found_answer = org.get_answer();
+
+        map<std::string, std::string> actual_substs;
+        actual_substs["Z"] = "[a,b,c,d,e]";
+        REQUIRE(found_answer.has_value());
+        REQUIRE(found_answer->size() == 1);
+        for (auto &subst : *found_answer) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+        }
+    }
+    SECTION("List of list") {
+        program_code.emplace_back("[[a]].");
+
+        setup_org("[A].");
+
+        auto found_answer = org.get_answer();
+
+        map<std::string, std::string> actual_substs;
+        actual_substs["A"] = "[a]";
+        REQUIRE(found_answer.has_value());
+        REQUIRE(found_answer->size() == 1);
+        for (auto &subst : *found_answer) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+        }
+    }
+    SECTION("List of list") {
+        program_code.emplace_back("[[a], [b], [c]].");
+
+        setup_org("[A, B | C].");
+
+        auto found_answer = org.get_answer();
+
+        map<std::string, std::string> actual_substs;
+        actual_substs["A"] = "[a]";
+        actual_substs["B"] = "[b]";
+        actual_substs["C"] = "[[c]]";
+        REQUIRE(found_answer.has_value());
+        REQUIRE(found_answer->size() == 3);
         for (auto &subst : *found_answer) {
             REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
         }

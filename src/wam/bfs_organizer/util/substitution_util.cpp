@@ -7,13 +7,12 @@
 #include "../../data/regist.h"
 
 
-
 //TODO recursive function, could be optimized through use of stack
 std::string
 wam::string_representation_of(const std::vector<wam::regist> &registers, size_t index,
                               const std::vector<functor_view> &functors,
-                              //TODO Better Naming: is_contigous_list should be is_list_start
-                              //Need to negate part of the logic
+        //TODO Better Naming: is_contigous_list should be is_list_start
+        //Need to negate part of the logic
                               bool is_contigous_list) {
     //If register is an Ref cell we try to dereference it
     if (registers[index].is_REF()) {
@@ -32,12 +31,13 @@ wam::string_representation_of(const std::vector<wam::regist> &registers, size_t 
     //At this point the register will be an FUN cell
     const functor_view &functor = functors[registers[index].index];
 
-    //If the functor is the empty list, we return nothing
-    if(functor.is_empty_list()){
-        if(!is_contigous_list){
+    //If the functor is the empty list, we return only "[]" if it is not end-marker for another list.
+    // e.g. [a|[]] should be outputed as [a]
+    if (functor.is_empty_list()) {
+        if (!is_contigous_list) {
             return "[]";
         }else{
-            return "]";
+            return "";
         }
     }
 
@@ -46,29 +46,29 @@ wam::string_representation_of(const std::vector<wam::regist> &registers, size_t 
         return functor.name;
     }
 
-    if(functor.is_append_functor()){
+    if (functor.is_append_functor()) {
         std::string appended_elem = string_representation_of(registers, index + 1, functors, false);
-        if(appended_elem == "[]"){
+        if (appended_elem == "[]") {
             //If it only appended the empty list, no need to output it too
             return "]";
-        }else{
-           return appended_elem + ",]";
+        } else {
+            return appended_elem + ",]";
         }
     }
     //Either list or normal functor
     std::string result;
 
     //If the functor is a list
-    if (functor.is_list()){
-        if(!is_contigous_list){
+    if (functor.is_list()) {
+        if (!is_contigous_list) {
             result = "[";
         }
-        result += string_representation_of(registers, index +1, functors, false) + ",";
-        result += string_representation_of(registers, index +2, functors, true);
+        result += string_representation_of(registers, index + 1, functors, false) + ",";
+        result += string_representation_of(registers, index + 2, functors, true);
 
-        //If the list has been completly built, remove the , before the ]
-        if(!is_contigous_list){
-            result.erase(result.cend() -2);
+        //If the list has been completly built, replace the last "," with an "]"
+        if (!is_contigous_list) {
+            result.back() = ']';
         }
         return result;
     }

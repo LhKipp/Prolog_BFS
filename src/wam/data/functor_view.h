@@ -10,7 +10,7 @@
 namespace wam {
     struct functor_view {
         std::string name;
-        int arity;
+        int arity ;
 
         functor_view() = default;
 

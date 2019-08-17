@@ -29,9 +29,6 @@ node wam::build_tree(const std::string &line) {
     //At the begin, its the outer pred
     current_parent.push(&top_node);
 
-    //Variables for handling list
-    int list_len = 0;
-    bool handling_list = false;
 
     size_t cur_pos = 0;
 
@@ -39,50 +36,46 @@ node wam::build_tree(const std::string &line) {
 
     while (cur_pos < line.size()) {
         const char cur_char = line[cur_pos];
-        //if term end
         if (cur_char == '.') {
+            //if term end
             break;
-            //if functor end
         } else if (cur_char == ')') {
+            //if functor end
             current_parent.pop();
             ++cur_pos;
 
-            //if term end
         } else if (cur_char == ',') {
-            //If handling list then list len +1
-            if (handling_list) {
-                list_len += 1;
+            if (current_parent.top()->is_list()) {
                 current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
                 current_parent.push(&current_parent.top()->children->back());
             }
             ++cur_pos;
         } else if (cur_char == '|') {
-            //If handling appending of list
-            current_parent.push(&current_parent.top()->children->back());
+            //If handling appending of list nothing is to be done, as the next inner term will be a variable!
             ++cur_pos;
         }
         else if (cur_char == ']') {
             //if List end
             //Every list ends with an empty list
-            if (current_parent.top()->is_non_empty_list() || current_parent.top()->is_append_functor()) {
-                current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "|");
-                current_parent.top()->children->back().children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
+            // (except the empty list and a full list like [a|Xs]
+            if (current_parent.top()->is_non_empty_list() && !current_parent.top()->has_tail() ){
+                current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
             }
-            current_parent.pop();
-            for (int i = 0; i < list_len; ++i) {
+            while(!current_parent.top()->is_list_begin){
                 current_parent.pop();
             }
+            //Pop the list begin
+            current_parent.pop();
             ++cur_pos;
-            handling_list = false;
         }
             //If list begin
         else if (cur_char == '[') {
-            list_len = 0;
-            handling_list = true;
 
             current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
-            cur_pos += 1;
             current_parent.push(&current_parent.top()->children->back());
+            current_parent.top()->is_list_begin = true;
+
+            cur_pos += 1;
         }
             //if variable begin
         else if (std::isupper(cur_char)) {
@@ -114,7 +107,6 @@ node wam::build_tree(const std::string &line) {
                 //+1 to overread the (
                 cur_pos += name_len + 1;
 
-                handling_list = false;
             }
         } else {//sign may be " " , \n
             ++cur_pos;
