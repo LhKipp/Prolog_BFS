@@ -24,281 +24,290 @@ TEST_CASE("p5-0 test") {
         REQUIRE(answer.has_value());
     }
     SECTION("lVonM") {
+
         org.load_query("lvonM(Z).");
+        vector<string> solutions;
+        solutions.push_back("[]");
+        solutions.push_back("[nix]");
+        solutions.push_back("[b]");
+        solutions.push_back("[a]");
+        solutions.push_back("[nix,b]");
+        solutions.push_back("[nix,a]");
+        solutions.push_back("[b,b]");
+        solutions.push_back("[b,nix,b]");
+        solutions.push_back("[a,a]");
+        solutions.push_back("[a,nix,a]");
+        solutions.push_back("[nix,b,b]");
+        solutions.push_back("[nix,b,nix,b]");
+        solutions.push_back("[nix,a,a]");
+        solutions.push_back("[nix,a,nix,a]");
+        solutions.push_back("[b,b,b]");
+        solutions.push_back("[b,a,b]");
+        solutions.push_back("[b,nix,b,b]");
+        solutions.push_back("[b,nix,a,b]");
+        solutions.push_back("[a,b,a]");
+        solutions.push_back("[a,a,a]");
+        solutions.push_back("[a,nix,b,a]");
+        solutions.push_back("[a,nix,a,a]");
+        solutions.push_back("[nix,b,b,b]");
+        solutions.push_back("[nix,b,a,b]");
+        solutions.push_back("[nix,b,nix,b,b]");
+        solutions.push_back("[nix,b,nix,a,b]");
+        solutions.push_back("[nix,a,b,a]");
+        solutions.push_back("[nix,a,a,a]");
+        solutions.push_back("[nix,a,nix,b,a]");
+        solutions.push_back("[nix,a,nix,a,a]");
+        solutions.push_back("[b,b,b,b]");
+        solutions.push_back("[b,b,nix,b,b]");
+        solutions.push_back("[b,a,a,b]");
+        solutions.push_back("[b,a,nix,a,b]");
+        solutions.push_back("[b,nix,b,b,b]");
+        solutions.push_back("[b,nix,b,nix,b,b]");
+        solutions.push_back("[b,nix,a,a,b]");
+        solutions.push_back("[b,nix,a,nix,a,b]");
+        solutions.push_back("[a,b,b,a]");
+        solutions.push_back("[a,b,nix,b,a]");
+        solutions.push_back("[a,a,a,a]");
+        solutions.push_back("[a,a,nix,a,a]");
+        solutions.push_back("[a,nix,b,b,a]");
+        solutions.push_back("[a,nix,b,nix,b,a]");
+        solutions.push_back("[a,nix,a,a,a]");
+        solutions.push_back("[a,nix,a,nix,a,a]");
+        solutions.push_back("[nix,b,b,b,b]");
+        solutions.push_back("[nix,b,b,nix,b,b]");
+        solutions.push_back("[nix,b,a,a,b]");
+        solutions.push_back("[nix,b,a,nix,a,b]");
+        solutions.push_back("[nix,b,nix,b,b,b]");
+        solutions.push_back("[nix,b,nix,b,nix,b,b]");
+        solutions.push_back("[nix,b,nix,a,a,b]");
+        solutions.push_back("[nix,b,nix,a,nix,a,b]");
+        solutions.push_back("[nix,a,b,b,a]");
+        solutions.push_back("[nix,a,b,nix,b,a]");
+        solutions.push_back("[nix,a,a,a,a]");
+        solutions.push_back("[nix,a,a,nix,a,a]");
+        solutions.push_back("[nix,a,nix,b,b,a]");
+        solutions.push_back("[nix,a,nix,b,nix,b,a]");
+        solutions.push_back("[nix,a,nix,a,a,a]");
+        solutions.push_back("[nix,a,nix,a,nix,a,a]");
+        solutions.push_back("[b,b,b,b,b]");
+        solutions.push_back("[b,b,a,b,b]");
+        solutions.push_back("[b,b,nix,b,b,b]");
+        solutions.push_back("[b,b,nix,a,b,b]");
+        solutions.push_back("[b,a,b,a,b]");
+        solutions.push_back("[b,a,a,a,b]");
+        solutions.push_back("[b,a,nix,b,a,b]");
+        solutions.push_back("[b,a,nix,a,a,b]");
+        solutions.push_back("[b,nix,b,b,b,b]");
+        solutions.push_back("[b,nix,b,a,b,b]");
+        solutions.push_back("[b,nix,b,nix,b,b,b]");
+        solutions.push_back("[b,nix,b,nix,a,b,b]");
+        solutions.push_back("[b,nix,a,b,a,b]");
+        solutions.push_back("[b,nix,a,a,a,b]");
+        solutions.push_back("[b,nix,a,nix,b,a,b]");
+        solutions.push_back("[b,nix,a,nix,a,a,b]");
+        solutions.push_back("[a,b,b,b,a]");
+        solutions.push_back("[a,b,a,b,a]");
+        solutions.push_back("[a,b,nix,b,b,a]");
+        solutions.push_back("[a,b,nix,a,b,a]");
+        solutions.push_back("[a,a,b,a,a]");
+        solutions.push_back("[a,a,a,a,a]");
+        solutions.push_back("[a,a,nix,b,a,a]");
+        solutions.push_back("[a,a,nix,a,a,a]");
+        solutions.push_back("[a,nix,b,b,b,a]");
+        solutions.push_back("[a,nix,b,a,b,a]");
+        solutions.push_back("[a,nix,b,nix,b,b,a]");
+        solutions.push_back("[a,nix,b,nix,a,b,a]");
+        solutions.push_back("[a,nix,a,b,a,a]");
+        solutions.push_back("[a,nix,a,a,a,a]");
+        solutions.push_back("[a,nix,a,nix,b,a,a]");
+        solutions.push_back("[a,nix,a,nix,a,a,a]");
+        solutions.push_back("[nix,b,b,b,b,b]");
+        solutions.push_back("[nix,b,b,a,b,b]");
+        solutions.push_back("[nix,b,b,nix,b,b,b]");
+        solutions.push_back("[nix,b,b,nix,a,b,b]");
+        solutions.push_back("[nix,b,a,b,a,b]");
+        solutions.push_back("[nix,b,a,a,a,b]");
+        solutions.push_back("[nix,b,a,nix,b,a,b]");
+        solutions.push_back("[nix,b,a,nix,a,a,b]");
+        solutions.push_back("[nix,b,nix,b,b,b,b]");
+        solutions.push_back("[nix,b,nix,b,a,b,b]");
+        solutions.push_back("[nix,b,nix,b,nix,b,b,b]");
+        solutions.push_back("[nix,b,nix,b,nix,a,b,b]");
+        solutions.push_back("[nix,b,nix,a,b,a,b]");
+        solutions.push_back("[nix,b,nix,a,a,a,b]");
+        solutions.push_back("[nix,b,nix,a,nix,b,a,b]");
+        solutions.push_back("[nix,b,nix,a,nix,a,a,b]");
+        solutions.push_back("[nix,a,b,b,b,a]");
+        solutions.push_back("[nix,a,b,a,b,a]");
+        solutions.push_back("[nix,a,b,nix,b,b,a]");
+        solutions.push_back("[nix,a,b,nix,a,b,a]");
+        solutions.push_back("[nix,a,a,b,a,a]");
+        solutions.push_back("[nix,a,a,a,a,a]");
+        solutions.push_back("[nix,a,a,nix,b,a,a]");
+        solutions.push_back("[nix,a,a,nix,a,a,a]");
+        solutions.push_back("[nix,a,nix,b,b,b,a]");
+        solutions.push_back("[nix,a,nix,b,a,b,a]");
+        solutions.push_back("[nix,a,nix,b,nix,b,b,a]");
+        solutions.push_back("[nix,a,nix,b,nix,a,b,a]");
+        solutions.push_back("[nix,a,nix,a,b,a,a]");
+        solutions.push_back("[nix,a,nix,a,a,a,a]");
+        solutions.push_back("[nix,a,nix,a,nix,b,a,a]");
+        solutions.push_back("[nix,a,nix,a,nix,a,a,a]");
+        solutions.push_back("[b,b,b,b,b,b]");
+        solutions.push_back("[b,b,b,nix,b,b,b]");
+        solutions.push_back("[b,b,a,a,b,b]");
+        solutions.push_back("[b,b,a,nix,a,b,b]");
+        solutions.push_back("[b,b,nix,b,b,b,b]");
+        solutions.push_back("[b,b,nix,b,nix,b,b,b]");
+        solutions.push_back("[b,b,nix,a,a,b,b]");
+        solutions.push_back("[b,b,nix,a,nix,a,b,b]");
+        solutions.push_back("[b,a,b,b,a,b]");
+        solutions.push_back("[b,a,b,nix,b,a,b]");
+        solutions.push_back("[b,a,a,a,a,b]");
+        solutions.push_back("[b,a,a,nix,a,a,b]");
+        solutions.push_back("[b,a,nix,b,b,a,b]");
+        solutions.push_back("[b,a,nix,b,nix,b,a,b]");
+        solutions.push_back("[b,a,nix,a,a,a,b]");
+        solutions.push_back("[b,a,nix,a,nix,a,a,b]");
+        solutions.push_back("[b,nix,b,b,b,b,b]");
+        solutions.push_back("[b,nix,b,b,nix,b,b,b]");
+        solutions.push_back("[b,nix,b,a,a,b,b]");
+        solutions.push_back("[b,nix,b,a,nix,a,b,b]");
+        solutions.push_back("[b,nix,b,nix,b,b,b,b]");
+        solutions.push_back("[b,nix,b,nix,b,nix,b,b,b]");
+        solutions.push_back("[b,nix,b,nix,a,a,b,b]");
+        solutions.push_back("[b,nix,b,nix,a,nix,a,b,b]");
+        solutions.push_back("[b,nix,a,b,b,a,b]");
+        solutions.push_back("[b,nix,a,b,nix,b,a,b]");
+        solutions.push_back("[b,nix,a,a,a,a,b]");
+        solutions.push_back("[b,nix,a,a,nix,a,a,b]");
+        solutions.push_back("[b,nix,a,nix,b,b,a,b]");
+        solutions.push_back("[b,nix,a,nix,b,nix,b,a,b]");
+        solutions.push_back("[b,nix,a,nix,a,a,a,b]");
+        solutions.push_back("[b,nix,a,nix,a,nix,a,a,b]");
+        solutions.push_back("[a,b,b,b,b,a]");
+        solutions.push_back("[a,b,b,nix,b,b,a]");
+        solutions.push_back("[a,b,a,a,b,a]");
+        solutions.push_back("[a,b,a,nix,a,b,a]");
+        solutions.push_back("[a,b,nix,b,b,b,a]");
+        solutions.push_back("[a,b,nix,b,nix,b,b,a]");
+        solutions.push_back("[a,b,nix,a,a,b,a]");
+        solutions.push_back("[a,b,nix,a,nix,a,b,a]");
+        solutions.push_back("[a,a,b,b,a,a]");
+        solutions.push_back("[a,a,b,nix,b,a,a]");
+        solutions.push_back("[a,a,a,a,a,a]");
+        solutions.push_back("[a,a,a,nix,a,a,a]");
+        solutions.push_back("[a,a,nix,b,b,a,a]");
+        solutions.push_back("[a,a,nix,b,nix,b,a,a]");
+        solutions.push_back("[a,a,nix,a,a,a,a]");
+        solutions.push_back("[a,a,nix,a,nix,a,a,a]");
+        solutions.push_back("[a,nix,b,b,b,b,a]");
+        solutions.push_back("[a,nix,b,b,nix,b,b,a]");
+        solutions.push_back("[a,nix,b,a,a,b,a]");
+        solutions.push_back("[a,nix,b,a,nix,a,b,a]");
+        solutions.push_back("[a,nix,b,nix,b,b,b,a]");
+        solutions.push_back("[a,nix,b,nix,b,nix,b,b,a]");
+        solutions.push_back("[a,nix,b,nix,a,a,b,a]");
+        solutions.push_back("[a,nix,b,nix,a,nix,a,b,a]");
+        solutions.push_back("[a,nix,a,b,b,a,a]");
+        solutions.push_back("[a,nix,a,b,nix,b,a,a]");
+        solutions.push_back("[a,nix,a,a,a,a,a]");
+        solutions.push_back("[a,nix,a,a,nix,a,a,a]");
+        solutions.push_back("[a,nix,a,nix,b,b,a,a]");
+        solutions.push_back("[a,nix,a,nix,b,nix,b,a,a]");
+        solutions.push_back("[a,nix,a,nix,a,a,a,a]");
+        solutions.push_back("[a,nix,a,nix,a,nix,a,a,a]");
+        solutions.push_back("[nix,b,b,b,b,b,b]");
+        solutions.push_back("[nix,b,b,b,nix,b,b,b]");
+        solutions.push_back("[nix,b,b,a,a,b,b]");
+        solutions.push_back("[nix,b,b,a,nix,a,b,b]");
+        solutions.push_back("[nix,b,b,nix,b,b,b,b]");
+        solutions.push_back("[nix,b,b,nix,b,nix,b,b,b]");
+        solutions.push_back("[nix,b,b,nix,a,a,b,b]");
+        solutions.push_back("[nix,b,b,nix,a,nix,a,b,b]");
+        solutions.push_back("[nix,b,a,b,b,a,b]");
+        solutions.push_back("[nix,b,a,b,nix,b,a,b]");
+        solutions.push_back("[nix,b,a,a,a,a,b]");
+        solutions.push_back("[nix,b,a,a,nix,a,a,b]");
+        solutions.push_back("[nix,b,a,nix,b,b,a,b]");
+        solutions.push_back("[nix,b,a,nix,b,nix,b,a,b]");
+        solutions.push_back("[nix,b,a,nix,a,a,a,b]");
+        solutions.push_back("[nix,b,a,nix,a,nix,a,a,b]");
+        solutions.push_back("[nix,b,nix,b,b,b,b,b]");
+        solutions.push_back("[nix,b,nix,b,b,nix,b,b,b]");
+        solutions.push_back("[nix,b,nix,b,a,a,b,b]");
+        solutions.push_back("[nix,b,nix,b,a,nix,a,b,b]");
+        solutions.push_back("[nix,b,nix,b,nix,b,b,b,b]");
+        solutions.push_back("[nix,b,nix,b,nix,b,nix,b,b,b]");
+        solutions.push_back("[nix,b,nix,b,nix,a,a,b,b]");
+        solutions.push_back("[nix,b,nix,b,nix,a,nix,a,b,b]");
+        solutions.push_back("[nix,b,nix,a,b,b,a,b]");
+        solutions.push_back("[nix,b,nix,a,b,nix,b,a,b]");
+        solutions.push_back("[nix,b,nix,a,a,a,a,b]");
+        solutions.push_back("[nix,b,nix,a,a,nix,a,a,b]");
+        solutions.push_back("[nix,b,nix,a,nix,b,b,a,b]");
+        solutions.push_back("[nix,b,nix,a,nix,b,nix,b,a,b]");
+        solutions.push_back("[nix,b,nix,a,nix,a,a,a,b]");
+        solutions.push_back("[nix,b,nix,a,nix,a,nix,a,a,b]");
+        solutions.push_back("[nix,a,b,b,b,b,a]");
+        solutions.push_back("[nix,a,b,b,nix,b,b,a]");
+        solutions.push_back("[nix,a,b,a,a,b,a]");
+        solutions.push_back("[nix,a,b,a,nix,a,b,a]");
+        solutions.push_back("[nix,a,b,nix,b,b,b,a]");
+        solutions.push_back("[nix,a,b,nix,b,nix,b,b,a]");
+        solutions.push_back("[nix,a,b,nix,a,a,b,a]");
+        solutions.push_back("[nix,a,b,nix,a,nix,a,b,a]");
+        solutions.push_back("[nix,a,a,b,b,a,a]");
+        solutions.push_back("[nix,a,a,b,nix,b,a,a]");
+        solutions.push_back("[nix,a,a,a,a,a,a]");
+        solutions.push_back("[nix,a,a,a,nix,a,a,a]");
+        solutions.push_back("[nix,a,a,nix,b,b,a,a]");
+        solutions.push_back("[nix,a,a,nix,b,nix,b,a,a]");
+        solutions.push_back("[nix,a,a,nix,a,a,a,a]");
+        solutions.push_back("[nix,a,a,nix,a,nix,a,a,a]");
+        solutions.push_back("[nix,a,nix,b,b,b,b,a]");
+        solutions.push_back("[nix,a,nix,b,b,nix,b,b,a]");
+        solutions.push_back("[nix,a,nix,b,a,a,b,a]");
+        solutions.push_back("[nix,a,nix,b,a,nix,a,b,a]");
+        solutions.push_back("[nix,a,nix,b,nix,b,b,b,a]");
+        solutions.push_back("[nix,a,nix,b,nix,b,nix,b,b,a]");
+        solutions.push_back("[nix,a,nix,b,nix,a,a,b,a]");
+        solutions.push_back("[nix,a,nix,b,nix,a,nix,a,b,a]");
+        solutions.push_back("[nix,a,nix,a,b,b,a,a]");
+        solutions.push_back("[nix,a,nix,a,b,nix,b,a,a]");
+        solutions.push_back("[nix,a,nix,a,a,a,a,a]");
+        solutions.push_back("[nix,a,nix,a,a,nix,a,a,a]");
+        solutions.push_back("[nix,a,nix,a,nix,b,b,a,a]");
+        solutions.push_back("[nix,a,nix,a,nix,b,nix,b,a,a]");
+        solutions.push_back("[nix,a,nix,a,nix,a,a,a,a]");
+        solutions.push_back("[nix,a,nix,a,nix,a,nix,a,a,a]");
+        solutions.push_back("[b,b,b,b,b,b,b]");
+        solutions.push_back("[b,b,b,a,b,b,b]");
+        solutions.push_back("[b,b,b,nix,b,b,b,b]");
+        solutions.push_back("[b,b,b,nix,a,b,b,b]");
+        solutions.push_back("[b,b,a,b,a,b,b]");
+        solutions.push_back("[b,b,a,a,a,b,b]");
+        solutions.push_back("[b,b,a,nix,b,a,b,b]");
+        solutions.push_back("[b,b,a,nix,a,a,b,b]");
+        solutions.push_back("[b,b,nix,b,b,b,b,b]");
+        solutions.push_back("[b,b,nix,b,a,b,b,b]");
 
         auto answer = org.get_answer();
         REQUIRE(answer.has_value());
-        while (answer) {
-            for (auto &elem : *answer) {
-//                cout << elem << endl;
-            }
-            break;
+
+        for (int i = 0; i < 25; i++) {
             answer = org.get_answer();
+            REQUIRE(answer.has_value());
+            for (auto &elem : *answer) {
+                auto found = std::find(solutions.begin(), solutions.end(), elem.substitute);
+                bool has_found = found != solutions.end();
+                REQUIRE(has_found);
+                solutions.erase(found);
+
+            }
         }
-//        [Z / []]
-//        [Z / [nix]]
-//        [Z / [b]]
-//        [Z / [a]]
-//        [Z / [nix,b]]
-//        [Z / [nix,a]]
-//        [Z / [b,b]]
-//        [Z / [b,nix,b]]
-//        [Z / [a,a]]
-//        [Z / [a,nix,a]]
-//        [Z / [nix,b,b]]
-//        [Z / [nix,b,nix,b]]
-//        [Z / [nix,a,a]]
-//        [Z / [nix,a,nix,a]]
-//        [Z / [b,b,b]]
-//        [Z / [b,a,b]]
-//        [Z / [b,nix,b,b]]
-//        [Z / [b,nix,a,b]]
-//        [Z / [a,b,a]]
-//        [Z / [a,a,a]]
-//        [Z / [a,nix,b,a]]
-//        [Z / [a,nix,a,a]]
-//        [Z / [nix,b,b,b]]
-//        [Z / [nix,b,a,b]]
-//        [Z / [nix,b,nix,b,b]]
-//        [Z / [nix,b,nix,a,b]]
-//        [Z / [nix,a,b,a]]
-//        [Z / [nix,a,a,a]]
-//        [Z / [nix,a,nix,b,a]]
-//        [Z / [nix,a,nix,a,a]]
-//        [Z / [b,b,b,b]]
-//        [Z / [b,b,nix,b,b]]
-//        [Z / [b,a,a,b]]
-//        [Z / [b,a,nix,a,b]]
-//        [Z / [b,nix,b,b,b]]
-//        [Z / [b,nix,b,nix,b,b]]
-//        [Z / [b,nix,a,a,b]]
-//        [Z / [b,nix,a,nix,a,b]]
-//        [Z / [a,b,b,a]]
-//        [Z / [a,b,nix,b,a]]
-//        [Z / [a,a,a,a]]
-//        [Z / [a,a,nix,a,a]]
-//        [Z / [a,nix,b,b,a]]
-//        [Z / [a,nix,b,nix,b,a]]
-//        [Z / [a,nix,a,a,a]]
-//        [Z / [a,nix,a,nix,a,a]]
-//        [Z / [nix,b,b,b,b]]
-//        [Z / [nix,b,b,nix,b,b]]
-//        [Z / [nix,b,a,a,b]]
-//        [Z / [nix,b,a,nix,a,b]]
-//        [Z / [nix,b,nix,b,b,b]]
-//        [Z / [nix,b,nix,b,nix,b,b]]
-//        [Z / [nix,b,nix,a,a,b]]
-//        [Z / [nix,b,nix,a,nix,a,b]]
-//        [Z / [nix,a,b,b,a]]
-//        [Z / [nix,a,b,nix,b,a]]
-//        [Z / [nix,a,a,a,a]]
-//        [Z / [nix,a,a,nix,a,a]]
-//        [Z / [nix,a,nix,b,b,a]]
-//        [Z / [nix,a,nix,b,nix,b,a]]
-//        [Z / [nix,a,nix,a,a,a]]
-//        [Z / [nix,a,nix,a,nix,a,a]]
-//        [Z / [b,b,b,b,b]]
-//        [Z / [b,b,a,b,b]]
-//        [Z / [b,b,nix,b,b,b]]
-//        [Z / [b,b,nix,a,b,b]]
-//        [Z / [b,a,b,a,b]]
-//        [Z / [b,a,a,a,b]]
-//        [Z / [b,a,nix,b,a,b]]
-//        [Z / [b,a,nix,a,a,b]]
-//        [Z / [b,nix,b,b,b,b]]
-//        [Z / [b,nix,b,a,b,b]]
-//        [Z / [b,nix,b,nix,b,b,b]]
-//        [Z / [b,nix,b,nix,a,b,b]]
-//        [Z / [b,nix,a,b,a,b]]
-//        [Z / [b,nix,a,a,a,b]]
-//        [Z / [b,nix,a,nix,b,a,b]]
-//        [Z / [b,nix,a,nix,a,a,b]]
-//        [Z / [a,b,b,b,a]]
-//        [Z / [a,b,a,b,a]]
-//        [Z / [a,b,nix,b,b,a]]
-//        [Z / [a,b,nix,a,b,a]]
-//        [Z / [a,a,b,a,a]]
-//        [Z / [a,a,a,a,a]]
-//        [Z / [a,a,nix,b,a,a]]
-//        [Z / [a,a,nix,a,a,a]]
-//        [Z / [a,nix,b,b,b,a]]
-//        [Z / [a,nix,b,a,b,a]]
-//        [Z / [a,nix,b,nix,b,b,a]]
-//        [Z / [a,nix,b,nix,a,b,a]]
-//        [Z / [a,nix,a,b,a,a]]
-//        [Z / [a,nix,a,a,a,a]]
-//        [Z / [a,nix,a,nix,b,a,a]]
-//        [Z / [a,nix,a,nix,a,a,a]]
-//        [Z / [nix,b,b,b,b,b]]
-//        [Z / [nix,b,b,a,b,b]]
-//        [Z / [nix,b,b,nix,b,b,b]]
-//        [Z / [nix,b,b,nix,a,b,b]]
-//        [Z / [nix,b,a,b,a,b]]
-//        [Z / [nix,b,a,a,a,b]]
-//        [Z / [nix,b,a,nix,b,a,b]]
-//        [Z / [nix,b,a,nix,a,a,b]]
-//        [Z / [nix,b,nix,b,b,b,b]]
-//        [Z / [nix,b,nix,b,a,b,b]]
-//        [Z / [nix,b,nix,b,nix,b,b,b]]
-//        [Z / [nix,b,nix,b,nix,a,b,b]]
-//        [Z / [nix,b,nix,a,b,a,b]]
-//        [Z / [nix,b,nix,a,a,a,b]]
-//        [Z / [nix,b,nix,a,nix,b,a,b]]
-//        [Z / [nix,b,nix,a,nix,a,a,b]]
-//        [Z / [nix,a,b,b,b,a]]
-//        [Z / [nix,a,b,a,b,a]]
-//        [Z / [nix,a,b,nix,b,b,a]]
-//        [Z / [nix,a,b,nix,a,b,a]]
-//        [Z / [nix,a,a,b,a,a]]
-//        [Z / [nix,a,a,a,a,a]]
-//        [Z / [nix,a,a,nix,b,a,a]]
-//        [Z / [nix,a,a,nix,a,a,a]]
-//        [Z / [nix,a,nix,b,b,b,a]]
-//        [Z / [nix,a,nix,b,a,b,a]]
-//        [Z / [nix,a,nix,b,nix,b,b,a]]
-//        [Z / [nix,a,nix,b,nix,a,b,a]]
-//        [Z / [nix,a,nix,a,b,a,a]]
-//        [Z / [nix,a,nix,a,a,a,a]]
-//        [Z / [nix,a,nix,a,nix,b,a,a]]
-//        [Z / [nix,a,nix,a,nix,a,a,a]]
-//        [Z / [b,b,b,b,b,b]]
-//        [Z / [b,b,b,nix,b,b,b]]
-//        [Z / [b,b,a,a,b,b]]
-//        [Z / [b,b,a,nix,a,b,b]]
-//        [Z / [b,b,nix,b,b,b,b]]
-//        [Z / [b,b,nix,b,nix,b,b,b]]
-//        [Z / [b,b,nix,a,a,b,b]]
-//        [Z / [b,b,nix,a,nix,a,b,b]]
-//        [Z / [b,a,b,b,a,b]]
-//        [Z / [b,a,b,nix,b,a,b]]
-//        [Z / [b,a,a,a,a,b]]
-//        [Z / [b,a,a,nix,a,a,b]]
-//        [Z / [b,a,nix,b,b,a,b]]
-//        [Z / [b,a,nix,b,nix,b,a,b]]
-//        [Z / [b,a,nix,a,a,a,b]]
-//        [Z / [b,a,nix,a,nix,a,a,b]]
-//        [Z / [b,nix,b,b,b,b,b]]
-//        [Z / [b,nix,b,b,nix,b,b,b]]
-//        [Z / [b,nix,b,a,a,b,b]]
-//        [Z / [b,nix,b,a,nix,a,b,b]]
-//        [Z / [b,nix,b,nix,b,b,b,b]]
-//        [Z / [b,nix,b,nix,b,nix,b,b,b]]
-//        [Z / [b,nix,b,nix,a,a,b,b]]
-//        [Z / [b,nix,b,nix,a,nix,a,b,b]]
-//        [Z / [b,nix,a,b,b,a,b]]
-//        [Z / [b,nix,a,b,nix,b,a,b]]
-//        [Z / [b,nix,a,a,a,a,b]]
-//        [Z / [b,nix,a,a,nix,a,a,b]]
-//        [Z / [b,nix,a,nix,b,b,a,b]]
-//        [Z / [b,nix,a,nix,b,nix,b,a,b]]
-//        [Z / [b,nix,a,nix,a,a,a,b]]
-//        [Z / [b,nix,a,nix,a,nix,a,a,b]]
-//        [Z / [a,b,b,b,b,a]]
-//        [Z / [a,b,b,nix,b,b,a]]
-//        [Z / [a,b,a,a,b,a]]
-//        [Z / [a,b,a,nix,a,b,a]]
-//        [Z / [a,b,nix,b,b,b,a]]
-//        [Z / [a,b,nix,b,nix,b,b,a]]
-//        [Z / [a,b,nix,a,a,b,a]]
-//        [Z / [a,b,nix,a,nix,a,b,a]]
-//        [Z / [a,a,b,b,a,a]]
-//        [Z / [a,a,b,nix,b,a,a]]
-//        [Z / [a,a,a,a,a,a]]
-//        [Z / [a,a,a,nix,a,a,a]]
-//        [Z / [a,a,nix,b,b,a,a]]
-//        [Z / [a,a,nix,b,nix,b,a,a]]
-//        [Z / [a,a,nix,a,a,a,a]]
-//        [Z / [a,a,nix,a,nix,a,a,a]]
-//        [Z / [a,nix,b,b,b,b,a]]
-//        [Z / [a,nix,b,b,nix,b,b,a]]
-//        [Z / [a,nix,b,a,a,b,a]]
-//        [Z / [a,nix,b,a,nix,a,b,a]]
-//        [Z / [a,nix,b,nix,b,b,b,a]]
-//        [Z / [a,nix,b,nix,b,nix,b,b,a]]
-//        [Z / [a,nix,b,nix,a,a,b,a]]
-//        [Z / [a,nix,b,nix,a,nix,a,b,a]]
-//        [Z / [a,nix,a,b,b,a,a]]
-//        [Z / [a,nix,a,b,nix,b,a,a]]
-//        [Z / [a,nix,a,a,a,a,a]]
-//        [Z / [a,nix,a,a,nix,a,a,a]]
-//        [Z / [a,nix,a,nix,b,b,a,a]]
-//        [Z / [a,nix,a,nix,b,nix,b,a,a]]
-//        [Z / [a,nix,a,nix,a,a,a,a]]
-//        [Z / [a,nix,a,nix,a,nix,a,a,a]]
-//        [Z / [nix,b,b,b,b,b,b]]
-//        [Z / [nix,b,b,b,nix,b,b,b]]
-//        [Z / [nix,b,b,a,a,b,b]]
-//        [Z / [nix,b,b,a,nix,a,b,b]]
-//        [Z / [nix,b,b,nix,b,b,b,b]]
-//        [Z / [nix,b,b,nix,b,nix,b,b,b]]
-//        [Z / [nix,b,b,nix,a,a,b,b]]
-//        [Z / [nix,b,b,nix,a,nix,a,b,b]]
-//        [Z / [nix,b,a,b,b,a,b]]
-//        [Z / [nix,b,a,b,nix,b,a,b]]
-//        [Z / [nix,b,a,a,a,a,b]]
-//        [Z / [nix,b,a,a,nix,a,a,b]]
-//        [Z / [nix,b,a,nix,b,b,a,b]]
-//        [Z / [nix,b,a,nix,b,nix,b,a,b]]
-//        [Z / [nix,b,a,nix,a,a,a,b]]
-//        [Z / [nix,b,a,nix,a,nix,a,a,b]]
-//        [Z / [nix,b,nix,b,b,b,b,b]]
-//        [Z / [nix,b,nix,b,b,nix,b,b,b]]
-//        [Z / [nix,b,nix,b,a,a,b,b]]
-//        [Z / [nix,b,nix,b,a,nix,a,b,b]]
-//        [Z / [nix,b,nix,b,nix,b,b,b,b]]
-//        [Z / [nix,b,nix,b,nix,b,nix,b,b,b]]
-//        [Z / [nix,b,nix,b,nix,a,a,b,b]]
-//        [Z / [nix,b,nix,b,nix,a,nix,a,b,b]]
-//        [Z / [nix,b,nix,a,b,b,a,b]]
-//        [Z / [nix,b,nix,a,b,nix,b,a,b]]
-//        [Z / [nix,b,nix,a,a,a,a,b]]
-//        [Z / [nix,b,nix,a,a,nix,a,a,b]]
-//        [Z / [nix,b,nix,a,nix,b,b,a,b]]
-//        [Z / [nix,b,nix,a,nix,b,nix,b,a,b]]
-//        [Z / [nix,b,nix,a,nix,a,a,a,b]]
-//        [Z / [nix,b,nix,a,nix,a,nix,a,a,b]]
-//        [Z / [nix,a,b,b,b,b,a]]
-//        [Z / [nix,a,b,b,nix,b,b,a]]
-//        [Z / [nix,a,b,a,a,b,a]]
-//        [Z / [nix,a,b,a,nix,a,b,a]]
-//        [Z / [nix,a,b,nix,b,b,b,a]]
-//        [Z / [nix,a,b,nix,b,nix,b,b,a]]
-//        [Z / [nix,a,b,nix,a,a,b,a]]
-//        [Z / [nix,a,b,nix,a,nix,a,b,a]]
-//        [Z / [nix,a,a,b,b,a,a]]
-//        [Z / [nix,a,a,b,nix,b,a,a]]
-//        [Z / [nix,a,a,a,a,a,a]]
-//        [Z / [nix,a,a,a,nix,a,a,a]]
-//        [Z / [nix,a,a,nix,b,b,a,a]]
-//        [Z / [nix,a,a,nix,b,nix,b,a,a]]
-//        [Z / [nix,a,a,nix,a,a,a,a]]
-//        [Z / [nix,a,a,nix,a,nix,a,a,a]]
-//        [Z / [nix,a,nix,b,b,b,b,a]]
-//        [Z / [nix,a,nix,b,b,nix,b,b,a]]
-//        [Z / [nix,a,nix,b,a,a,b,a]]
-//        [Z / [nix,a,nix,b,a,nix,a,b,a]]
-//        [Z / [nix,a,nix,b,nix,b,b,b,a]]
-//        [Z / [nix,a,nix,b,nix,b,nix,b,b,a]]
-//        [Z / [nix,a,nix,b,nix,a,a,b,a]]
-//        [Z / [nix,a,nix,b,nix,a,nix,a,b,a]]
-//        [Z / [nix,a,nix,a,b,b,a,a]]
-//        [Z / [nix,a,nix,a,b,nix,b,a,a]]
-//        [Z / [nix,a,nix,a,a,a,a,a]]
-//        [Z / [nix,a,nix,a,a,nix,a,a,a]]
-//        [Z / [nix,a,nix,a,nix,b,b,a,a]]
-//        [Z / [nix,a,nix,a,nix,b,nix,b,a,a]]
-//        [Z / [nix,a,nix,a,nix,a,a,a,a]]
-//        [Z / [nix,a,nix,a,nix,a,nix,a,a,a]]
-//        [Z / [b,b,b,b,b,b,b]]
-//        [Z / [b,b,b,a,b,b,b]]
-//        [Z / [b,b,b,nix,b,b,b,b]]
-//        [Z / [b,b,b,nix,a,b,b,b]]
-//        [Z / [b,b,a,b,a,b,b]]
-//        [Z / [b,b,a,a,a,b,b]]
-//        [Z / [b,b,a,nix,b,a,b,b]]
-//        [Z / [b,b,a,nix,a,a,b,b]]
-//        [Z / [b,b,nix,b,b,b,b,b]]
-//        [Z / [b,b,nix,b,a,b,b,b]]
+
+
     }
 
 }

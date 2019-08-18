@@ -12,23 +12,25 @@ sigma(b).
  
 kelleralphabet(a).
 kelleralphabet(b).
-kelleralphabet(#).
+kelleralphabet(c).
  
-deltaf(z0,a,#,z0,[a,#]).
+deltaf(z0,a,c,z0,[a,c]).
 deltaf(z0,a,a,z0,[a,a]).
 deltaf(z0,b,a,z1,[]).
 deltaf(z1,b,a,z1,[]).
-deltaf(z1,nix,#,z2,[]).
+deltaf(z1,nix,c,z2,[]).
  
 start(z0).
-kellersymbol(#).
+kellersymbol(c).
  
+append([],Xs,Xs).
+append([X|Xs] , Ys, [X|Rs]) :- append(Xs, Ys, Rs).
 %abbildung 7.2 
 sigma_stern([]).
 sigma_stern([X|Ws]):-sigma(X),sigma_stern(Ws).
  
 %definition 9.5, definition 9.2
-lvonM(Ws):-sigma_stern(Ws),start(S),zustand(S),kellersymbol(Boden),kelleralphabet(Boden),es_plus(S,Ws,[Boden],NewState,[],[]).
+lVonM(Ws):-start(S),kellersymbol(Boden),zustand(NewState),es_plus(S,Ws,[Boden],NewState,[],[]).
 
 %definition 5.3/ 5.4
 es_plus(S,Ws,Stacks,NeuS,WNs,NeuStacks):-es(S,Ws,Stacks,NeuS,WNs,NeuStacks).
