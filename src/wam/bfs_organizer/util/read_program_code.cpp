@@ -19,7 +19,7 @@ std::vector<std::string> wam::read_program_code(const std::vector<std::string> &
 
         std::copy(prog_line.begin(), percent_sign, std::back_inserter(cur_term));
 
-        auto last_char = std::find_if_not(prog_line.rbegin(), prog_line.rend(),
+        auto last_char = std::find_if_not(cur_term.rbegin(), cur_term.rend(),
                                           [](auto &ch) { return std::isspace(ch); });
         if (*last_char == '.') {
             if (std::count_if(cur_term.begin(), cur_term.end(), [](auto ch) { return !std::isspace(ch); }) == 0) {
