@@ -68,7 +68,8 @@ std::optional<std::vector<wam::var_substitution>> wam::bfs_organizer::get_answer
             }
         }
         if (!next_exec.fail && next_term_code->is_from_original_query()) {
-            std::cout << "Working on atom number: " << next_exec.solves_atom_number << std::endl;
+            //TODO Debug
+//            std::cout << "Working on atom number: " << next_exec.solves_atom_number << std::endl;
             //The heap representation for the query atom "solves_atom_number" has been built now on the heap.
             //The var_reg_subs pointing at x/a_regs can now be transformed to point into the heap
             auto elem = executors.rbegin();
@@ -89,6 +90,8 @@ std::optional<std::vector<wam::var_substitution>> wam::bfs_organizer::get_answer
 
 
 void wam::bfs_organizer::load_query(const std::string &query_line) {
+    //Clear the old executors
+    executors.clear();
     //parse the query and save the results
     auto query = parse_query(query_line);
     current_query_code = std::get<0>(query);

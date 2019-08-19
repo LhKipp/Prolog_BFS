@@ -2,21 +2,20 @@
 vari(vS).
 vari(vA).
 vari(vend).
-sigma(0).
-sigma(1).
+sigma(b).
+sigma(a).
 start(vS).
-delta(vA, 1, vend). % ende und anfang müssen nach oben, da diese bevorzugt genommen werden müssen
-delta(vS, 0, vA).
-delta(vS, 0, vS).
-delta(vS, 1, vS).
+delta(vA, a, vend). 
+% ende und anfang müssen nach oben, da diese bevorzugt genommen werden müssen
+delta(vS, b, vA).
+delta(vS, b, vS).
+delta(vS, a, vS).
 end(vend).
 
 sigma_stern(_X).
 sigma_stern([X|Xs]) :- sigma(X), sigma_stern(Xs).
 
 delta_stern(Zakt, [], Zakt).
-delta_stern(Zakt, [X|Xs], Zneu) :-
-    delta(Zakt, X, Zuebergang),
-    delta_stern(Zuebergang, Xs, Zneu).
-
-lvonN(Ws) :- start(Z0), end(E), delta_stern(Z0, Ws, E), sigma_stern(Ws). % sigma stern muss ans ende, sonst läuft man in die unendlichkeit des sigmas
+delta_stern(Zakt, [X|Xs], Zneu) :- delta(Zakt, X, Zuebergang), delta_stern(Zuebergang, Xs, Zneu).
+lvonN(Ws) :- start(Za), end(E), delta_stern(Za, Ws, E), sigma_stern(Ws). 
+% sigma stern muss ans ende, sonst läuft man in die unendlichkeit des sigmas

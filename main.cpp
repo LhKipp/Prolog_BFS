@@ -15,14 +15,14 @@ int main(int argc, const char *argv[]) {
     int result = Catch::Session().run(1, args);
 
 
-    //Parsing CommandLine Arguments
-//    program_arguments::parser parser{};
-//    auto map = parser.getMap(argc, argv);
+//    Parsing CommandLine Arguments
+    program_arguments::parser parser{};
+    auto map = parser.getMap(argc, argv);
 
-//    if (map.count(program_arguments::help_option)) {
-//        cout << parser.generic << "\n";
-//        return 1;
-//    }
+    if (map.count(program_arguments::help_option)) {
+        cout << parser.generic << "\n";
+        return 0;
+    }
 //
 //    //The program either runs in socket mode (webbrowser - server - bfs_prolog
 //    //or in normal mode (user - terminal - bfs_prolog)
@@ -31,6 +31,8 @@ int main(int argc, const char *argv[]) {
 //    } else{
 //        return app_runner::normal_mode(map);
 //    }
+
+    return app_runner::normal_mode(map);
 
 
 }

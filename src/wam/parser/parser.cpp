@@ -224,6 +224,10 @@ wam::helper::reg_func_counts wam::assign_registers(node &functor, node *first_bo
 std::vector<const node *> wam::flatten(const node &outer_functor) {
     std::vector<const node *> result;
 
+    if(outer_functor.is_constant()){
+        result.push_back(&outer_functor);
+        return result;
+    }
     bfs_order(outer_functor, true, [&](const node *node) {
         if (node->is_functor()
             || node->is_constant()
@@ -536,6 +540,10 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::parse_program_ter
  */
 template<typename Output_Iter>
 void wam::find_substitutions(const node &atom, size_t atom_number, Output_Iter out) {
+    if(atom.is_constant()){
+        return ;
+    }
+
     bfs_order(atom, true, [&](const node *cur_node) {
         if (cur_node->is_variable()) {
             //TODO is x_reg enough?
@@ -557,6 +565,9 @@ std::vector<const node *> wam::flatten_query(const node &outer_functor) {
      * If the tree would be traversed in postorder with the arguments as roots (skip_root = true) these
      * functions would be unnecessary
      */
+    if(outer_functor.is_constant()){
+        return flattened_term;
+    }
     std::rotate(flattened_term.begin(), flattened_term.begin() + outer_functor.children->size(), flattened_term.end());
     std::reverse(flattened_term.begin(), flattened_term.end() - outer_functor.children->size());
     return flattened_term;
@@ -581,16 +592,18 @@ wam::helper::reg_func_counts wam::assign_permanent_registers(const node &program
 
     int atom_number = 0;
 
-    bfs_order(program_node.children->at(0), true, [&](node *cur_node) {
-        if (cur_node->is_variable()) {
-            auto &var_info = seen_variables[cur_node->name];
-            var_info.first_occurrence = atom_number;
-            var_info.nodes.push_back(cur_node);
-        }
-    });
+    if(!program_node.children->at(0).is_constant()) {
+        bfs_order(program_node.children->at(0), true, [&](node *cur_node) {
+            if (cur_node->is_variable()) {
+                auto &var_info = seen_variables[cur_node->name];
+                var_info.first_occurrence = atom_number;
+                var_info.nodes.push_back(cur_node);
+            }
+        });
+    }
     ++atom_number;
 
-    if (program_term) {
+    if (program_term && !program_node.children->at(1).is_constant()) {
         bfs_order(program_node.children->at(1), true, [&](node *cur_node) {
             if (cur_node->is_variable()) {
                 auto &var_info = seen_variables[cur_node->name];
@@ -603,6 +616,9 @@ wam::helper::reg_func_counts wam::assign_permanent_registers(const node &program
 
     for_each(program_node.children->begin() + 1 + program_term, program_node.children->end(),
              [&](node &cur_top_node) {
+                if(cur_top_node.is_constant()){
+                    return;
+                }
                  bfs_order(cur_top_node, true, [&](node *cur_node) {
                      if (cur_node->is_variable()) {
                          /*

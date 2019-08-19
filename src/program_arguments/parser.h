@@ -19,7 +19,7 @@ namespace program_arguments {
         parser() { init(); };
 
         po::options_description generic{"Supported options"};
-        po::options_description hidden{"Hidden options"};
+//        po::options_description hidden{"Hidden options"};
 
 
         po::variables_map getMap(int argc, const char *argv[]) {
@@ -27,7 +27,7 @@ namespace program_arguments {
             pos_options.add(prolog_file_option, -1);
 
             po::options_description cmdline_options;
-            cmdline_options.add(generic).add(hidden);
+            cmdline_options.add(generic);
             po::variables_map vm;
             po::store(po::command_line_parser(argc, argv).
                     options(cmdline_options).positional(pos_options).run(), vm);
@@ -41,9 +41,8 @@ namespace program_arguments {
             generic.add_options()
                     (help_option, "show help message")
                     (socket_option, po::value<std::string>(),
-                     "establishes a socket connection to the supplied file and communicates to user over it");
-            hidden.add_options()
-                    (prolog_file_option, po::value<std::vector<std::string> >(), "prolog file");
+                     "establishes a socket connection to the supplied file and communicates to user over it")
+                    (prolog_file_option, po::value<std::vector<std::string >>(), "prolog program file");
         }
 
 

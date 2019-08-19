@@ -12,12 +12,12 @@ postfix2(Xs, Ys) :- append(_Es, Xs, Ys).
 % baum: e ist der leere baum
 binbaum(e).
 % wenn Ab und Bb Teilbäume sind, dann kann der nächsthöhere Baum diese beiden enthalten
-binbaum(n(_, Ab, Bb)) :- binbaum(Ab), binbaum(Bb).
+binbaum(n(X, Ab, Bb)) :- binbaum(Ab), binbaum(Bb).
 
 % member(X,Xb) : Baum Xb enthält den Eintrag X.
 member(X, n(X, Lb, Rb)) :- binbaum(Lb), binbaum(Rb).
-member(X, n(_X, Lb, Rb)) :- member(X, Lb), binbaum(Lb), binbaum(Rb).
-member(X, n(_X, Lb, Rb)) :- member(X, Rb), binbaum(Lb), binbaum(Rb).
+member(X, n(Y, Lb, Rb)) :- member(X, Lb), binbaum(Lb), binbaum(Rb).
+member(X, n(Y, Lb, Rb)) :- member(X, Rb), binbaum(Lb), binbaum(Rb).
 
 
 % Aufgabe 3
@@ -36,7 +36,7 @@ postorder(n(Root, Lb, Rb), Ys) :-  postorder(Lb, Ls), postorder(Rb, Rs), append(
 % Wurzelbeschriftung hat und diese somit auch nicht aufgeführt wird.
 roots([], []).
 roots([e | Xbs], Ys) :- roots(Xbs, Ys).
-roots([n(X, _Lb, _Rb) | Xbs], [X | Ys]) :- roots(Xbs, Ys).
+roots([n(X, Lb, Rb) | Xbs], [X | Ys]) :- roots(Xbs, Ys).
 
 
 
