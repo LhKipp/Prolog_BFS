@@ -21,3 +21,9 @@ Known Limitations
 2. Any kind of arithmetic is not supported. Use o for 0, s(o) for 1, s(s(o)) for 2, ...
 3. The underscore in variable / constant names is not supported.
 4. There are no built-in predicates.
+
+
+How to use it
+-------------
+Suppose your executable is named "prolog_bfs".
+Type "prolog_bfs program_file" and it will run.

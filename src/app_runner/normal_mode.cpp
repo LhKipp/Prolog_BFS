@@ -23,6 +23,7 @@ namespace app_runner {
             //Read program from std::cin
         }else{
             std::cout << "Enter program code. Type \"q.\" to enter query mode" << std::endl;
+
             std::vector<std::string> input_lines;
             std::string cur_line;
 
@@ -38,6 +39,9 @@ namespace app_runner {
 
         //Query mode
         std::cout << "Entered query mode. Type \"q.\" to quit" << std::endl;
+            std::cout << "Enter a query (e.G. \"p(Z).\"). Make sure to add the ." << std::endl;
+            std::cout << "To get more than 1 unification, type \";\" + Enter " << std::endl;
+            std::cout << "Bugreports are welcome: https://github.com/LhKipp/Prolog_BFS" << std::endl;
 
         std::string cur_input;
         while(true){
