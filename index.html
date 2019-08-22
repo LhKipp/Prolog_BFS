@@ -73,7 +73,7 @@
                 }
                 
                 // create new instance and store it globally
-                instances.push(new Module.PrologBFS());
+                instances.push(new Module.PrologBFSWasmWrapper());
                 var instanceid = instances.length-1;
                 
                 var inputProgram = document.getElementById("program").value;

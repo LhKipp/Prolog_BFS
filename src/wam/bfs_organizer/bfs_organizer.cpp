@@ -8,7 +8,6 @@
 #include "util/substitution_util.h"
 #include "../parser/parser.h"
 #include <iterator>
-#include <term.h>
 #include "util/read_program_code.h"
 
 void wam::bfs_organizer::load_program(const std::string &file_path) {

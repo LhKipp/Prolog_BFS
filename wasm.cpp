@@ -10,27 +10,31 @@
 using namespace emscripten;
 
 
-class PrologBFS: public wam::bfs_organizer {
+class PrologBFSWasmWrapper{
+    wam::bfs_organizer bfs_organizer;
     public:
 	void loadProgram(std::string prog) {
+        //TODO Refactor. Give the user the choice to load from a single string, containing all terms.
             std::vector<std::string> lines;
             std::istringstream iss(prog);
             
             std::string line;
-            while (getline(iss, line)) {
+            while (getline(iss, line, '\n')) {
                 lines.push_back(line);
             }
+
             
-            load_program(lines);
+            bfs_organizer.load_program(lines);
         }
         
         void loadQuery(std::string query) {
-            load_query(query);
+            bfs_organizer.load_query(query);
         }
         
         std::string getAnswer() {
+            //TODO Refactor the get_answer() method in normal mode to write to a templametarized output stream
             std::string result = "";
-            auto answer = get_answer();
+            auto answer = bfs_organizer.get_answer();
             
             if(!answer){
                 return "false";
@@ -40,10 +44,6 @@ class PrologBFS: public wam::bfs_organizer {
             if(answer->empty()){
                 return "true";
             }
-            //Cout variables substitutions
-            //std::copy(answer->begin(), answer->end() -1, std::ostream_iterator<wam::var_substitution>{std::cout, "\n"});
-            //std::cout << answer->back();
-            //std::cout << "\n";
 
             result += "[";
             for (int i = 0; i < answer->size(); i++) {
@@ -60,11 +60,11 @@ class PrologBFS: public wam::bfs_organizer {
 };
 
 // Binding code
-EMSCRIPTEN_BINDINGS(PrologBFS) {
-  class_<PrologBFS>("PrologBFS")
+EMSCRIPTEN_BINDINGS(PrologBFSWasmWrapper) {
+  class_<PrologBFSWasmWrapper>("PrologBFSWasmWrapper")
     .constructor()
-    .function("loadProgram", &PrologBFS::loadProgram)
-    .function("loadQuery", &PrologBFS::loadQuery)
-    .function("getAnswer", &PrologBFS::getAnswer)
+    .function("loadProgram", &PrologBFSWasmWrapper::loadProgram)
+    .function("loadQuery", &PrologBFSWasmWrapper::loadQuery)
+    .function("getAnswer", &PrologBFSWasmWrapper::getAnswer)
     ;
 }

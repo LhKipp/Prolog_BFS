@@ -9,5 +9,9 @@
 # the filename is hardcoded in cmake so we need to do
 # some ugly hacks here
 cp CMakeLists.txt.native CMakeLists.txt
-cmake CMakeLists.txt
+
+rm build -r
+mkdir build
+cd build
+cmake ..
 make prolog_bfs
