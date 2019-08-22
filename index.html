@@ -1,0 +1,126 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Prolog BFS</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="web/style.css">
+        
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        
+	<script src="prolog_bfs.js"></script>
+	<script>
+            // set to true once the wasm runtime is ready.
+            var runtimeInitialized = false;
+            
+            /*
+             * Array holding all instances of prolog bfs.
+             * The "instanceid" is the key of the instance in this array.
+             * @TODO: automatically deleted old instances to save resources.
+             */
+            var instances = [];
+            
+            /*
+             * Before an instance of prolog bfs can be created,
+             * we need to be sure the runtime is initialized.
+             */
+            Module['onRuntimeInitialized'] = function() {
+                    runtimeInitialized = true;
+            };
+            
+            /*
+             * Append another result to an existin Result div
+             */
+            function appendResult(instanceid, result) {
+                var results = document.getElementById("resultlist_" + instanceid);
+                var newchild = document.createElement('p');
+                newchild.innerHTML = result;
+                results.appendChild(newchild);
+            }
+            
+            /*
+             * Creates a new Result div on the right column that
+             * contains the query as the header and one result.
+             * More results may be appended using appendResult.
+             */
+            function pushResult(instanceid, query, result) {
+                var theDiv = document.getElementById("results");
+                
+                theDiv.innerHTML +=
+                    '<div class="alert alert-secondary alert-dismissible fade show resultalert code" role="alert" id="resultalert_'+instanceid+'">'
+                    + '?- ' + query
+                    + '<hr>\
+                       <div id="resultlist_' + instanceid + '">\
+                       </div>'
+                    + ' <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick> \
+                            <span aria-hidden="true">&times;</span> \
+                        </button> \
+                        <button type="button" class="btn btn-light btn-sm" onclick="nextAnswer(' + instanceid + ')">Next</button> \
+                    </div>';
+                
+                appendResult(instanceid, result);
+            }
+            
+            /*
+             * onclick event of the "run" button.
+             * This processes the current program and query input
+             * and displays the result.
+             */
+            function execute() {
+                if (runtimeInitialized === false) {
+                    alert("Please wait until Prolog BFS is loaded and try again. This might take a second.")
+                }
+                
+                // create new instance and store it globally
+                instances.push(new Module.PrologBFS());
+                var instanceid = instances.length-1;
+                
+                var inputProgram = document.getElementById("program").value;
+                var inputQuery   = document.getElementById("query").value;
+                
+                //load input to the interpreter
+                instances[instanceid].loadProgram(inputProgram);
+                instances[instanceid].loadQuery(inputQuery);
+                
+                var result = instances[instanceid].getAnswer();
+                pushResult(instanceid, inputQuery, result);
+            }
+            
+            /*
+             * onclick event of the "next" button.
+             * Gets the next answer from the interpreter
+             * and displays it.
+             */
+            function nextAnswer(instanceid) {
+                appendResult(instanceid, instances[instanceid].getAnswer());
+            }
+		
+	</script>
+    </head>
+    <body>
+        
+        <nav class="navbar navbar-light bg-light">
+            <a class="navbar-brand">Prolog BFS</a>
+        </nav>
+	<!--<div id="content" class="container-fluid">-->
+            <div class="row" style="width: 100%; height: 93%;">
+                <div class="col" style="width: 100%; height: 100%;">
+                    <textarea id="program" class="editor code" placeholder="Your Prolog program code here ..." style="width: 100%; height: 100%;"></textarea>
+                </div>
+
+                <div class="col" style="max-height: 100%; height: 100%;">
+                    <div class="row" style="max-height: 85%; height: 85%; overflow-y: auto;">
+                        <div class="col" id="results"></div>
+                    </div>
+
+
+                    <div class="row" style="max-height: 15%;">
+                        <textarea id="query" class="editor code" placeholder="?- " style="width: 100%;"></textarea>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="execute()">Run!</button>
+                    </div>
+                </div>
+            </div>
+        <!--</div>-->
+    </body>
+</html>
