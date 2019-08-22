@@ -5,14 +5,15 @@ A simple prolog breadth first search interpreter
 Install Instructions
 --------------------
 Boost.Program_options is required to build this project.
-Cmake version VERSION 3.12 is required.
+Cmake version VERSION 3.10 is required.
 
 ```shell
 sudo apt-get install libboost-program-options-dev 
 git clone https://github.com/LhKipp/Prolog_BFS.git
-cmake CMakeLists.txt
-make prolog_bfs
+cd Prolog_BFS
+./build_xxx.sh
 ```
+There is 2 different build scripts. "build_native" builds the cli application and "build_wasm" for WebAssembly. Please note that you must delete the entire CMakeFiles folder and CMakeCache.txt prior to using a different build script version. Otherwise the build will fail.
 
 Known Limitations
 -----------------
@@ -27,3 +28,5 @@ How to use it
 -------------
 Suppose your executable is named "prolog_bfs".
 Type "prolog_bfs program_file" and it will run.
+
+WebAssembly: run "start_server.sh" and go to http://localhost:8080/
