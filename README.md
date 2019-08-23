@@ -23,7 +23,7 @@ Known Limitations
         It is recommended to let your code be checked by an external tool before passing it to the bfs-interpreter.
         Note: If you are using the webversion, check out the developer console to see whether any exceptions have been thrown.
 2. Any kind of arithmetic is not supported. Use o for 0, s(o) for 1, s(s(o)) for 2, ...
-3. The underscore in variable / constant names is not supported.
+3. Variables / constant names starting with an underscore are not supported.
 4. There are no built-in predicates.
 
 
