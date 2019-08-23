@@ -1,13 +1,30 @@
 html, body {
-    /*width:100%;
-    height: 100%;*/
+    /*width:100%;*/
+    height: 100%;
     padding: 0px;
     margin: 0px;
-    overflow: hidden;
+    /*overflow: hidden;*/
+}
+
+#errorbox {
+    position: fixed;
+    display: none;
+    top: 1%;
+    right: 1%;
+    /*background-color: rgba(0,0,0,0.5);  Black background with opacity */
+    z-index: 2;
+}
+
+.bfs-container {
+    border-style: solid;
+    border-color: darkgrey;
+    border-width: 1px;
+    margin: 5px;
+    padding: 1px;
 }
 
 .editor {
-    resize: none;
+    font-size: medium;
 }
 
 .code {
