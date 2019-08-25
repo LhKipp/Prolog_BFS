@@ -5,18 +5,22 @@
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <link rel="stylesheet" href="web/style.css">
         
-        <link rel="stylesheet" href="web/codemirror/codemirror.css">
-        
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         
         <script src="prolog_bfs.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script> <!-- https://github.com/js-cookie/js-cookie-->
-        <script src="https://pagecdn.io/lib/ace/1.4.5/ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="https://pagecdn.io/lib/ace/1.4.5/ace.js" type="text/javascript" charset="utf-8"></script> <!-- editor -->
         <script src="web/hotkeys.min.js"></script>
 
 	<script>
+            // Config
+            // save current program and query every x milliseconds
+            var autosaveInterval = 60000;
+            
+            // End of config
+            
             // set to true once the wasm runtime is ready.
             var runtimeInitialized = false;
             
@@ -141,11 +145,19 @@
                 scrollResultsToBottom();
             }
             
-            window.onbeforeunload = function() {
+            function autosave() {
                 // Store program code for 7 days
                 Cookies.set('programcode', ace.edit("program").getValue(), { expires: 7 });
                 Cookies.set('querycode', ace.edit("query").getValue(), { expires: 7 });
-              };
+            }
+            
+            window.onbeforeunload = function() {
+                autosave();
+            };
+            
+            setInterval(function() {
+                autosave();
+            }, autosaveInterval);
             
             /*
              * register hotkeys for use outside the editors.
@@ -202,14 +214,18 @@
             ace_program.session.setMode("ace/mode/prolog");
             ace_program.setShowPrintMargin(false); // don't show the vertical line
             ace_program.commands.addCommand(hotkey_execute);
-            ace_program.setValue(Cookies.get("programcode"));
+            if (Cookies.get("programcode")) { // only setValue when cookie exists
+                ace_program.setValue(Cookies.get("programcode"));
+            }
             
             var ace_query = ace.edit("query");
             ace_query.setTheme("ace/theme/textmate");
             ace_query.session.setMode("ace/mode/prolog");
             ace_query.setShowPrintMargin(false);
             ace_query.commands.addCommand(hotkey_execute);
-            ace_query.setValue(Cookies.get("querycode"));
+            if (Cookies.get("querycode")) {
+                ace_query.setValue(Cookies.get("querycode"));
+            }
         </script>
     </body>
 </html>
