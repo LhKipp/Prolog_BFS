@@ -1,4 +1,5 @@
 .idea/*
+nbproject/*
 cmake-build-debug/*
 CMakeFiles/*
 Makefile
