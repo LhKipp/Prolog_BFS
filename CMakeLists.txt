@@ -16,4 +16,4 @@ add_executable(prolog_bfs wasm.cpp ${prolog_bfs_src})
 
 # linker flags
 # enable embind with --bind flag
-set_target_properties(prolog_bfs PROPERTIES LINK_FLAGS "--bind --emrun -s ALLOW_MEMORY_GROWTH=1")
+set_target_properties(prolog_bfs PROPERTIES LINK_FLAGS "--bind --emrun -s TOTAL_MEMORY=500MB")
