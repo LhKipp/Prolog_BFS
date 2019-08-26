@@ -14,7 +14,7 @@ class PrologBFSWasmWrapper{
     public:
 
   void clear(){
-    bfs_organizer = bfs_organizer{};
+    bfs_organizer = bfs_organizer;
   }
 	void loadProgram(std::string prog) {
         //TODO Refactor. Give the user the choice to load from a single string, containing all terms.
