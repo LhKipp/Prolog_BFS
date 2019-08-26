@@ -1,18 +1,21 @@
+
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <vector>
-
-#include <emscripten/bind.h>
-
 #include "src/wam/bfs_organizer/bfs_organizer.h"
 
+#include <emscripten/bind.h>
 using namespace emscripten;
 
 
 class PrologBFSWasmWrapper{
     wam::bfs_organizer bfs_organizer;
     public:
+
+  void clear(){
+    bfs_organizer = bfs_organizer{};
+  }
 	void loadProgram(std::string prog) {
         //TODO Refactor. Give the user the choice to load from a single string, containing all terms.
             std::vector<std::string> lines;
@@ -66,5 +69,6 @@ EMSCRIPTEN_BINDINGS(PrologBFSWasmWrapper) {
     .function("loadProgram", &PrologBFSWasmWrapper::loadProgram)
     .function("loadQuery", &PrologBFSWasmWrapper::loadQuery)
     .function("getAnswer", &PrologBFSWasmWrapper::getAnswer)
+    .function("clear", &PrologBFSWasmWrapper::clear)
     ;
 }
