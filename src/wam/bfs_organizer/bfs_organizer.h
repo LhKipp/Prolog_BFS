@@ -25,6 +25,8 @@ namespace wam {
         friend void wam::proceed(wam::executor &executor);
         friend void wam::deallocate(wam::executor &executor);
     private:
+        //Memory usage of all executors
+        size_t memory_usage = 0;
         //Queue of executors
         std::list<executor> executors;
         //Global storage for all executors
@@ -41,6 +43,7 @@ namespace wam {
 
 
     public:
+        void clear();
 
         void load_program(const std::vector<std::string> &lines);
         void load_program(const std::string &file_path);

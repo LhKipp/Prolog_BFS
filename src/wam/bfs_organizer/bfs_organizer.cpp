@@ -42,7 +42,11 @@ std::optional<std::vector<wam::var_substitution>> wam::bfs_organizer::get_answer
     while (!executors.empty()) {
         executor next_exec = executors.front();
         executors.pop_front();
-
+        // std::cout << memory_usage << std::endl;
+        // if(memory_usage >  1000 * 1000 * 1000){
+        //   executors.clear();
+        //   return std::nullopt;
+        // }
         if (next_exec.instructions.empty()) {
             find_temporary_substitutions(next_exec);
             find_permanent_substitutions(next_exec);
@@ -76,10 +80,6 @@ std::optional<std::vector<wam::var_substitution>> wam::bfs_organizer::get_answer
             for (int i = 0; i < new_elem_count; ++i, ++elem) {
                 point_reg_substs_to_heap(*elem);
             }
-        }
-
-        if (!next_exec.fail && next_exec.instructions.empty()) {
-            //Executor finished successful
         }
     }
 
@@ -171,7 +171,14 @@ void wam::bfs_organizer::point_reg_substs_to_heap(executor &executor) {
 
 
 
-
+void wam::bfs_organizer::clear(){
+  executors.clear();
+  functor_index_map.clear();
+  functors.clear();
+  program_code.clear();
+  current_query_code.clear();
+  permanent_substitutions.clear();
+}
 
 
 
