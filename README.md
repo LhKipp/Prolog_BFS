@@ -25,11 +25,16 @@ Known Limitations
 2. Any kind of arithmetic is not supported. Use o for 0, s(o) for 1, s(s(o)) for 2, ...
 3. Variables / constant names starting with an underscore are not supported.
 4. There are no built-in predicates.
+5. There is no memory usage checks. If an endless program has been supplied, the program won't stop allocating memory. Make sure to kill the program before all memory is exhausted.
 
 
 How to use it
 -------------
 Suppose your executable is named "prolog_bfs".
 Type "prolog_bfs program_file" and it will run.
-
 WebAssembly: run "start_server.sh" and go to http://localhost:8080/
+
+
+Contributors
+____________
+- Martin Weber (https://github.com/askuri). Created the web version, tested the program, gave constructive feedback, found some bugs . Big thanks.

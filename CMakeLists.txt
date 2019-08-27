@@ -2,18 +2,17 @@ cmake_minimum_required(VERSION 3.10)
 project(prolog_bfs)
 
 set(CMAKE_CXX_STANDARD 17)
+FIND_PACKAGE(Boost 1.60 COMPONENTS program_options REQUIRED )
+INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
 file(GLOB_RECURSE prolog_bfs_src
-    "src/prolog/*.h"
-    "src/prolog/*.cpp"
-    "src/util/*.h"
-    "src/util/*.cpp"
-    "src/wam/*.h"
-    "src/wam/*.cpp"
+    "src/*.h"
+    "src/*.cpp"
 )
+file(GLOB_RECURSE prolog_bfs_test
+        "test/*.h"
+        "test/*.cpp"
+        )
+add_executable(prolog_bfs main.cpp catch.hpp ${prolog_bfs_src} ${prolog_bfs_test})
 
-add_executable(prolog_bfs wasm.cpp ${prolog_bfs_src})
-
-# linker flags
-# enable embind with --bind flag
-set_target_properties(prolog_bfs PROPERTIES LINK_FLAGS "--bind --emrun -s ALLOW_MEMORY_GROWTH=1")
+TARGET_LINK_LIBRARIES( prolog_bfs LINK_PUBLIC ${Boost_LIBRARIES} )
