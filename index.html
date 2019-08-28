@@ -82,7 +82,7 @@
                     + '<hr>\
                        <div id="resultlist_' + instanceid + '">\
                        </div>'
-                    + ' <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick> \
+                    + ' <button type="button" class="close" aria-label="Close" onclick="popResult(' + instanceid + ')"> \
                             <span aria-hidden="true">&times;</span> \
                         </button> \
                         <button type="button" class="btn btn-light btn-sm" onclick="nextAnswer(' + instanceid + ')">Next</button> \
@@ -90,6 +90,15 @@
                 
                 appendResult(instanceid, result);
                 scrollResultsToBottom();
+            }
+            
+            /*
+             * Remove a result-alert (the container it's in)
+             * from the list and kill the instance behind it.
+             */
+            function popResult(instanceid) {
+                killInstance(instanceid);
+                document.getElementById('resultalert_' + instanceid).remove();
             }
             
             /*
@@ -109,8 +118,11 @@
             }
             
             function killInstance(instanceid) {
+                if (!instances[instanceid]) { // already killed
+                    return;
+                }
                 instances[instanceid].clear();
-                instances[instanceid] = {};
+                instances[instanceid] = false;
             }
             
             /*
@@ -217,6 +229,7 @@
             </div>
         <!--</div>-->
         
+        <!-- errorbox on the top right for syntax errors etc. -->
         <div class="alert alert-danger alert-dismissible" id="errorbox">
             <button type="button" class="close" onclick="hideError()">&times;</button>
             <span id="errorbox-text"></span>
