@@ -6,7 +6,6 @@
 #include "src/program_arguments/parser.h"
 
 #include "src/app_runner/normal_mode.h"
-#include "src/app_runner/socket_mode.h"
 
 int main(int argc, const char *argv[]) {
     using namespace std;
@@ -23,14 +22,6 @@ int main(int argc, const char *argv[]) {
         cout << parser.generic << "\n";
         return 0;
     }
-//
-//    //The program either runs in socket mode (webbrowser - server - bfs_prolog
-//    //or in normal mode (user - terminal - bfs_prolog)
-//    if(map.count(program_arguments::socket_option)){
-//        return app_runner::socket_mode(map);
-//    } else{
-//        return app_runner::normal_mode(map);
-//    }
 
     return app_runner::normal_mode(map);
 
