@@ -9,7 +9,8 @@
 
 //TODO recursive function, could be optimized through use of stack
 std::string
-wam::string_representation_of(const std::vector<wam::regist> &registers, size_t index,
+wam::string_representation_of(const std::vector<wam::regist> &registers,
+                              size_t index,
                               const std::vector<functor_view> &functors,
         //TODO Better Naming: is_contigous_list should be is_list_start
         //Need to negate part of the logic

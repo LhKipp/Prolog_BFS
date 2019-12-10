@@ -11,7 +11,7 @@
 #include <memory>
 #include <variant>
 #include <cassert>
-#include "../../../prolog/data/data_types/data_enums.h"
+#include "data_enums.h"
 #include "../../data/regist.h"
 #include "../../data/functor_view.h"
 

@@ -4,7 +4,7 @@
 #include <iostream>
 #include "../catch.hpp"
 #include "../src/wam/parser/parser.h"
-#include "../src/prolog/data/data_types/data_enums.h"
+#include "../src/wam/parser/util/data_enums.h"
 
 
 TEST_CASE("Parser tree_build", "[Parser]") {
