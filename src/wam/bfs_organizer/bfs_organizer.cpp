@@ -133,7 +133,7 @@ void wam::bfs_organizer::find_temporary_substitutions(wam::executor &executor) {
                    [&](const auto &var_reg_sub) {
                        //At this point the var_reg_sub point to heap cells
                        return var_substitution{var_reg_sub.var_name,
-                                               string_representation_of(executor.heap, var_reg_sub.register_index,
+                                               string_representation_of(executor, var_reg_sub.register_index,
                                                                         functors)};
                    });
 
@@ -148,7 +148,7 @@ void wam::bfs_organizer::find_permanent_substitutions(wam::executor &executor) {
                        const auto index = executor.environments.top().
                                permanent_registers[var_reg_sub.register_index].index;
                        return var_substitution{var_reg_sub.var_name,
-                                               string_representation_of(executor.heap, index, functors)};
+                                               string_representation_of(executor, index, functors)};
                    });
 }
 
@@ -172,12 +172,17 @@ void wam::bfs_organizer::point_reg_substs_to_heap(executor &executor) {
 
 
 void wam::bfs_organizer::clear(){
-  executors.clear();
-  functor_index_map.clear();
-  functors.clear();
-  program_code.clear();
-  current_query_code.clear();
-  permanent_substitutions.clear();
+    executors.clear();
+    functor_index_map.clear();
+    functors.clear();
+    program_code.clear();
+    current_query_code.clear();
+    permanent_substitutions.clear();
+}
+
+wam::executor* wam::bfs_organizer::archive(const wam::executor &executor) {
+    dead_executors.emplace_back(executor);
+    return &dead_executors.back();
 }
 
 

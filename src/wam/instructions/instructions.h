@@ -26,7 +26,7 @@ namespace wam {
     void unify_value(executor& executor, size_t x_reg);
     void unify_permanent_value(executor& executor, size_t y_reg);
 
-    void bind(std::vector<regist>& store, size_t address_a,size_t address_b);
+    void bind(executor& exec, size_t address_a,size_t address_b);
 
     void unify(executor& executor, size_t addr_a, size_t addr_b);
 

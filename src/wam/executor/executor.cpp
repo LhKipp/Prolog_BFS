@@ -6,10 +6,10 @@
 
 #include "../bfs_organizer/bfs_organizer.h"
 wam::functor_view &wam::executor::functor_of(FUN_index FUN_index) {
-    return organizer->functors.operator[](heap[FUN_index.get()].index);
+    return organizer->functors.operator[](heap_at(FUN_index.get()).index);
 }
 const wam::functor_view &wam::executor::functor_of(FUN_index FUN_index) const {
-    return organizer->functors.operator[](heap[FUN_index.get()].index);
+    return organizer->functors.operator[](heap_at(FUN_index.get()).index);
 }
 
 size_t wam::executor::index_of(const functor_view &functor) const{
