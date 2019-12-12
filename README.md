@@ -2,6 +2,14 @@ A simple prolog breadth first search interpreter
 ================================================
 
 
+How to use it
+-------------
+Visit: https://askuri.github.io/PrologBFS/wasm/
+or build it from source.
+Suppose your executable is named "prolog_bfs",
+type "prolog_bfs program_file" and it will run.
+WebAssembly: run "start_server.sh" and go to http://localhost:8080/
+
 Install Instructions
 --------------------
 Boost.Program_options is required to build this project.
@@ -25,16 +33,9 @@ Known Limitations
 2. Any kind of arithmetic is not supported. Use o for 0, s(o) for 1, s(s(o)) for 2, ...
 3. Variables / constant names starting with an underscore are not supported.
 4. There are no built-in predicates.
-5. There is no memory usage checks. If an endless program has been supplied, the program won't stop allocating memory. Make sure to kill the program before all memory is exhausted.
-
-
-How to use it
--------------
-Suppose your executable is named "prolog_bfs".
-Type "prolog_bfs program_file" and it will run.
-WebAssembly: run "start_server.sh" and go to http://localhost:8080/
+5. The online version has a limit of 500MB memory. For the offline version there is no memory usage check. If an endless program has been supplied, the program won't stop allocating memory. Make sure to kill the program before all memory is exhausted.
 
 
 Contributors
-____________
+------------
 - Martin Weber (https://github.com/askuri). Created the web version, tested the program, gave constructive feedback, found some bugs . Big thanks.
