@@ -63,7 +63,6 @@ namespace wam {
 
         executor& operator=(const executor & other)=default;
         executor& operator=(executor && other)=default;
-        executor(executor&& parent) = default;
         executor(const executor& parent) = default;
         executor() = default;
 

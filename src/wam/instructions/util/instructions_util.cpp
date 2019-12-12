@@ -8,12 +8,20 @@
 #include <vector>
 #include <cassert>
 
+#define DEBUG 1
+#ifdef DEBUG
+#include <iostream>
+#endif
+
 /*
  * Assumes init_regist is a REF x_reg
  * Returns a index to a register the init_regist points to.
  * The heap register will be either FUN or REF
  */
 size_t wam::deref(const executor & exec, const regist& init_regist) {
+#ifdef DEBUG
+    std::cout << "deref" << std::endl;
+#endif
 
     size_t last_reg_index = init_regist.index;
     regist cur_regist = exec.heap_at(last_reg_index);
