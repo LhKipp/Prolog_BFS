@@ -109,23 +109,30 @@ namespace wam {
         size_t index_of(const functor_view &functor)const;
 
         inline void push_back(const regist& regist){
-            heap.emplace_back(regist);
+            heap.push_back(regist);
         }
         inline void push_back_STR(){
-            heap.emplace_back(heap_tag::STR, heap_start_index + heap_size() + 1);
+            heap.push_back({heap_tag::STR,  heap_size() + 1});
         }
         inline void push_back_FUN(const functor_view & functor){
-            heap.emplace_back(heap_tag::FUN, index_of(functor));
+            heap.push_back({heap_tag::FUN, index_of(functor)});
         }
         inline void push_back_unbound_REF() {
-            heap.emplace_back(heap_tag::REF,heap_start_index + heap_size() );
+            heap.push_back({heap_tag::REF,heap_size()});
         }
         inline size_t heap_size()const{
             return heap_start_index + heap.size();
         }
 
         inline regist heap_back()const {
-            return heap.back();
+            assert(heap_size() > 0);
+            if(this->heap.size() == 0){
+                assert(parent != nullptr);
+                return parent->heap_back();
+            }else{
+                regist r = heap.back();
+                return r;
+            }
         }
 
         inline regist& heap_modify(size_t index){
@@ -135,12 +142,20 @@ namespace wam {
             if(heap_start_index <= index && index < heap_start_index + heap.size()){
                 return heap.at(index - heap_start_index);
             }else{//index is within parents range, which this executor is not allowed to change
-                //So we give back a regist stored as a local change to parent
-                //First copy the parent regist
-                changes_to_parent.insert({index, heap_at(index)});
-                return changes_to_parent.at(index);
+                //If this executor has overwritten the parent heap at index, return the change
+                auto change = changes_to_parent.find(index);
+                if(change != changes_to_parent.end()){
+                    return change->second;
+                }else{
+                    //This executor has not overwritten the parent heap
+                    //So we give back a regist stored as a local change to parent
+                    //First copy the parent regist
+                    changes_to_parent.insert({index, parent->heap_at(index)});
+                    return changes_to_parent.at(index);
+                }
             }
         }
+
         inline regist heap_at(size_t index)const {
             //Assert that the index is within heap
             assert(index < heap_start_index + heap.size());
@@ -162,11 +177,8 @@ namespace wam {
         inline void set_parent(const executor& parent){
             this->parent = &parent;
             heap_start_index = parent.heap_start_index + parent.heap.size();
+            this->heap.clear();
         }
-
-
-
-
     };
 }
 

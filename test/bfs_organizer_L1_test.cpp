@@ -12,7 +12,7 @@
 using namespace wam;
 using namespace std;
 
-TEST_CASE("BFS_Organizer Tests", "[L1]") {
+TEST_CASE("BFS_Organizer_Tests", "[L1]") {
     std::vector<std::string> program_code;
     bfs_organizer org;
 
@@ -21,16 +21,17 @@ TEST_CASE("BFS_Organizer Tests", "[L1]") {
         org.load_query(query);
     };
 
-    SECTION("Query: a.: Program: a.") {
-        program_code.emplace_back("a.");
-
-        setup_org("a.");
-
-        auto found_answer = org.get_answer();
-
-        REQUIRE(found_answer.has_value());
-        REQUIRE(found_answer->size() == 0);
-    }
+//    SECTION("Query: a.: Program: a.") {
+//        std::cout << "query a. program a." << std::endl;
+//        program_code.emplace_back("a.");
+//
+//        setup_org("a.");
+//
+//        auto found_answer = org.get_answer();
+//
+//        REQUIRE(found_answer.has_value());
+//        REQUIRE(found_answer->size() == 0);
+//    }
     SECTION("Query: b.: Program: a.") {
         program_code.emplace_back("a.");
 

@@ -6,12 +6,14 @@
 #include "src/program_arguments/parser.h"
 
 #include "src/app_runner/normal_mode.h"
+#include "src/wam/data/regist.h"
 
 int main(int argc, const char *argv[]) {
     using namespace std;
 
-    const char*args[] = {""};
-    int result = Catch::Session().run(1, args);
+    std::cout << sizeof(wam::regist);
+    const char*args[] = {"BFS_Organizer_Tests"};
+    int result = Catch::Session().run(2, args);
 
 
 //    Parsing CommandLine Arguments
@@ -23,7 +25,8 @@ int main(int argc, const char *argv[]) {
         return 0;
     }
 
-    return app_runner::normal_mode(map);
+    //return app_runner::normal_mode(map);
+    return 0;
 
 
 }

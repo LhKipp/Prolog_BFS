@@ -181,7 +181,7 @@ void wam::bfs_organizer::clear(){
 }
 
 wam::executor* wam::bfs_organizer::archive(const wam::executor &executor) {
-    dead_executors.emplace_back(executor);
+    dead_executors.push_back(executor);
     return &dead_executors.back();
 }
 
