@@ -8,7 +8,6 @@
 #include <vector>
 #include <cassert>
 
-#define DEBUG 1
 #ifdef DEBUG
 #include <iostream>
 #endif

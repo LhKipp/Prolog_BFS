@@ -14,12 +14,12 @@
 #include "../../util/named_type.h"
 #include "../data/var_substitution.h"
 #include "../data/environment.h"
-#include "../../util/inclusive_range.h"
 
 #include <vector>
 #include <stack>
 #include <unordered_map>
 #include <cassert>
+#include <iostream>
 
 namespace wam {
 
@@ -44,7 +44,8 @@ namespace wam {
         bfs_organizer *organizer = nullptr;
 
         //Pointer to the executor from whom this executor emerged in the call instruction
-        const executor *parent = nullptr;
+        //Note: size_t::max represents that this exec has no parent -- see @func has_parent
+        size_t parent_index = std::numeric_limits<size_t>::max();
 
         //Every child reuses the heap of the parent. So the child heaps build upon the parents heap. Thous
         //the child-heap starts at index parent-heap.size and ends at parent-heap.size + child-heap.size
@@ -52,20 +53,16 @@ namespace wam {
 
         //Every child may need to overwrite some parts of the heap of the parent. As many Childs rely on one heap
         //a particular child is not allowed to write in parent heap. So we need to store local changes
-        std::unordered_map<size_t, regist> changes_to_parent;
+        std::unordered_map<size_t, regist> changes_to_parent{};
 
-        std::vector<regist> heap;
+        std::vector<regist> heap{};
 
     public:
 
         std::vector<var_reg_substitution> substitutions;
+        std::vector<var_substitution> found_substitutions;
+
         int cur_atom_begin;
-
-        executor& operator=(const executor & other)=default;
-        executor& operator=(executor && other)=default;
-        executor(const executor& parent) = default;
-        executor() = default;
-
 
         std::vector<regist> registers;
 
@@ -82,12 +79,16 @@ namespace wam {
         std::stack<const term_code*> instructions;
         std::stack<wam::environment> environments;
 
+        executor& operator=(const executor & other)=default;
+        executor& operator=(executor && other)=default;
+        executor(const executor& other) = default;
+        executor() = default;
+
         inline std::vector<wam::regist>& cur_permanent_registers(){
             assert(!environments.empty());
             return environments.top().permanent_registers;
         }
 
-        std::vector<var_substitution> found_substitutions;
 
         inline bfs_organizer *get_organizer() const {
             return organizer;
@@ -111,72 +112,46 @@ namespace wam {
             heap.push_back(regist);
         }
         inline void push_back_STR(){
-            heap.push_back({heap_tag::STR,  heap_size() + 1});
+            heap.emplace_back(heap_tag::STR,  heap_size() + 1);
         }
         inline void push_back_FUN(const functor_view & functor){
-            heap.push_back({heap_tag::FUN, index_of(functor)});
+            heap.emplace_back(heap_tag::FUN, index_of(functor));
         }
         inline void push_back_unbound_REF() {
-            heap.push_back({heap_tag::REF,heap_size()});
+            heap.emplace_back(heap_tag::REF,heap_size());
         }
         inline size_t heap_size()const{
             return heap_start_index + heap.size();
         }
 
-        inline regist heap_back()const {
-            assert(heap_size() > 0);
-            if(this->heap.size() == 0){
-                assert(parent != nullptr);
-                return parent->heap_back();
-            }else{
-                regist r = heap.back();
-                return r;
-            }
+        regist heap_back()const;
+
+        regist& heap_modify(size_t index);
+
+        regist heap_at(size_t index)const;
+
+        inline void set_parent(const executor& parent, size_t archive_index){
+            parent_index = archive_index;
+            heap_start_index = parent.heap_size();
+
+            //Necessary copies - for now
+            //Solves atom number increased in call instruction if necessary
+            solves_atom_number = parent.solves_atom_number;
+            organizer = parent.organizer;
+            environments = parent.environments;//TODO use parent environments
+            cur_atom_begin = parent.cur_atom_begin;
+            substitutions = parent.substitutions; //TODO use parents subs and found subs
+            found_substitutions = parent.found_substitutions;
+            registers = parent.registers;
+            instructions = parent.instructions;
+
+            //TODO Monitor different heuristics
+            changes_to_parent.reserve(5);
+            heap.reserve(parent.heap.size());
         }
 
-        inline regist& heap_modify(size_t index){
-            //Assert that the index is within heap
-            assert(index < heap_start_index + heap.size());
-            //If within this executor
-            if(heap_start_index <= index && index < heap_start_index + heap.size()){
-                return heap.at(index - heap_start_index);
-            }else{//index is within parents range, which this executor is not allowed to change
-                //If this executor has overwritten the parent heap at index, return the change
-                auto change = changes_to_parent.find(index);
-                if(change != changes_to_parent.end()){
-                    return change->second;
-                }else{
-                    //This executor has not overwritten the parent heap
-                    //So we give back a regist stored as a local change to parent
-                    //First copy the parent regist
-                    changes_to_parent.insert({index, parent->heap_at(index)});
-                    return changes_to_parent.at(index);
-                }
-            }
-        }
-
-        inline regist heap_at(size_t index)const {
-            //Assert that the index is within heap
-            assert(index < heap_start_index + heap.size());
-            //If within child
-            if(heap_start_index <= index && index < heap_start_index + heap.size()){
-                return heap.at(index - heap_start_index);
-            }else{//index is within parents range
-                //If this executor has overwritten the parent heap at index, return the change
-                auto change = changes_to_parent.find(index);
-                if(change != changes_to_parent.end()){
-                    return change->second;
-                }else{
-                    //This executor has not overwritten the parent heap --> search in parent heap
-                    return parent->heap_at(index);
-                }
-            }
-        }
-
-        inline void set_parent(const executor& parent){
-            this->parent = &parent;
-            heap_start_index = parent.heap_start_index + parent.heap.size();
-            this->heap.clear();
+        inline bool has_parent()const {
+            return parent_index != std::numeric_limits<size_t>::max();
         }
     };
 }

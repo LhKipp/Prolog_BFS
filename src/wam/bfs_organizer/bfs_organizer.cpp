@@ -23,6 +23,10 @@ void wam::bfs_organizer::load_term_lines(const std::vector<std::string> &term_li
     //Assumes at max there is a different head at every line
     functor_index_map.reserve(term_lines.size());
     functors.reserve(term_lines.size());
+    //TODO Change heuristic into configuration
+    //The more lines the program has, the more complex --> the more depth
+    dead_executors.reserve(term_lines.size());
+
     for (auto &line : term_lines) {
         const auto[head_functor, code] = parse_program_term(line);
         program_code.emplace(head_functor, code);
@@ -180,9 +184,9 @@ void wam::bfs_organizer::clear(){
     permanent_substitutions.clear();
 }
 
-wam::executor* wam::bfs_organizer::archive(const wam::executor &executor) {
+size_t wam::bfs_organizer::archive(const wam::executor &executor) {
     dead_executors.push_back(executor);
-    return &dead_executors.back();
+    return dead_executors.size() -1;
 }
 
 

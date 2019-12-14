@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
+#include <cstring>
 
 
 std::vector<std::string> wam::read_program_code(const std::vector<std::string> &program_lines) {
@@ -39,12 +40,15 @@ std::vector<std::string> wam::read_program_code(const std::string &file_path) {
     std::ifstream file{file_path};
     if(!file){
         std::cout << "Couldn't read program code from file: "<< file_path << std::endl;
+        std::cout << "Error is: " << strerror(errno);
         return program_lines;
     }
     std::string cur;
     while (std::getline(file, cur)) {
         program_lines.push_back(cur);
     }
+
+    file.close();
 
     return read_program_code(program_lines);
 }

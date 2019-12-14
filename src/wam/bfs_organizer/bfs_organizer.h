@@ -46,8 +46,12 @@ namespace wam {
          * @param executor the executor to store
          * @return pointer to the memory address where the executor has been stored
          */
-        executor* archive(const executor &executor);
+        size_t archive(const executor &executor);
 
+        inline const executor& get_archived(size_t index){
+            return dead_executors.at(index);
+
+        }
 
     public:
         void clear();
