@@ -21,28 +21,28 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
         org.load_query(query);
     };
 
-//    SECTION("Query: a.: Program: a.") {
-//        std::cout << "query a. program a." << std::endl;
-//        program_code.emplace_back("a.");
-//
-//        setup_org("a.");
-//
-//        auto found_answer = org.get_answer();
-//
-//        REQUIRE(found_answer.has_value());
-//        REQUIRE(found_answer->size() == 0);
-//    }
-//    SECTION("Query: b.: Program: a.") {
-//        program_code.emplace_back("a.");
-//
-//        setup_org("b.");
-//
-//        auto found_answer = org.get_answer();
-//
-//        REQUIRE(!found_answer.has_value());
-//        /*The test below fails if compiled with clang. Passes if compiled with gcc*/
-//        //REQUIRE(found_answer->size() == 0);
-//    }
+    SECTION("Query: a.: Program: a.") {
+        program_code.emplace_back("a.");
+
+        setup_org("a.");
+        REQUIRE(true);
+
+        auto found_answer = org.get_answer();
+
+        REQUIRE(found_answer.has_value());
+        REQUIRE(found_answer->size() == 0);
+    }
+    SECTION("Query: b.: Program: a.") {
+        program_code.emplace_back("a.");
+
+        setup_org("b.");
+
+        auto found_answer = org.get_answer();
+
+        REQUIRE(!found_answer.has_value());
+        /*The test below fails if compiled with clang. Passes if compiled with gcc*/
+        //REQUIRE(found_answer->size() == 0);
+    }
     SECTION("Query: p(Z,h(Z,W),f(W)) : Program: ") {
         program_code.emplace_back("p(f(X),h(Y,f(a)),Y).");
 

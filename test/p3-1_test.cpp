@@ -303,13 +303,9 @@ TEST_CASE("p3-1 test") {
                 bool has_found = found != solutions.end();
                 REQUIRE(has_found);
                 solutions.erase(found);
-
             }
         }
-
-
     }
-
 }
 
 

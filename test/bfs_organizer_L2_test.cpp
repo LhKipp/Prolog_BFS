@@ -35,7 +35,6 @@ TEST_CASE("BFS_Organizer_L2_Tests") {
         org.load_query(query);
     };
     SECTION("Easy Chain"){
-        std::cout << "In Test Easy Chain" << std::endl;
         setup_org("p(X,Y)");
 
         auto answer = org.get_answer();

@@ -9,7 +9,7 @@
 using namespace std;
 using namespace wam;
 
-TEST_CASE("arithmetics tests") {
+//TEST_CASE("arithmetics tests") {
 //    bfs_organizer org;
 //
 //    org.load_program("test_src/arithmetic.pl");
@@ -20,7 +20,7 @@ TEST_CASE("arithmetics tests") {
 //        REQUIRE(ans.has_value());
 //        REQUIRE(ans->at(0).substitute == "s(s(s(o)))");
 //    }
-}
+//}
 
 
 
