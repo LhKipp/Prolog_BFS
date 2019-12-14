@@ -1,7 +1,6 @@
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 #include <iostream>
-#include <string>
 
 #include "src/program_arguments/parser.h"
 
@@ -11,9 +10,8 @@
 int main(int argc, const char *argv[]) {
     using namespace std;
 
-    std::cout << sizeof(wam::regist);
-    const char*args[] = {"BFS_Organizer_Tests"};
-    int result = Catch::Session().run(2, args);
+    const char*test_args[] = {""};
+    int result = Catch::Session().run(2, test_args);
 
 
 //    Parsing CommandLine Arguments

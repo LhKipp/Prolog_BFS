@@ -35,7 +35,15 @@ Known Limitations
 4. There are no built-in predicates.
 5. The online version has a limit of 500MB memory. For the offline version there is no memory usage check. If an endless program has been supplied, the program won't stop allocating memory. Make sure to kill the program before all memory is exhausted.
 
-
 Contributors
 ------------
 - Martin Weber (https://github.com/askuri). Created the web version, tested the program, gave constructive feedback, found some bugs . Big thanks.
+
+
+How to use it
+-------------
+Suppose your executable is named "prolog_bfs".
+Type "prolog_bfs program_file" and it will run.
+WebAssembly: run "start_server.sh" and go to http://localhost:8080/
+
+
