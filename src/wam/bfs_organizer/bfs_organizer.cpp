@@ -3,42 +3,35 @@
 //
 
 #include "bfs_organizer.h"
-#include <numeric>
-#include <iostream>
 #include "util/substitution_util.h"
-#include "../parser/parser.h"
-#include <iterator>
+#include "../compiler/compiler.h"
 #include "util/read_program_code.h"
 
-void wam::bfs_organizer::load_program(const std::string &file_path) {
-    load_term_lines(read_program_code(file_path));
+void wam::bfs_organizer::load_program_from_file(const std::string_view file_path) {
+    auto code = read_file(file_path);
+    load_term_lines(code);
+}
+void wam::bfs_organizer::load_program(const std::string_view code) {
+    return load_term_lines(code);
 }
 
-void wam::bfs_organizer::load_program(const std::vector<std::string> &program_lines) {
-    load_term_lines(read_program_code(program_lines));
-}
+void wam::bfs_organizer::load_term_lines(const std::string_view code) {
+    program_code = wam::parse_program(code);
 
-void wam::bfs_organizer::load_term_lines(const std::vector<std::string> &term_lines) {
-    program_code.reserve(term_lines.size());
-    //Assumes at max there is a different head at every line
-    functor_index_map.reserve(term_lines.size());
-    functors.reserve(term_lines.size());
-    //TODO Change heuristic into configuration
-    //The more lines the program has, the more complex --> the more depth
-    dead_executors.reserve(term_lines.size());
+    dead_executors.reserve(program_code.size());
+    functor_index_map.reserve(program_code.size());
+    functors.reserve(program_code.size());
 
-    for (auto &line : term_lines) {
-        const auto[head_functor, code] = parse_program_term(line);
-        program_code.emplace(head_functor, code);
+    std::for_each(program_code.cbegin(), program_code.cend(),[&](const auto& it){
+        //it->first is the head_functor
 
-        //This is add_if_not_present
-        //If this head_functor has not been added to functors yet
-        if (functor_index_map.find(head_functor) == functor_index_map.end()) {
-            functor_index_map[head_functor] = functors.size();
-            functors.push_back(head_functor);
+        //if the head_functor is already added simply return
+        if(functor_index_map.find(it.first) != functor_index_map.cend()){
+            return;
         }
-    }
-
+        functor_index_map[it.first] = functors.size();
+        functors.push_back(it.first);
+    });
 }
 
 

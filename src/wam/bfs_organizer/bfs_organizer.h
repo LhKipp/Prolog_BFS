@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <vector>
 #include <list>
+#include <experimental/filesystem>
 #include "../data/functor_view.h"
 #include "../data/var_substitution.h"
 #include "../data/term_code.h"
@@ -16,7 +17,11 @@
 #include "../executor/executor.h"
 #include "../instructions/instructions.h"
 
+
 namespace wam {
+
+    //Strong wrapper types
+    using code_as_string = NamedType<std::string, struct Code_as_string>;
 
     using var_substitutions = std::vector<wam::var_substitution>;
     class bfs_organizer {
@@ -40,7 +45,6 @@ namespace wam {
 
         void find_temporary_substitutions(executor&);
         void find_permanent_substitutions(executor &executor);
-        void load_term_lines(const std::vector<std::string>& term_lines);
         /**
          * Archives the given executor
          * @param executor the executor to store
@@ -53,11 +57,13 @@ namespace wam {
 
         }
 
+        void load_term_lines(std::string_view term_lines);
     public:
         void clear();
 
-        void load_program(const std::vector<std::string> &lines);
-        void load_program(const std::string &file_path);
+        void load_program(std::string_view code);
+        void load_program_from_file(const std::string_view file_path);
+
 
         void load_query(const std::string &query_line);
 

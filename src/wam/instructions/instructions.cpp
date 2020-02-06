@@ -329,7 +329,6 @@ void wam::call(wam::executor &old_executor, const functor_view &functor, bool fr
     auto old_exec_index = organizer->archive(old_executor);
     std::for_each(range.first, range.second,
                   [&](const auto &entries) {
-                        //TODO remove copy constructor, default construct and copy necessary parent members in set_parent
                       executor new_executor{};
                       new_executor.set_parent(old_executor, old_exec_index);
 
