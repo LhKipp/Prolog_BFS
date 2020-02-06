@@ -5,118 +5,14 @@
 #include <iostream>
 #include<stack>
 #include <unordered_map>
-#include <cassert>
-#include "parser.h"
-#include "util/node.h"
+#include <numeric>
+#include "compiler.h"
 #include "util/node_iteration.h"
 
-#include "../data/heap_tag.h"
 #include "../instructions/instructions.h"
-#include "../data/term_code.h"
 #include "util/seen_register.h"
 
-node wam::build_tree(const std::string &line) {
-    if (line.empty()) {
-        std::cout << "In build_tree: empty argument supplied!" << std::endl;
-        return node{};
-    }
-
-    node top_node{STORED_OBJECT_FLAG::NONE};
-    top_node.children = std::make_unique<std::vector<node>>();
-
-    //holds the current parent node on top.
-    std::stack<node *> current_parent;
-    //At the begin, its the outer pred
-    current_parent.push(&top_node);
-
-
-    size_t cur_pos = 0;
-
-    const char *const inner_term_end_signs = ",)]|. ";
-
-    while (cur_pos < line.size()) {
-        const char cur_char = line[cur_pos];
-        if (cur_char == '.') {
-            //if term end
-            break;
-        } else if (cur_char == ')') {
-            //if functor end
-            current_parent.pop();
-            ++cur_pos;
-
-        } else if (cur_char == ',') {
-            if (current_parent.top()->is_list()) {
-                current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
-                current_parent.push(&current_parent.top()->children->back());
-            }
-            ++cur_pos;
-        } else if (cur_char == '|') {
-            //If handling appending of list nothing is to be done, as the next inner term will be a variable!
-            ++cur_pos;
-        }
-        else if (cur_char == ']') {
-            //if List end
-            //Every list ends with an empty list
-            // (except the empty list and a full list like [a|Xs]
-            if (current_parent.top()->is_non_empty_list() && !current_parent.top()->has_tail() ){
-                current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
-            }
-            while(!current_parent.top()->is_list_begin){
-                current_parent.pop();
-            }
-            //Pop the list begin
-            current_parent.pop();
-            ++cur_pos;
-        }
-            //If list begin
-        else if (cur_char == '[') {
-
-            current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
-            current_parent.push(&current_parent.top()->children->back());
-            current_parent.top()->is_list_begin = true;
-
-            cur_pos += 1;
-        }
-            //if variable begin
-        else if (std::isupper(cur_char)) {
-            const size_t inner_term_end = line.find_first_of(inner_term_end_signs, cur_pos);
-            const size_t name_len = inner_term_end - cur_pos;
-            //Assign the inner_term as a child of the current parent
-            current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::VARIABLE, line.substr(cur_pos, name_len));
-
-            cur_pos += name_len;
-
-            //If functor or constant begin
-        } else if (std::islower(cur_char)) {
-            const auto inner_term_end = line.find_first_of(inner_term_end_signs, cur_pos);
-            const auto opening_brack_pos = line.find_first_of('(', cur_pos);
-            //If there is no ( or ,) is before ( the current inner_term is a constant
-            if (opening_brack_pos == std::string::npos || inner_term_end < opening_brack_pos) {
-                const size_t name_len = inner_term_end - cur_pos;
-                current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::CONSTANT,
-                                                             line.substr(cur_pos, name_len));
-
-                cur_pos += name_len;
-            } else {//inner_term is a functor
-                const size_t name_len = opening_brack_pos - cur_pos;
-                //Assign the functor as a child of the parent and make the functor the current parent
-                current_parent.top()->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR,
-                                                             line.substr(cur_pos, name_len));
-                current_parent.push(&current_parent.top()->children->back());
-
-                //+1 to overread the (
-                cur_pos += name_len + 1;
-
-            }
-        } else {//sign may be " " , \n
-            ++cur_pos;
-        }
-    }
-
-//The line is now in tree structure
-    return
-            top_node;
-}
+#include "parser/parser.h"
 
 /*
  * Assigns register to an functor (constant is also viable)
@@ -415,12 +311,16 @@ void remove_x_a_regs(std::unordered_map<wam::helper::seen_register, bool> &seen_
 }
 
 std::tuple<std::vector<wam::term_code>, std::vector<wam::var_reg_substitution>>
-wam::parse_query(const std::string &line) {
+wam::parse_query(const std::string_view query_code) {
     using namespace std::placeholders;
     using wam::helper::seen_register;
 
-    //todo add some logic to remove ?- and . ???
-    node program_node = wam::build_tree(line);
+    std::vector<node> query_nodes; //= compiler result
+    wam::parse_query(query_code, query_nodes);
+
+    //query_nodes to old data_layout
+    node program_node{STORED_OBJECT_FLAG::NONE};
+    program_node.children = std::make_unique<std::vector<node>>(std::move(query_nodes));
 
     auto &atoms = *program_node.children;
 
@@ -468,10 +368,30 @@ wam::parse_query(const std::string &line) {
     return std::make_tuple(instructions, substitutions);
 }
 
-std::pair<wam::functor_view, std::vector<wam::term_code>> wam::parse_program_term(const std::string &line) {
+std::unordered_multimap<wam::functor_view, std::vector<wam::term_code>>
+wam::parse_program(const std::string_view program_code){
     using namespace std::placeholders;
+    namespace qi = boost::spirit::qi;
 
-    node program_node = build_tree(line);
+    std::vector<boost::optional<node>> parser_result;
+    wam::parse_program(program_code, parser_result);
+
+    std::unordered_multimap<wam::functor_view, std::vector<wam::term_code>> result;
+    result.reserve(program_code.size());
+
+    for(auto& program_line : parser_result){
+        if(!program_line){
+            continue;
+        }
+        const auto[head_functor, code] = wam::parse_program_term(*program_line);
+
+        result.emplace(head_functor, code);
+    }
+    return result;
+}
+
+std::pair<wam::functor_view, std::vector<wam::term_code>> wam::parse_program_term(node& program_node) {
+    using namespace std::placeholders;
     std::vector<node> &atoms = *program_node.children;
 
     const auto permanent_count = assign_permanent_registers(program_node, true);

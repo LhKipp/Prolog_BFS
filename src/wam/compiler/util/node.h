@@ -11,6 +11,9 @@
 #include <memory>
 #include <variant>
 #include <cassert>
+#include <boost/variant/recursive_wrapper.hpp>
+#include <optional>
+#include <ostream>
 #include "data_enums.h"
 #include "../../data/regist.h"
 #include "../../data/functor_view.h"
@@ -25,13 +28,20 @@ private:
 public:
     std::string name;
 
-
     //FUNCTOR / LIST exclusive field
     std::unique_ptr<std::vector<node>> children;
 
+    void add_to_children(const node& child){
+        children->push_back(child);
+    }
+
     //LIST exlusiv field
     bool is_list_begin = false;
+    bool is_finished_list = false;
 
+    inline void set_type(STORED_OBJECT_FLAG type){
+        this->type = type;
+    }
     inline bool is_argument() const {
         return a_reg != std::numeric_limits<size_t>::max();
     }
@@ -138,6 +148,11 @@ public:
     }
 
     node &operator=(node &&other) = default;
+
+    friend std::ostream &operator<<(std::ostream &os, const node &node) {
+        os << "node: name: " << node.name;
+        return os;
+    }
 };
 
 

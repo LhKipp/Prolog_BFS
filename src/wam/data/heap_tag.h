@@ -4,6 +4,9 @@
 
 #ifndef PROLOG_BFS_HEAP_TAG_H
 #define PROLOG_BFS_HEAP_TAG_H
+
+#include "../compiler/util/node.h"
+
 namespace wam {
     enum class heap_tag {
         STR,

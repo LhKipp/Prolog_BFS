@@ -2,8 +2,8 @@
 // Created by leonhard on 05.07.19.
 //
 
-#ifndef PROLOG_BFS_PARSER_H
-#define PROLOG_BFS_PARSER_H
+#ifndef PROLOG_BFS_PROGRAM_OPTIONS_H
+#define PROLOG_BFS_PROGRAM_OPTIONS_H
 
 #include <boost/program_options.hpp>
 
@@ -45,4 +45,4 @@ namespace program_arguments {
 }
 
 
-#endif //PROLOG_BFS_PARSER_H
+#endif //PROLOG_BFS_PROGRAM_OPTIONS_H
