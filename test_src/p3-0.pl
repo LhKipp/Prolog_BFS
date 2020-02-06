@@ -1,11 +1,11 @@
 % Aufgabe 1
 % praefix(Xs, Ys) : Ys beginnt mit Xs
-praefix(Xs, Ys) :- append(Xs, _Es, Ys).
+praefix(Xs, Ys) :- append(Xs, A_Es, Ys).
 
 % postfix(Xs,Ys) : Ys endet mit der Liste Xs.
 postfix1(Xs, Ys) :- reverse(Xs, Xsr), praefix(Xsr, Xsprae), reverse(Xsprae, Ys).
 
-postfix2(Xs, Ys) :- append(_Es, Xs, Ys).
+postfix2(Xs, Ys) :- append(A_Es, Xs, Ys).
 
 
 % Aufgabe 2

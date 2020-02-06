@@ -17,7 +17,9 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
     bfs_organizer org;
 
     auto setup_org = [&](string query) {
-        org.load_program(program_code);
+        auto code = std::accumulate(program_code.begin(), program_code.end(),
+                std::string());
+        org.load_program(code);
         org.load_query(query);
     };
 
@@ -72,7 +74,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
         REQUIRE(found_answer->empty());
     }
     SECTION("Query: r(x,h(Z,W),f(g)) : Program: ") {
-        program_code.emplace_back("r(Z,h(Z,f(a)),f(Z).");
+        program_code.emplace_back("r(Z,h(Z,f(a)),f(Z)).");
         //Z/x, W/f(a) , Z/g
         setup_org("r(x,h(Z,W),f(g))");
 

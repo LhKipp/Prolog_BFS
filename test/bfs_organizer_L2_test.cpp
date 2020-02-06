@@ -30,10 +30,12 @@ TEST_CASE("BFS_Organizer_L2_Tests") {
     program_code.push_back("d.");
     bfs_organizer org;
 
-    auto setup_org = [&](string query) {
-        org.load_program(program_code);
-        org.load_query(query);
-    };
+auto setup_org = [&](string query) {
+    auto code = std::accumulate(program_code.begin(), program_code.end(),
+                                std::string());
+    org.load_program(code);
+    org.load_query(query);
+};
     SECTION("Easy Chain"){
         setup_org("p(X,Y)");
 

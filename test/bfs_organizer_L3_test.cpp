@@ -27,10 +27,12 @@ TEST_CASE("BFS_Organizer L3 Tests") {
     program_code.push_back("g(a,f(b)).");
     bfs_organizer org;
 
-    auto setup_org = [&](string query) {
-        org.load_program(program_code);
-        org.load_query(query);
-    };
+auto setup_org = [&](string query) {
+    auto code = std::accumulate(program_code.begin(), program_code.end(),
+                                std::string());
+    org.load_program(code);
+    org.load_query(query);
+};
 
     SECTION("Easy endless loop"){
         program_code.push_back("z(X) :- z(X).");
