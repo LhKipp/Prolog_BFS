@@ -311,7 +311,7 @@ void remove_x_a_regs(std::unordered_map<wam::helper::seen_register, bool> &seen_
 }
 
 std::tuple<std::vector<wam::term_code>, std::vector<wam::var_reg_substitution>>
-wam::parse_query(const std::string_view query_code) {
+wam::compile_query(const std::string_view query_code) {
     using namespace std::placeholders;
     using wam::helper::seen_register;
 
@@ -369,7 +369,7 @@ wam::parse_query(const std::string_view query_code) {
 }
 
 std::unordered_multimap<wam::functor_view, std::vector<wam::term_code>>
-wam::parse_program(const std::string_view program_code){
+wam::compile_program(const std::string_view program_code){
     using namespace std::placeholders;
     namespace qi = boost::spirit::qi;
 
@@ -383,14 +383,14 @@ wam::parse_program(const std::string_view program_code){
         if(!program_line){
             continue;
         }
-        const auto[head_functor, code] = wam::parse_program_term(*program_line);
+        const auto[head_functor, code] = wam::compile_program_term(*program_line);
 
         result.emplace(head_functor, code);
     }
     return result;
 }
 
-std::pair<wam::functor_view, std::vector<wam::term_code>> wam::parse_program_term(node& program_node) {
+std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_term(node& program_node) {
     using namespace std::placeholders;
     std::vector<node> &atoms = *program_node.children;
 
@@ -571,51 +571,3 @@ wam::helper::reg_func_counts wam::assign_permanent_registers(const node &program
 
     return wam::helper::reg_func_counts{0, 0, y_reg_index};
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

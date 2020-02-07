@@ -11,7 +11,6 @@
 #include <memory>
 #include <variant>
 #include <cassert>
-#include <boost/variant/recursive_wrapper.hpp>
 #include <optional>
 #include <ostream>
 #include "data_enums.h"

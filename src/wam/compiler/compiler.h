@@ -19,7 +19,7 @@ namespace wam {
 
 
 
-    std::pair<functor_view, std::vector<term_code>> parse_program_term(node& top_node);
+    std::pair<functor_view, std::vector<term_code>> compile_program_term(node& program_node);
 
 
     helper::reg_func_counts assign_registers(node &functor, node* first_body_atom = nullptr);
@@ -46,13 +46,13 @@ namespace wam {
     wam::helper::reg_func_counts assign_permanent_registers(const node &program_node, bool program_term);
 
     std::unordered_multimap<wam::functor_view, std::vector<wam::term_code>>
-    parse_program(std::string_view program_code);
+    compile_program(const std::string_view program_code);
 
     /*
      * Parses a query term e.G. p(Z,h(Z,W),f(W))
      */
     std::tuple<std::vector<term_code>, std::vector<var_reg_substitution>>
-    parse_query(std::string_view line);
+    compile_query(const std::string_view query_code);
 }
 
 

@@ -16,7 +16,7 @@ void wam::bfs_organizer::load_program(const std::string_view code) {
 }
 
 void wam::bfs_organizer::load_term_lines(const std::string_view code) {
-    program_code = wam::parse_program(code);
+    program_code = wam::compile_program(code);
 
     dead_executors.reserve(program_code.size());
     functor_index_map.reserve(program_code.size());
@@ -89,7 +89,7 @@ void wam::bfs_organizer::load_query(const std::string &query_line) {
     //Clear the old executors
     executors.clear();
     //parse the query and save the results
-    auto query = parse_query(query_line);
+    auto query = compile_query(query_line);
     current_query_code = std::get<0>(query);
 
     std::vector<var_reg_substitution> all_var_reg_substitutions = std::get<1>(query);
