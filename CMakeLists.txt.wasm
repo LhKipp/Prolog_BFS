@@ -1,13 +1,20 @@
+# due to a suspected bug (https://github.com/emscripten-core/emscripten/issues/10630)
+# it is important to manually download the boost libraries from https://www.boost.org/users/history/version_1_72_0.html
+# and extract the 'boost' folder that is in the archive into your emsdk folder,
+# particularly in emsdk/upstream/emscripten/system/include/.
+# The extracted folder must still be called 'boost' and it contains folders
+# such as 'spirit' and files like 'version.hpp'.
+
 cmake_minimum_required(VERSION 3.10)
 project(prolog_bfs)
 
 set(CMAKE_CXX_STANDARD 17)
-FIND_PACKAGE(Boost REQUIRED )
-INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+
+# this is not required anymore because of -s USE_BOOST_HEADERS=1 flag
+#FIND_PACKAGE(Boost REQUIRED )
+#INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
 file(GLOB_RECURSE prolog_bfs_src
-    "src/prolog/*.h"
-    "src/prolog/*.cpp"
     "src/util/*.h"
     "src/util/*.cpp"
     "src/wam/*.h"
@@ -16,8 +23,9 @@ file(GLOB_RECURSE prolog_bfs_src
 
 add_executable(prolog_bfs wasm.cpp ${prolog_bfs_src})
 
-TARGET_LINK_LIBRARIES( prolog_bfs LINK_PUBLIC ${Boost_LIBRARIES} )
+# no need to mention boost libs anymore because of -s USE_BOOST_HEADERS=1
+TARGET_LINK_LIBRARIES( prolog_bfs LINK_PUBLIC )
 
 # linker flags
 # enable embind with --bind flag
-set_target_properties(prolog_bfs PROPERTIES LINK_FLAGS "--bind --emrun -s TOTAL_MEMORY=500MB")
+set_target_properties(prolog_bfs PROPERTIES LINK_FLAGS "--bind --emrun -s USE_BOOST_HEADERS=1 -s TOTAL_MEMORY=500MB")
