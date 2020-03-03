@@ -8,6 +8,11 @@
 cmake_minimum_required(VERSION 3.10)
 project(prolog_bfs)
 
+# set where the build output should go
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+
 set(CMAKE_CXX_STANDARD 17)
 
 # this is not required anymore because of -s USE_BOOST_HEADERS=1 flag
