@@ -17,12 +17,42 @@ public:
         bfs_organizer.clear();
     }
 
-    void loadProgram(std::string prog) {
-        bfs_organizer.load_program(prog);
+    /**
+     * Checks whether the given code is valid prolog program code
+     * @param code - the code to validate
+     * @return  If the code is valid an empty string
+     *          Otherwise an string containing error information
+     */
+    std::string validateProgramCode(std::string code){
+        return bfs_organizer.validate_program(code);
     }
 
-    void loadQuery(std::string query) {
-        bfs_organizer.load_query(query);
+    /**
+     * Checks whether the given code is valid prolog query code
+     * @param code - the code to validate
+     * @return  If the code is valid an empty string
+     *          Otherwise an string containing error information
+     */
+    std::string validateQueryCode(std::string code){
+        return bfs_organizer.validate_query(code);
+    }
+
+    std::string loadProgram(std::string prog) {
+        try{
+            bfs_organizer.load_program(prog);
+            return "";
+        }catch(const std::invalid_argument& e){
+            return e.what();
+        }
+    }
+
+    std::string loadQuery(std::string query) {
+        try{
+            bfs_organizer.load_query(query);
+            return "";
+        }catch(const std::invalid_argument& e){
+            return e.what();
+        }
     }
 
     std::string getAnswer() {
@@ -57,6 +87,8 @@ public:
 EMSCRIPTEN_BINDINGS(PrologBFSWasmWrapper) {
         class_<PrologBFSWasmWrapper>("PrologBFSWasmWrapper")
                 .constructor()
+                .function("validateQueryCode", &PrologBFSWasmWrapper::validateQueryCode)
+                .function("validateProgramCode", &PrologBFSWasmWrapper::validateProgramCode)
                 .function("loadProgram", &PrologBFSWasmWrapper::loadProgram)
                 .function("loadQuery", &PrologBFSWasmWrapper::loadQuery)
                 .function("getAnswer", &PrologBFSWasmWrapper::getAnswer)

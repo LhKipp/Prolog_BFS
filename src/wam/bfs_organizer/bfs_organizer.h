@@ -61,11 +61,13 @@ namespace wam {
     public:
         void clear();
 
+        std::string validate_program(std::string_view code);
+        std::string validate_query(std::string_view code);
         void load_program(std::string_view code);
         void load_program_from_file(const std::string_view file_path);
 
 
-        void load_query(const std::string &query_line);
+        void load_query(const std::string &query);
 
 
         /*
