@@ -11,7 +11,7 @@ using namespace wam;
 TEST_CASE("p3-1 test") {
     bfs_organizer org;
 
-    org.load_program("test_src/p5-0.pl");
+    org.load_program_from_file("test_src/p5-0.pl");
 
     SECTION("[]") {
         org.load_query("lvonM([]).");
@@ -303,13 +303,9 @@ TEST_CASE("p3-1 test") {
                 bool has_found = found != solutions.end();
                 REQUIRE(has_found);
                 solutions.erase(found);
-
             }
         }
-
-
     }
-
 }
 
 

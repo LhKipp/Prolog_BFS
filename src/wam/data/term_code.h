@@ -5,7 +5,7 @@
 #ifndef PROLOG_BFS_PROGRAM_TERM_CODE_H
 #define PROLOG_BFS_PROGRAM_TERM_CODE_H
 
-#include "../parser/util/reg_func_counts.h"
+#include "../compiler/util/reg_func_counts.h"
 #include <functional>
 #include <vector>
 

@@ -2,8 +2,8 @@
 // Created by leonhard on 05.07.19.
 //
 
-#ifndef PROLOG_BFS_PARSER_H
-#define PROLOG_BFS_PARSER_H
+#ifndef PROLOG_BFS_PROGRAM_OPTIONS_H
+#define PROLOG_BFS_PROGRAM_OPTIONS_H
 
 #include <boost/program_options.hpp>
 
@@ -12,7 +12,6 @@ namespace po = boost::program_options;
 namespace program_arguments {
     const char * const prolog_file_option = "prolog-file";
     const char* const help_option = "help";
-    const char*  const socket_option = "socket-connection";
 
     class parser {
     public:
@@ -40,14 +39,10 @@ namespace program_arguments {
         void init() {
             generic.add_options()
                     (help_option, "show help message")
-                    (socket_option, po::value<std::string>(),
-                     "establishes a socket connection to the supplied file and communicates to user over it")
                     (prolog_file_option, po::value<std::vector<std::string >>(), "prolog program file");
         }
-
-
     };
 }
 
 
-#endif //PROLOG_BFS_PARSER_H
+#endif //PROLOG_BFS_PROGRAM_OPTIONS_H

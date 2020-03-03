@@ -17,24 +17,11 @@ namespace app_runner {
 
         //Read program code from files
         if (map.count(program_arguments::prolog_file_option)) {
-            for(auto& file_path : map[program_arguments::prolog_file_option].as<std::vector<std::string>>()){
+            for (auto &file_path : map[program_arguments::prolog_file_option].as<std::vector<std::string>>()) {
                 interpreter.load_program(file_path);
             }
-            //Read program from std::cin
         }else{
-            std::cout << "Enter program code. Type \"q.\" to enter query mode" << std::endl;
-
-            std::vector<std::string> input_lines;
-            std::string cur_line;
-
-            while(std::getline(std::cin, cur_line)){
-                if(cur_line == "q."){
-                    interpreter.load_program(input_lines);
-                    break;
-                }else{
-                    input_lines.push_back(cur_line);
-                }
-            }
+            std::cout << "No file found to read source code from!" << std::endl;
         }
 
         //Query mode

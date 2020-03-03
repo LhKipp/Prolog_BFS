@@ -2,9 +2,9 @@
 // Created by leonhard on 19.08.19.
 //
 #include "../catch.hpp"
-#include <iostream>
 #include <map>
 #include "../src/wam/bfs_organizer/bfs_organizer.h"
+#include "util.h"
 
 using namespace std;
 using namespace wam;
@@ -12,23 +12,25 @@ using namespace wam;
 TEST_CASE("v1 tests") {
     bfs_organizer org;
 
-        vector<string> code;
-        code.push_back("natSymb(o). %o ist ein natsymb");
-        code.push_back("natSymb(s(A)) :- natSymb(A). %o ist ein natsymb");
-        code.push_back("test(X) :- test(X).");
-        code.push_back("test(a).");
-        code.push_back("test(b).");
+        vector<string> program_code;
+        program_code.push_back("natSymb(o). %o ist ein natsymb");
+        program_code.push_back("natSymb(s(A)) :- natSymb(A). %o ist ein natsymb");
+        program_code.push_back("test(X) :- test(X).");
+        program_code.push_back("test(a).");
+        program_code.push_back("test(b).");
 
+auto setup_org = [&](string query) {
+    org.load_program(vec_to_string(program_code));
+    org.load_query(query);
+};
     SECTION("a") {
-        org.load_program(code);
-        org.load_query("natSymb(s(A)).");
+        setup_org("natSymb(s(A)).");
         auto ans = org.get_answer();
         REQUIRE(ans.has_value());
         REQUIRE(ans->at(0).substitute == "o");
     }
     SECTION("c") {
-        org.load_program(code);
-        org.load_query("test(Z)");
+        setup_org("test(Z)");
         map<string,bool> found;
         auto ans = org.get_answer();
         for(int i=0; i <5; i++){

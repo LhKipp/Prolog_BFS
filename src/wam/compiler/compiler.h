@@ -2,8 +2,8 @@
 // Created by leonhard on 05.07.19.
 //
 
-#ifndef PROLOG_BFS_PARSER_H
-#define PROLOG_BFS_PARSER_H
+#ifndef PROLOG_BFS_COMPILER_H
+#define PROLOG_BFS_COMPILER_H
 
 
 #include <string>
@@ -18,12 +18,8 @@
 namespace wam {
 
 
-    /*
-     * Parses a query term e.G. p(Z,h(Z,W),f(W))
-     */
-    std::tuple<std::vector<term_code>, std::vector<var_reg_substitution>>
-    parse_query(const std::string &line);
-    std::pair<functor_view, std::vector<term_code>> parse_program_term(const std::string &line);
+
+    std::pair<functor_view, std::vector<term_code>> compile_program_term(node& program_node);
 
 
     helper::reg_func_counts assign_registers(node &functor, node* first_body_atom = nullptr);
@@ -49,7 +45,15 @@ namespace wam {
 
     wam::helper::reg_func_counts assign_permanent_registers(const node &program_node, bool program_term);
 
+    std::unordered_multimap<wam::functor_view, std::vector<wam::term_code>>
+    compile_program(const std::string_view program_code);
+
+    /*
+     * Parses a query term e.G. p(Z,h(Z,W),f(W))
+     */
+    std::tuple<std::vector<term_code>, std::vector<var_reg_substitution>>
+    compile_query(const std::string_view query_code);
 }
 
 
-#endif //PROLOG_BFS_PARSER_H
+#endif //PROLOG_BFS_COMPILER_H

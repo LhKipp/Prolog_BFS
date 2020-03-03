@@ -3,38 +3,35 @@
 //
 
 #include "bfs_organizer.h"
-#include <numeric>
-#include <iostream>
 #include "util/substitution_util.h"
-#include "../parser/parser.h"
-#include <iterator>
+#include "../compiler/compiler.h"
 #include "util/read_program_code.h"
 
-void wam::bfs_organizer::load_program(const std::string &file_path) {
-    load_term_lines(read_program_code(file_path));
+void wam::bfs_organizer::load_program_from_file(const std::string_view file_path) {
+    auto code = read_file(file_path);
+    load_term_lines(code);
+}
+void wam::bfs_organizer::load_program(const std::string_view code) {
+    return load_term_lines(code);
 }
 
-void wam::bfs_organizer::load_program(const std::vector<std::string> &program_lines) {
-    load_term_lines(read_program_code(program_lines));
-}
+void wam::bfs_organizer::load_term_lines(const std::string_view code) {
+    program_code = wam::compile_program(code);
 
-void wam::bfs_organizer::load_term_lines(const std::vector<std::string> &term_lines) {
-    program_code.reserve(term_lines.size());
-    //Assumes at max there is a different head at every line
-    functor_index_map.reserve(term_lines.size());
-    functors.reserve(term_lines.size());
-    for (auto &line : term_lines) {
-        const auto[head_functor, code] = parse_program_term(line);
-        program_code.emplace(head_functor, code);
+    dead_executors.reserve(program_code.size());
+    functor_index_map.reserve(program_code.size());
+    functors.reserve(program_code.size());
 
-        //This is add_if_not_present
-        //If this head_functor has not been added to functors yet
-        if (functor_index_map.find(head_functor) == functor_index_map.end()) {
-            functor_index_map[head_functor] = functors.size();
-            functors.push_back(head_functor);
+    std::for_each(program_code.cbegin(), program_code.cend(),[&](const auto& it){
+        //it->first is the head_functor
+
+        //if the head_functor is already added simply return
+        if(functor_index_map.find(it.first) != functor_index_map.cend()){
+            return;
         }
-    }
-
+        functor_index_map[it.first] = functors.size();
+        functors.push_back(it.first);
+    });
 }
 
 
@@ -92,7 +89,7 @@ void wam::bfs_organizer::load_query(const std::string &query_line) {
     //Clear the old executors
     executors.clear();
     //parse the query and save the results
-    auto query = parse_query(query_line);
+    auto query = compile_query(query_line);
     current_query_code = std::get<0>(query);
 
     std::vector<var_reg_substitution> all_var_reg_substitutions = std::get<1>(query);
@@ -133,7 +130,7 @@ void wam::bfs_organizer::find_temporary_substitutions(wam::executor &executor) {
                    [&](const auto &var_reg_sub) {
                        //At this point the var_reg_sub point to heap cells
                        return var_substitution{var_reg_sub.var_name,
-                                               string_representation_of(executor.heap, var_reg_sub.register_index,
+                                               string_representation_of(executor, var_reg_sub.register_index,
                                                                         functors)};
                    });
 
@@ -148,7 +145,7 @@ void wam::bfs_organizer::find_permanent_substitutions(wam::executor &executor) {
                        const auto index = executor.environments.top().
                                permanent_registers[var_reg_sub.register_index].index;
                        return var_substitution{var_reg_sub.var_name,
-                                               string_representation_of(executor.heap, index, functors)};
+                                               string_representation_of(executor, index, functors)};
                    });
 }
 
@@ -172,12 +169,17 @@ void wam::bfs_organizer::point_reg_substs_to_heap(executor &executor) {
 
 
 void wam::bfs_organizer::clear(){
-  executors.clear();
-  functor_index_map.clear();
-  functors.clear();
-  program_code.clear();
-  current_query_code.clear();
-  permanent_substitutions.clear();
+    executors.clear();
+    functor_index_map.clear();
+    functors.clear();
+    program_code.clear();
+    current_query_code.clear();
+    permanent_substitutions.clear();
+}
+
+size_t wam::bfs_organizer::archive(const wam::executor &executor) {
+    dead_executors.push_back(executor);
+    return dead_executors.size() -1;
 }
 
 

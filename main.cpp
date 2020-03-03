@@ -1,17 +1,17 @@
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 #include <iostream>
-#include <string>
 
 #include "src/program_arguments/parser.h"
 
 #include "src/app_runner/normal_mode.h"
+#include "src/wam/data/regist.h"
 
 int main(int argc, const char *argv[]) {
     using namespace std;
 
-    const char*args[] = {""};
-    int result = Catch::Session().run(1, args);
+    const char*test_args[] = {""};
+    int result = Catch::Session().run(2, test_args);
 
 
 //    Parsing CommandLine Arguments
@@ -23,7 +23,8 @@ int main(int argc, const char *argv[]) {
         return 0;
     }
 
-    return app_runner::normal_mode(map);
+    //return app_runner::normal_mode(map);
+    return 0;
 
 
 }

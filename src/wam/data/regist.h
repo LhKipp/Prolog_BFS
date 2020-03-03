@@ -8,7 +8,6 @@
 
 #include "heap_tag.h"
 #include <cstddef>
-#include <vector>
 
 namespace wam {
     struct regist {
@@ -30,9 +29,6 @@ namespace wam {
     };
 }
 
-inline bool is_REF(const std::vector<wam::regist>& store, size_t addr){
-    return store[addr].is_REF();
-}
 
 
 #endif //PROLOG_BFS_REGIST_H

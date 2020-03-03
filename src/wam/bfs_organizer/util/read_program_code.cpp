@@ -3,48 +3,23 @@
 //
 
 #include "read_program_code.h"
-#include <algorithm>
 #include <fstream>
-#include <iostream>
+#include <streambuf>
 
 
-std::vector<std::string> wam::read_program_code(const std::vector<std::string> &program_lines) {
-    std::vector<std::string> result{};
-    result.reserve(program_lines.size());
+std::string wam::read_file(const std::string_view file_path) {
+    //https://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring
+    std::ifstream t;
+    t.exceptions ( std::ifstream::failbit | std::ifstream::badbit );
+    t.open(file_path.data());
 
-    std::string cur_term;
+    std::string str;
+    t.seekg(0, std::ios::end);
+    str.reserve(t.tellg());
+    t.seekg(0, std::ios::beg);
 
-    for (auto &prog_line : program_lines) {
-        auto percent_sign = std::find(prog_line.begin(), prog_line.end(), '%');
-
-        std::copy(prog_line.begin(), percent_sign, std::back_inserter(cur_term));
-
-        auto last_char = std::find_if_not(cur_term.rbegin(), cur_term.rend(),
-                                          [](auto &ch) { return std::isspace(ch); });
-        if (*last_char == '.') {
-            if (std::count_if(cur_term.begin(), cur_term.end(), [](auto ch) { return !std::isspace(ch); }) == 0) {
-                cur_term = "";
-                continue;
-            }
-            result.push_back(cur_term);
-            cur_term = "";
-        }
-    }
-    return result;
+    str.assign((std::istreambuf_iterator<char>(t)),
+               std::istreambuf_iterator<char>());
+    return str;
 }
 
-std::vector<std::string> wam::read_program_code(const std::string &file_path) {
-    std::vector<std::string> program_lines;
-
-    std::ifstream file{file_path};
-    if(!file){
-        std::cout << "Couldn't read program code from file: "<< file_path << std::endl;
-        return program_lines;
-    }
-    std::string cur;
-    while (std::getline(file, cur)) {
-        program_lines.push_back(cur);
-    }
-
-    return read_program_code(program_lines);
-}

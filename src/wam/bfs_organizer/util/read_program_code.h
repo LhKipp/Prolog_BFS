@@ -7,11 +7,9 @@
 
 #include <vector>
 #include <string>
+#include <optional>
 
 namespace wam {
-    std::vector <std::string> read_program_code(const std::vector <std::string> &program_lines);
-
-
-    std::vector <std::string> read_program_code(const std::string &file_path);
+    std::string read_file(std::string_view file_path);
 }
 #endif //PROLOG_BFS_READ_PROGRAM_CODE_H

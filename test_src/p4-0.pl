@@ -12,7 +12,7 @@ delta(vS, b, vS).
 delta(vS, a, vS).
 end(vend).
 
-sigma_stern(_X).
+sigma_stern(A_X).
 sigma_stern([X|Xs]) :- sigma(X), sigma_stern(Xs).
 
 delta_stern(Zakt, [], Zakt).

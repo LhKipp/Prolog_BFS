@@ -9,7 +9,7 @@ using namespace wam;
 TEST_CASE("p4-b test") {
     bfs_organizer org;
 
-    org.load_program("test_src/p4-0.pl");
+    org.load_program_from_file("test_src/p4-0.pl");
 
     SECTION("[]") {
         org.load_query("lvonN([b,a]).");

@@ -1,10 +1,11 @@
-natSymb(o). %o ist ein natsymb
+% hi
+natSymb(o). % hi
 natSymb(s(A)) :- natSymb(A). % wenn A ein natsymb ist, muss auch s(A) eins sein
  
 %I.A.
 add(o, A, A).
  
-%I.S.: quasi "umschichten". B wird abgebaut, A aufgebaut für jeden Schritt
+%I.S.: quasi "umschichten". B wird abgebaut, A aufgebaut fuer jeden Schritt
 add(s(A), B, C) :- natSymb(A), natSymb(B), natSymb(C), add(A, s(B), C).
  
 %I.A.
@@ -18,16 +19,16 @@ mult(s(A), B, C) :- mult(A, B, D), add(D, B, C).
 %o equals zero. always.
 eqZero(o).
  
-%wenn A ein natSymb ist, ist s(A) auch eins. Da es natSymb nur für A>0 gibt, ist diese
-%Bedingung nur erfüllt, wenn A > 0
+%wenn A ein natSymb ist, ist s(A) auch eins. Da es natSymb nur fuer A>0 gibt, ist diese
+%Bedingung nur erfuellt, wenn A > 0
 neqZero(s(X)) :-  natSymb(X).
  
-less(o, s(_)).
+less(o, s(A)).
 less(s(X), s(s(Y))) :- less(X, s(Y)), natSymb(X), natSymb(Y).
  
 square(X, Y) :- mult(X, X, Y).
  
-exp(_, o, s(o)).
+exp(A, o, s(o)).
  
 %y mal x miteinander multen x^y = B
 exp(X, s(Y), B) :- exp(X, Y, A), mult(A, X, B), natSymb(X), natSymb(Y), natSymb(B).
@@ -45,7 +46,7 @@ invList(list(s(A), list(A, B))) :- invList(list(A, B)).
  
 % A ist head von Bs
 head(list(A, Bs), A) :- natList(Bs).
-tail(list(_, Bs), Bs) :- natList(Bs).
+tail(list(A, Bs), Bs) :- natList(Bs).
  
 append(nil, As, As).
 append(list(D, As), Bs, list(D, Cs)) :- append(As, Bs, Cs).
@@ -54,19 +55,19 @@ append(list(D, As), Bs, list(D, Cs)) :- append(As, Bs, Cs).
 % Die leere Liste hat keine Elemente
 anz(nil, o).
 % wenn Xs N Elemente hat, dann hat Xs mit einem Element davor ein Element mehr
-anz(list(_Y, Xs), s(N)) :- anz(Xs, N).
+anz(list(A_Y, Xs), s(N)) :- anz(Xs, N).
  
 % Aufgabe 21
 % baum: nib ist der leere baum
 binbaum(nib).
-% wenn Ab und Bb Teilbäume sind, dann kann der nächsthöhere Baum diese beiden enthalten
-binbaum(knoten(_, Ab, Bb)) :- binbaum(Ab), binbaum(Bb).
+% wenn Ab und Bb Teilbaeume sind, dann kann der naechsthoehere Baum diese beiden enthalten
+binbaum(knoten(A, Ab, Bb)) :- binbaum(Ab), binbaum(Bb).
  
-% root(Xb, Y) :- Y ist der Wurzeleintrag des binärbaums Xb
+% root(Xb, Y) :- Y ist der Wurzeleintrag des binaerbaums Xb
 root(binbaum(knoten(X, Ab, Bb)), X) :- binbaum(Ab), binbaum(Bb).
  
 % left(Xb, Yb) :- Yb ist der linke Teilbaum von Xb.
-left(binbaum(knoten(_X, Ab, Bb)), Ab) :- binbaum(Ab), binbaum(Bb).
+left(binbaum(knoten(A_X, Ab, Bb)), Ab) :- binbaum(Ab), binbaum(Bb).
  
 % right(Xb, Yb) :- Yb ist der rechte Teilbaum von Xb
-right(binbaum(knoten(_X, Ab, Bb)), Bb) :- binbaum(Ab), binbaum(Bb).
+right(binbaum(knoten(A_X, Ab, Bb)), Bb) :- binbaum(Ab), binbaum(Bb).

@@ -11,7 +11,7 @@ using namespace wam;
 TEST_CASE("p5-1 test") {
     bfs_organizer org;
 
-    org.load_program("test_src/p5-1.pl");
+    org.load_program_from_file("test_src/p5-1.pl");
 
     SECTION("[]") {
         org.load_query("lVonM(list(nix,nil)).");

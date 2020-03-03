@@ -9,7 +9,7 @@
 
 namespace wam {
     std::string
-    string_representation_of(const std::vector<wam::regist> &store, size_t index, const std::vector<functor_view> &functors,
+    string_representation_of(const executor &executor, size_t index, const std::vector<functor_view> &functors,
             bool is_contigous_list = false);
 
 };

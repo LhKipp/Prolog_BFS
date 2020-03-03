@@ -33,7 +33,7 @@ TEST_CASE("Practical 5 test") {
     program_code.push_back("startZ(readSigma).");
     program_code.push_back("startKeller(raute).");
     program_code.push_back("sigma_stern(nil).");
-    program_code.push_back("sigma_stern(list(W, Rs) :- sigma(W), sigma_stern(Rs).");
+    program_code.push_back("sigma_stern(list(W, Rs)) :- sigma(W), sigma_stern(Rs).");
     program_code.push_back("lappend(nil, Xs, Xs).");
     program_code.push_back("lappend(list(X, Rs), Xs, list(X, Ns)) :- lappend(Rs, Xs, Ns).");
     program_code.push_back(
@@ -46,10 +46,12 @@ TEST_CASE("Practical 5 test") {
     program_code.push_back(
             "lVonM(Ws) :- startZ(Z0), zustand(EndZ), startKeller(K) , es_plus(Z0, Ws, list(K,nil), EndZ, nil, nil).");
 
-    auto setup_org = [&](string query) {
-        org.load_program(program_code);
-        org.load_query(query);
-    };
+auto setup_org = [&](string query) {
+    auto code = std::accumulate(program_code.begin(), program_code.end(),
+                                std::string());
+    org.load_program(code);
+    org.load_query(query);
+};
 
     SECTION("start") {
         setup_org("startZ(Z).");

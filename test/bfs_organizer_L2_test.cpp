@@ -12,7 +12,7 @@
 using namespace wam;
 using namespace std;
 
-TEST_CASE("BFS_Organizer L2 Tests") {
+TEST_CASE("BFS_Organizer_L2_Tests") {
     std::vector<std::string> program_code;
     program_code.push_back("p(X,Y) :- q(X,Z), r(Z,Y).");
     program_code.push_back("q(x,z).");
@@ -30,12 +30,15 @@ TEST_CASE("BFS_Organizer L2 Tests") {
     program_code.push_back("d.");
     bfs_organizer org;
 
-    auto setup_org = [&](string query) {
-        org.load_program(program_code);
-        org.load_query(query);
-    };
+auto setup_org = [&](string query) {
+    auto code = std::accumulate(program_code.begin(), program_code.end(),
+                                std::string());
+    org.load_program(code);
+    org.load_query(query);
+};
     SECTION("Easy Chain"){
         setup_org("p(X,Y)");
+
         auto answer = org.get_answer();
         REQUIRE(answer.has_value());
 
