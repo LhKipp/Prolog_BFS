@@ -3,16 +3,16 @@
         <meta charset="UTF-8">
         <title>Prolog BFS</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" href="web/style.css">
+        <link rel="stylesheet" href="/assets/css/style.css">
         
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         
-        <script src="prolog_bfs.js"></script>
+        <script src="/build/prolog_bfs.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script> <!-- https://github.com/js-cookie/js-cookie-->
         <script src="https://pagecdn.io/lib/ace/1.4.5/ace.js" type="text/javascript" charset="utf-8"></script> <!-- editor -->
-        <script src="web/hotkeys.min.js"></script>
+        <script src="/assets/js/hotkeys.min.js"></script>
 
 	<script>
             // Config
@@ -208,33 +208,88 @@
     </head>
     <body>
         
-        <nav class="navbar navbar-light bg-light">
-            <a class="navbar-brand">Prolog BFS</a>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">Prolog BFS</a>
+            
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="modal" data-target="#modal_limitations" href="#"><strong>Limitations</strong></a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/LhKipp/Prolog_BFS/issues" target="_blank">Report bug</a>
+                    </li>
+                </ul>
+            </div>
         </nav>
-	<!--<div id="content" class="container-fluid">-->
-            <div class="" style="height: 90%; display: flex;">
-                <!-- program editor -->
-                <div class="editor bfs-container" style="flex: 1;" id="program"></div>
+        
+        <div class="" style="height: 90%; display: flex;">
+            <!-- program editor -->
+            <div class="editor bfs-container" style="flex: 1;" id="program"></div>
 
-                <div class="bfs-container" style="display: flex; flex-flow: column; flex: 1;">
-                    <div class="bfs-container" style="max-height: 80%; height:80%; overflow: auto;
-                        /*display: flex; flex-flow: column; justify-content: flex-end;*/" id="results_container"></div>
+            <div class="bfs-container" style="display: flex; flex-flow: column; flex: 1;">
+                <div class="bfs-container" style="max-height: 80%; height:80%; overflow: auto;
+                    /*display: flex; flex-flow: column; justify-content: flex-end;*/" id="results_container"></div>
 
-                    <div class="bfs-container" style="display: flex; flex-flow: column; flex:1;">
-                        <!-- query editor -->
-                        <div class="editor" style="flex:1;" id="query"></div>
-                        <button type="button" class="btn btn-primary btn-sm" onclick="execute()">Run!</button>
-                    </div>
+                <div class="bfs-container" style="display: flex; flex-flow: column; flex:1;">
+                    <!-- query editor -->
+                    <div class="editor" style="flex:1;" id="query"></div>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="execute()">Run!</button>
                 </div>
             </div>
-        <!--</div>-->
+        </div>
         
         <!-- errorbox on the top right for syntax errors etc. -->
         <div class="alert alert-danger alert-dismissible" id="errorbox">
             <button type="button" class="close" onclick="hideError()">&times;</button>
             <span id="errorbox-text"></span>
         </div>
-    
+        
+        <!-- infobox -->
+        <div class="modal fade" id="modal_limitations" tabindex="-1" role="dialog" aria-labelledby="Usage" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Known limitations</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>This is a very limited subset of Prolog! Especially because there is no advanced error handling, this is important to know:</p>
+                        <ul>
+                            <li>
+                                There is <strong>no syntax checker</strong> for the program. Passing syntacticaly
+                                wrong code to the bfs-interpreter may cause undefined behaviour.
+                                It is recommended to let your code be checked by an external tool before
+                                passing it to the bfs-interpreter. You might even get <strong>false results without
+                                any notice!</strong> This also applies to the points below.
+                            </li>
+                            <li>
+                                Any kind of <strong>arithmetic is not supported</strong>. Use o for 0, s(o) for 1, s(s(o)) for 2, ...
+                            </li>
+                            <li>
+                                Variables / constant names <strong>starting</strong> with an <strong>underscore</strong>
+                                are <strong>not supported</strong>. They must only contain characters of the english alphabet.
+                            </li>
+                            <li>
+                                There are <strong>no built-in predicates</strong>.
+                            </li>
+                            <li>
+                                The memory limit is 500MB. If that is not enough, you might want to check out
+                                the offline version on Github. You may free some memory by closing results.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <script>
             var hotkey_execute = {
                 name: 'execute',
@@ -244,7 +299,7 @@
             
             // setting up the editors
             var ace_program = ace.edit("program");
-            ace_program.setTheme("ace/theme/textmate");
+            ace_program.setTheme("ace/theme/dreamweaver"); // textmate, dreamweaver
             ace_program.session.setMode("ace/mode/prolog");
             ace_program.setShowPrintMargin(false); // don't show the vertical line
             ace_program.commands.addCommand(hotkey_execute);
@@ -253,7 +308,7 @@
             }
             
             var ace_query = ace.edit("query");
-            ace_query.setTheme("ace/theme/textmate");
+            ace_query.setTheme("ace/theme/dreamweaver");
             ace_query.session.setMode("ace/mode/prolog");
             ace_query.setShowPrintMargin(false);
             ace_query.commands.addCommand(hotkey_execute);
