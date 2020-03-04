@@ -23,6 +23,7 @@ namespace wam{
         qi::rule<Iterator, node(), Skipper> variable;
         qi::rule<Iterator, std::string(), Skipper> variable_name;
         qi::rule<Iterator, node(), Skipper> prolog_element;
+
         std::stringstream error_msg;
 
         explicit query_grammar() :
@@ -34,8 +35,8 @@ namespace wam{
             using qi::char_;
             using qi::on_error;
             using qi::fail;
-            //A program is either a clause or comments
-            query %= (functor | constant) % ',' > -lit('.');
+
+            query %= qi::eps > (functor | constant) % ',' > -lit('.');
 
             constant_name %= (lexeme[char_("a-z") > *char_("a-zA-Z_0-9")]);
             constant = (constant_name)
@@ -85,9 +86,8 @@ namespace wam{
             query.name("query");
 
 #ifdef BOOST_SPIRIT_DEBUG
-            BOOST_SPIRIT_DEBUG_NODES((query)(comment)(variable)(functor)(list)(constant)(prolog_element))
+            BOOST_SPIRIT_DEBUG_NODES((query)(variable)(functor)(list)(constant)(prolog_element))
 #endif
-
 
             namespace phoenix = boost::phoenix;
             qi::on_error<qi::fail>(query, phoenix::ref(error_msg)
