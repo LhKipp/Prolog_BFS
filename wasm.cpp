@@ -26,12 +26,7 @@ public:
      *          Otherwise an string containing error information
      */
     std::string validateProgramCode(std::string code){
-        try {
-            return bfs_organizer.validate_program(code);
-        } catch (...) { // this catch never works
-            std::cout << "exception: " << boost::current_exception_diagnostic_information() << std::endl;
-            return "";
-        }
+        return bfs_organizer.validate_program(code);
     }
 
     /**
