@@ -10,8 +10,5 @@
 # some ugly hacks here
 cp CMakeLists.txt.native CMakeLists.txt
 
-rm build -r
-mkdir build
-cd build
-cmake ..
+cmake CMakeLists.txt
 make prolog_bfs
