@@ -5,6 +5,8 @@
 #include <vector>
 #include "src/wam/bfs_organizer/bfs_organizer.h"
 
+#include <boost/exception/diagnostic_information.hpp>
+
 #include <emscripten/bind.h>
 using namespace emscripten;
 
@@ -24,7 +26,12 @@ public:
      *          Otherwise an string containing error information
      */
     std::string validateProgramCode(std::string code){
-        return bfs_organizer.validate_program(code);
+        try {
+            return bfs_organizer.validate_program(code);
+        } catch (...) { // this catch never works
+            std::cout << "exception: " << boost::current_exception_diagnostic_information() << std::endl;
+            return "";
+        }
     }
 
     /**

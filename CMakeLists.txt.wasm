@@ -33,4 +33,4 @@ TARGET_LINK_LIBRARIES( prolog_bfs LINK_PUBLIC )
 
 # linker flags
 # enable embind with --bind flag
-set_target_properties(prolog_bfs PROPERTIES LINK_FLAGS "--bind --emrun -s USE_BOOST_HEADERS=1 -s TOTAL_MEMORY=500MB")
+set_target_properties(prolog_bfs PROPERTIES LINK_FLAGS "--bind --emrun -s USE_BOOST_HEADERS=1 -s TOTAL_MEMORY=500MB -s DISABLE_EXCEPTION_CATCHING=0 -s EXCEPTION_DEBUG=1")

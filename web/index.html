@@ -153,6 +153,19 @@
                 instances[instanceid] = false;
             }
             
+            function validateProgram(instanceid, program) {
+                try {
+                    error = instances[instanceid].validateProgramCode(program);
+                    if (error != "") {
+                        showError(error);
+                    }
+                } catch(e) {
+                    console.log("Exception caught while validating a program. This shouldn't happen." + e);
+                    return false;
+                }
+                return true;
+            }
+            
             /*
              * onclick event of the "run" button.
              * This processes the current program and query input
@@ -173,6 +186,11 @@
                 if (!inputProgram || !inputQuery) {
                     // nothing to do
                     return;
+                }
+                
+                // check program syntax prior to actually loading
+                if (!validateProgram(instanceid, inputProgram)) {
+                    return; // bail out if program doesn't validate
                 }
                 
                 //load program to the interpreter
