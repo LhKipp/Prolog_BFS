@@ -319,7 +319,7 @@ void wam::get_permanent_value(wam::executor &executor, size_t y_reg, size_t a_re
     unify(executor, executor.cur_permanent_registers().at(y_reg).index, executor.registers.at(a_reg).index);
 }
 
-void wam::call(wam::executor &old_executor, const functor_view &functor, bool from_original_query) {
+void wam::call(wam::executor &old_executor, const functor_view &functor) {
 #ifdef DEBUG
     std::cout << "call" << std::endl;
     std::cout << "call to: " << functor.name << std::endl;
@@ -389,7 +389,7 @@ void wam::point_var_reg_substs_to_heap(wam::executor &executor) {
     //This operation could theoretically be done later, when finding
     //Var bindings. But doing it now allows us to clear register and permanent registers
     //From dead exec
-    auto const& var_reg_substs = executor.solves_term_code->getSubstitutions();
+    auto const& var_reg_substs = executor.solves_term_code->get_substitutions();
 
     executor.substitutions.reserve(var_reg_substs.size());
 

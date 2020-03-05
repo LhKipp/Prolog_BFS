@@ -52,9 +52,9 @@ std::optional<std::vector<wam::var_substitution>> wam::bfs_organizer::get_answer
 
         next_exec.instructions.pop();
 
-        next_exec.registers.resize(next_term_code->expected_register_count.x_a_regs_counts);
+        next_exec.registers.resize(next_term_code->expected_register_count);
         //*2 is a heuristic
-        next_exec.heap.reserve(next_term_code->expected_register_count.x_a_regs_counts * 2);
+        next_exec.heap.reserve(next_term_code->expected_register_count * 2);
 
         const auto size_before = executors.size();
 
@@ -136,8 +136,11 @@ std::vector<wam::var_substitution> wam::bfs_organizer::find_substitutions(const 
     std::vector<wam::var_substitution> result;
     //normally user have 1 to 5 vars in their queries. so using vector should be more efficient than set
 
-    //Every
+    //This exec is an empty executor. According to impl of proceed instruction, the father will have
+    //unified a term. So we can skip this exec and his father
+
     const wam::executor* parent = &parent_of(executor);
+    parent = &parent_of(*parent);
     while(true){
         if(parent->is_from_user_entered_query()){
             for(const auto& var_heap_sub : parent->substitutions){
@@ -157,6 +160,10 @@ std::vector<wam::var_substitution> wam::bfs_organizer::find_substitutions(const 
         if(!parent->has_parent()){
             break;
         }
+
+        //Its always: query_exec --> fact_exec --> query_exec -->fact_exec ...
+        //So we can skip the fact execs
+        parent = &parent_of(*parent);
         parent = &parent_of(*parent);
     }
     return result;

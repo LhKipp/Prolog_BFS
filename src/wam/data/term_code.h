@@ -22,31 +22,29 @@ namespace wam {
 
         //We need to keep track which var_reg_substs is from an original user entered query
         //we store it in term_code to save some heap space
-        int original_query_atom_number;
+        bool is_from_orig_query;
         std::vector<var_reg_substitution> substitutions;
     public:
-        helper::reg_func_counts expected_register_count;
+        int expected_register_count;
         std::vector<std::function<void(wam::executor &)>> instructions;
 
-        term_code(const helper::reg_func_counts &expectedRegisterCount,
+        term_code(int expectedRegisterCount,
                   std::vector<std::function<void(executor &)>> instructions,
                   std::vector<var_reg_substitution> substitutions,
-                  int original_query_atom_number = std::numeric_limits<int>::max())
+                  bool is_from_original_query = false)
                 : expected_register_count(expectedRegisterCount),
                   instructions(std::move(instructions)),
                   substitutions(std::move(substitutions)),
-                  original_query_atom_number(original_query_atom_number)
-        {
-
+                  is_from_orig_query(is_from_original_query) {
         }
 
         term_code() = default;
 
         inline bool is_from_original_query() const {
-            return original_query_atom_number != std::numeric_limits<int>::max();
+            return is_from_orig_query;
         }
 
-        const std::vector<var_reg_substitution> &getSubstitutions() const {
+        const std::vector<var_reg_substitution> &get_substitutions() const {
             return substitutions;
         }
     };
