@@ -43,10 +43,14 @@ namespace wam {
     void get_permanent_value(executor& executor, size_t y_reg, size_t a_reg);
 
     void call(wam::executor &old_executor, const functor_view &functor, bool from_original_query);
-    void proceed(executor& executor);
+    void proceed(executor& old_exec);
 
     void allocate(executor& executor, size_t permanent_var_count);
     void deallocate(executor& executor);
+
+    //Executor Var Substitution instructions
+    void point_var_reg_substs_to_heap(executor& executor);
+    void find_var_bindings(executor& executor);
 }
 
 #endif //PROLOG_BFS_INSTRUCTIONS_H

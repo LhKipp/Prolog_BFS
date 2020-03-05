@@ -52,6 +52,7 @@ wam::string_representation_of(const executor &executor,
             //If it only appended the empty list, no need to output it too
             return "]";
         } else {
+            //TODO is this correct?
             return appended_elem + ",]";
         }
     }

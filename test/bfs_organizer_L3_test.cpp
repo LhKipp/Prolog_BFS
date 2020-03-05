@@ -140,7 +140,7 @@ auto setup_org = [&](string query) {
             answer = org.get_answer();
             if(total_answers > 40) break;
         }
-        REQUIRE(actual_substs.size() ==3);
+        REQUIRE(actual_substs.size() == 3);
         REQUIRE(actual_substs["a"] >1);
         REQUIRE(actual_substs["f(b)"] >1);
         REQUIRE(actual_substs["f(h(f(d),a,b))"] >1);

@@ -18,6 +18,8 @@ namespace wam{
                                                                                       substitute(std::move(substitute)) {}
 
         friend std::ostream &operator<<(std::ostream &os, const var_substitution &substitution);
+
+
     };
 
     std::ostream &operator<<(std::ostream &os, const var_substitution &substitution);

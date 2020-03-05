@@ -14,6 +14,7 @@
 #include "../../util/named_type.h"
 #include "../data/var_substitution.h"
 #include "../data/environment.h"
+#include "../data/var_heap_substitution.h"
 
 #include <vector>
 #include <stack>
@@ -58,10 +59,21 @@ namespace wam {
         std::vector<regist> heap{};
 
     public:
+        //Set in instruction point_var_regs_to_heap
+        //The var_reg_substs are pointing into the heap
+        std::vector<var_heap_substitution> substitutions;
+        //We also need to keep track whether the var_heap_substitutions
+        //are from an original user entered query
+        //the information is stored in solves_term_code.is_from_original_query()
+        wam::term_code* solves_term_code;
+        inline bool is_from_user_entered_query() const{
+            return solves_term_code->is_from_original_query();
+        }
 
-        std::vector<var_reg_substitution> substitutions;
+        //TODO is this field necessary?
         std::vector<var_substitution> found_substitutions;
 
+        //TODO is this field necessary
         int cur_atom_begin;
 
         std::vector<regist> registers;
@@ -76,7 +88,7 @@ namespace wam {
         //and the call instruction suceeded. Thous this data member should only be written by the call instruction
         int solves_atom_number = -1;
 
-        std::stack<const term_code*> instructions;
+        std::stack<term_code*> instructions;
         std::stack<wam::environment> environments;
 
         executor& operator=(const executor & other)=default;
@@ -135,13 +147,10 @@ namespace wam {
             heap_start_index = parent.heap_size();
 
             //Necessary copies - for now
-            //Solves atom number increased in call instruction if necessary
-            solves_atom_number = parent.solves_atom_number;
             organizer = parent.organizer;
             environments = parent.environments;//TODO use parent environments
-            cur_atom_begin = parent.cur_atom_begin;
-            substitutions = parent.substitutions; //TODO use parents subs and found subs
-            found_substitutions = parent.found_substitutions;
+            //TODO figure out whether the registers are only necessary to copy from
+            //head func -> first body atom
             registers = parent.registers;
             instructions = parent.instructions;
 

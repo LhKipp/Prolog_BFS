@@ -27,7 +27,7 @@ namespace wam {
     class bfs_organizer {
         friend struct executor;
         friend void wam::call(wam::executor &old_executor, const functor_view &functor, bool from_original_query);
-        friend void wam::proceed(wam::executor &executor);
+        friend void wam::proceed(wam::executor &old_exec);
         friend void wam::deallocate(wam::executor &executor);
     private:
         //Executors, beeing executed, saved so heap is still accessible
@@ -43,8 +43,6 @@ namespace wam {
 
         std::vector<var_reg_substitution> permanent_substitutions;
 
-        void find_temporary_substitutions(executor&);
-        void find_permanent_substitutions(executor &executor);
         /**
          * Archives the given executor
          * @param executor the executor to store
@@ -54,8 +52,15 @@ namespace wam {
 
         inline const executor& get_archived(size_t index){
             return dead_executors.at(index);
-
         }
+
+        inline executor& parent_of(const executor& exec){
+            assert(exec.has_parent());
+            assert(exec.parent_index < 100000);
+            return dead_executors.at(exec.parent_index);
+        }
+
+        std::vector<wam::var_substitution> find_substitutions(const executor &executor);
 
         void load_term_lines(std::string_view term_lines);
     public:
@@ -77,8 +82,6 @@ namespace wam {
         std::optional<std::vector<wam::var_substitution>> get_answer();
 
         bool has_code_for(const functor_view &functor) const;
-
-        void point_reg_substs_to_heap(executor &executor);
 
     };
 

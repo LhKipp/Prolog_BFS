@@ -113,11 +113,10 @@ wam::helper::reg_func_counts wam::assign_registers(node &functor, node *first_bo
 
 /*
  * returns a flattened form of the term (e.g. for generating instructions).
- * for a query term the order will be reversed! the first node will be last in vector!
  *
  * Note: The outer functor will be the first element in the returned vector
  */
-std::vector<const node *> wam::flatten(const node &outer_functor) {
+std::vector<const node *> wam::flatten_program(const node &outer_functor) {
     std::vector<const node *> result;
 
     if(outer_functor.is_constant()){
@@ -215,6 +214,9 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term, cons
         }
     });
 
+    //after we have built the heap representation of the query atom, we need to point the var_reg_substs into the heap
+    *out = std::bind(wam::point_var_reg_substs_to_heap, _1);
+
     *out = std::bind(wam::call, _1, outer_functor.to_functor_view(), from_original_query);
     ++out;
 }
@@ -297,6 +299,20 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term, Ou
         }
     });
 
+
+    //In cases of:
+    // query: f(a).
+    // program: f(X).
+    //There should be a found unification of X/a. Therefore var_reg_subst in head_atom need to be found, and after
+    //fact unification with query resolved.
+    // The final found var_bindings are then the father resolved var_reg_substs + fact resolved var_reg_substs
+    *out = std::bind(wam::point_var_reg_substs_to_heap, _1);
+
+
+    //This is not true, it can be done at the end, when a executor finishes
+//    //after every fact unification, the exec needs to find his var_bindings
+//    *out = std::bind(wam::find_var_bindings,_1);
+
     *out = std::bind(wam::proceed, _1);
     ++out;
 }
@@ -310,8 +326,7 @@ void remove_x_a_regs(std::unordered_map<wam::helper::seen_register, bool> &seen_
     }
 }
 
-std::tuple<std::vector<wam::term_code>, std::vector<wam::var_reg_substitution>>
-wam::compile_query(const std::string_view query_code) {
+std::vector<wam::term_code> wam::compile_query(const std::string_view query_code) {
     using namespace std::placeholders;
     using wam::helper::seen_register;
 
@@ -326,46 +341,57 @@ wam::compile_query(const std::string_view query_code) {
 
     const auto permanent_count = assign_permanent_registers(program_node, false);
 
-    std::vector<term_code> instructions;
-    std::vector<var_reg_substitution> substitutions;
     std::unordered_map<seen_register, bool> seen_registers;
-
     //Generate the Instructions
     //Instruction container
     std::vector<std::function<void(wam::executor &)>> functions;
+
     //The first iteration has a allocate instruction, if there are permanent registers
     if (permanent_count.y_regs_counts) {
         functions.emplace_back(std::bind(wam::allocate, _1, permanent_count.y_regs_counts));
     }
 
+    std::vector<term_code> instructions;
     for (int atom_number = 0; atom_number < atoms.size(); ++atom_number) {
         auto &atom = atoms[atom_number];
         const wam::helper::reg_func_counts counts = assign_registers(atom) + permanent_count;
 
         const std::vector<const node *> flattened_form = flatten_query(atom);
-        find_substitutions(atom, atom_number, std::back_inserter(substitutions));
+
+        std::vector<var_reg_substitution> substitutions
+            = find_var_reg_substitutions(atom, atom_number);
 
         to_query_instructions(flattened_form, atom, std::back_inserter(functions), seen_registers, true);
+
         instructions.emplace_back(counts,
                                   functions,
-                                  atom_number);
+                                  substitutions,
+                                  atom_number
+                                  );
 
         //Clear the functions generated so far
         functions.clear();
         remove_x_a_regs(seen_registers);
     }
-    //No deallocate instruction so that bfs::find_permanent_variables wont crash
+    //No deallocate instruction yet so that bfs::find_permanent_variables wont crash
 
-    //Variables will occure more than once in the substitutions. Only one instance is needed
-    //So we do: sort sort by name --> unique --> erase
-    std::sort(substitutions.begin(), substitutions.end(), [](const auto &sub_a, const auto &sub_b) {
-        return sub_a.var_name < sub_b.var_name;
-    });
-    const auto last_perm = std::unique(substitutions.begin(), substitutions.end());
-    substitutions.erase(last_perm, substitutions.end());
-    substitutions.shrink_to_fit();
 
-    return std::make_tuple(instructions, substitutions);
+    //Below is deprecated because we need to get every var substitutions at any step. so for example
+    // f(X), g(X), h(X)
+    // May bind X in the first step to an var (we need to keep track of that)
+    // in the second atom it may bind to an var again
+    // and in the third atom it may bind to an functor
+    // So we cant erase any var_reg_subst at any point.
+//    //Variables will occure more than once in the substitutions. Only one instance is needed
+//    //So we do: sort sort by name --> unique --> erase
+//    std::sort(substitutions.begin(), substitutions.end(), [](const auto &sub_a, const auto &sub_b) {
+//        return sub_a.var_name < sub_b.var_name;
+//    });
+//    const auto last_perm = std::unique(substitutions.begin(), substitutions.end());
+//    substitutions.erase(last_perm, substitutions.end());
+//    substitutions.shrink_to_fit();
+
+    return instructions;
 }
 
 std::unordered_multimap<wam::functor_view, std::vector<wam::term_code>>
@@ -397,8 +423,10 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_t
     const auto permanent_count = assign_permanent_registers(program_node, true);
 
     ////Generate the term_codes
+
     std::vector<term_code> term_codes;
     std::vector<std::function<void(wam::executor &)>> instructions;
+    std::vector<var_reg_substitution> substitutions;
     std::unordered_map<wam::helper::seen_register, bool> seen_registers;
 
     //Assign the registers for head + first body combined
@@ -406,16 +434,24 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_t
     node *first_body_atom = atoms.size() > 1 ? &atoms[1] : nullptr;
     const wam::helper::reg_func_counts counts = assign_registers(head_atom, first_body_atom) + permanent_count;
 
+    //Find the substitutions in the head atom (for more info see generate_program_instructions at the bottom)
+    substitutions = find_var_reg_substitutions(head_atom, 999);// atom_number is unused pass 999 for now
+
     //Treat the head as an fact
-    const std::vector<const node *> flattened_form = flatten(head_atom);
+    const std::vector<const node *> flattened_form = flatten_program(head_atom);
     //The head may have an allocate instruction
     if (permanent_count.y_regs_counts) {
         instructions.emplace_back(std::bind(wam::allocate, _1, permanent_count.y_regs_counts));
     }
     to_program_instructions(flattened_form, std::back_inserter(instructions), seen_registers);
+
     //Build the head
-    term_codes.emplace_back(counts, instructions);
-    //Clear the generated instructions
+    term_codes.emplace_back(
+            counts,
+            std::move(instructions),
+            std::move(substitutions));
+
+    //Clear the generated instructions + substitutions
     instructions.clear();
 
     //Let the first body atom compile as query with seen x regs from head
@@ -423,8 +459,12 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_t
         const std::vector<const node *> first_body_flattened_form = flatten_query(*first_body_atom);
         to_query_instructions(first_body_flattened_form, *first_body_atom, std::back_inserter(instructions),
                               seen_registers, false);
+        substitutions =
+        find_var_reg_substitutions(*first_body_atom, 999);
+
         term_codes.emplace_back(counts,
-                                instructions);
+                                std::move(instructions),
+                                std::move(substitutions));
         //Clear the generated instructions
         instructions.clear();
     }
@@ -436,20 +476,27 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_t
             remove_x_a_regs(seen_registers);
 
             const wam::helper::reg_func_counts counts = assign_registers(atom) + permanent_count;
+            substitutions = find_var_reg_substitutions(atom, 999);
+
             const std::vector<const node *> flattened_form = flatten_query(atom);
             to_query_instructions(flattened_form, atom, std::back_inserter(instructions), seen_registers, false);
+
             term_codes.emplace_back(counts,
-                                    instructions);
+                                    std::move(instructions),
+                                    std::move(substitutions));
             //Clear the generated instructions
             instructions.clear();
         });
-
     }
 
     //All body atoms have been built append a optional deallocate instruction
     if (permanent_count.y_regs_counts) {
+        //but better find var bindings first :)
         instructions.emplace_back(std::bind(wam::deallocate, _1));
-        term_codes.emplace_back(wam::helper::reg_func_counts{0, 0, 0}, instructions);
+        term_codes.emplace_back(
+                wam::helper::reg_func_counts{0, 0, 0},
+                instructions,
+                std::vector<var_reg_substitution>{});
     }
 
     return std::make_pair(head_atom.to_functor_view(), term_codes);
@@ -458,28 +505,34 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_t
 /*
  * Finds and lists the variable name to register substitutions
  */
-template<typename Output_Iter>
-void wam::find_substitutions(const node &atom, size_t atom_number, Output_Iter out) {
+std::vector<wam::var_reg_substitution>
+wam::find_var_reg_substitutions(const node &atom, size_t atom_number) {
+    std::vector<wam::var_reg_substitution> result;
     if(atom.is_constant()){
-        return ;
+        return result;
     }
 
+    std::set<std::string> handled_vars;
     bfs_order(atom, true, [&](const node *cur_node) {
         if (cur_node->is_variable()) {
-            //TODO is x_reg enough?
+            const std::string& name = cur_node->name;
+            //if var has been added dont add again
+            if(handled_vars.find(name) != handled_vars.end()){
+                return;
+            }
+            handled_vars.insert(name);
             if (cur_node->is_permanent()) {
-                *out = var_reg_substitution{cur_node->name, cur_node->get_y_reg(), atom_number, true};
-                ++out;
+                result.emplace_back(name, cur_node->get_y_reg(), atom_number, true);
             } else {
-                *out = var_reg_substitution{cur_node->name, cur_node->get_x_reg(), atom_number, false};
-                ++out;
+                result.emplace_back(name, cur_node->get_x_reg(), atom_number, false);
             }
         }
     });
+    return result;
 }
 
 std::vector<const node *> wam::flatten_query(const node &outer_functor) {
-    std::vector<const node *> flattened_term = flatten(outer_functor);
+    std::vector<const node *> flattened_term = flatten_program(outer_functor);
 
     /*
      * If the tree would be traversed in postorder with the arguments as roots (skip_root = true) these

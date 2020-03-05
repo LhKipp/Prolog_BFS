@@ -7,6 +7,7 @@
 #include "util/instructions_util.h"
 #include "../bfs_organizer/bfs_organizer.h"
 
+//#define DEBUG
 #ifdef DEBUG
 #include <iostream>
 #endif
@@ -32,6 +33,7 @@ void wam::set_variable(wam::executor &executor, size_t x_reg) {
     executor.registers.at(x_reg) = executor.heap_back();
 }
 
+//TODO feature/tree add var name here
 void wam::set_permanent_variable(wam::executor &executor, size_t y_reg) {
 #ifdef DEBUG
     std::cout << "set_permanent_variable" << std::endl;
@@ -96,6 +98,7 @@ void wam::get_structure(wam::executor &executor, const functor_view &functor, si
 /*
  * See page 14 top
  */
+//TODO feature/tree
 void wam::bind(executor &exec, size_t address_a, size_t address_b) {
 #ifdef DEBUG
     std::cout << "bind" << std::endl;
@@ -118,6 +121,7 @@ void wam::unify_variable(wam::executor &executor, size_t x_reg) {
             executor.registers.at(x_reg) = executor.heap_at(executor.S);
             break;
         }
+        //TODO feature/tree add var name
         case mode::WRITE: {
             executor.push_back_unbound_REF();
             executor.registers.at(x_reg) = executor.heap_back();
@@ -137,6 +141,7 @@ void wam::unify_permanent_variable(wam::executor &executor, size_t y_reg) {
             executor.cur_permanent_registers().at(y_reg) = executor.heap_at(executor.S);
             break;
         }
+        //TODO feature/tree add var name
         case mode::WRITE: {
             executor.push_back_unbound_REF();
             executor.cur_permanent_registers().at(y_reg) = executor.heap_back();
@@ -175,6 +180,7 @@ void wam::unify_permanent_value(wam::executor &executor, size_t y_reg) {
 #endif
     switch (executor.read_or_write) {
         case mode::READ: {
+            //TODO feature/tree shouldnt s be first addr, so that query / program
             if (executor.cur_permanent_registers().at(y_reg).is_REF()) {
                 unify(executor, deref(executor, executor.cur_permanent_registers().at(y_reg)), executor.S);
             } else {//x_reg is a STR
@@ -246,6 +252,7 @@ void wam::unify(executor &executor, size_t addr_a, size_t addr_b) {
     }
 }
 
+//TODO feature/tree add var name here
 void wam::put_variable(wam::executor &executor, size_t x_reg, size_t a_reg) {
 #ifdef DEBUG
     std::cout << "put_variable" << std::endl;
@@ -255,6 +262,7 @@ void wam::put_variable(wam::executor &executor, size_t x_reg, size_t a_reg) {
     executor.registers.at(a_reg) = executor.heap_back();
 }
 
+//TODO feature/tree add var name here
 void wam::put_permanent_variable(wam::executor &executor, size_t y_reg, size_t a_reg) {
 #ifdef DEBUG
     std::cout << "put_permanent_variable" << std::endl;
@@ -299,6 +307,7 @@ void wam::get_value(wam::executor &executor, size_t x_reg, size_t a_reg) {
 #ifdef DEBUG
     std::cout << "get_value" << std::endl;
 #endif
+    //feature/parser TODO should be swapped
     unify(executor, executor.registers.at(x_reg).index, executor.registers.at(a_reg).index);
 }
 
@@ -306,47 +315,55 @@ void wam::get_permanent_value(wam::executor &executor, size_t y_reg, size_t a_re
 #ifdef DEBUG
     std::cout << "get_permanent_value" << std::endl;
 #endif
+    //these should also be swapped feature/parser
     unify(executor, executor.cur_permanent_registers().at(y_reg).index, executor.registers.at(a_reg).index);
 }
 
 void wam::call(wam::executor &old_executor, const functor_view &functor, bool from_original_query) {
 #ifdef DEBUG
     std::cout << "call" << std::endl;
+    std::cout << "call to: " << functor.name << std::endl;
 #endif
     bfs_organizer *organizer = old_executor.get_organizer();
 
-    //TODO Debug
-//    std::cout << "call to: " << functor.name << std::endl;
     if (!organizer->has_code_for(functor)) {
-//        std::cout << "call failed" << std::endl;
+#ifdef DEBUG
+        std::cout << "call failed" << std::endl;
+#endif
         old_executor.fail = true;
         return;
     }
 
-    old_executor.solves_atom_number += from_original_query;
-    assert(organizer->has_code_for(functor));
     auto range = organizer->program_code.equal_range(functor);
     auto old_exec_index = organizer->archive(old_executor);
     std::for_each(range.first, range.second,
-                  [&](const auto &entries) {
+                  [&](auto &entries) {
                       executor new_executor{};
                       new_executor.set_parent(old_executor, old_exec_index);
 
                       std::for_each(entries.second.rbegin(), entries.second.rend(),
-                                    [&](const wam::term_code &term_code) {
+                                    [&](wam::term_code &term_code) {
                                         new_executor.instructions.push(&term_code);
                                     });
                       organizer->executors.push_back(new_executor);
                   });
-
 }
 
-void wam::proceed(wam::executor &executor) {
+void wam::proceed(wam::executor &old_exec) {
 #ifdef DEBUG
     std::cout << "proceed" << std::endl;
 #endif
-    bfs_organizer *organizer = executor.get_organizer();
-    organizer->executors.push_back(executor);
+    //The old_exec has unified a rule head atom / fact with an query
+    //To preserve the var_heap_subst in old_exec and the state after
+    //unification we start a new executor who continues with the rest of
+    //the instructions
+    bfs_organizer *organizer = old_exec.get_organizer();
+
+    //TODO clear unnecessary data on archieve, also in call instruction
+    const auto archive_index = organizer->archive(old_exec);
+    executor new_executor{};
+    new_executor.set_parent(old_exec, archive_index);
+    organizer->executors.push_back(new_executor);
 }
 
 void wam::allocate(wam::executor &executor, size_t permanent_var_count) {
@@ -365,11 +382,28 @@ void wam::deallocate(wam::executor &executor) {
     organizer->executors.push_back(executor);
 }
 
+void wam::point_var_reg_substs_to_heap(wam::executor &executor) {
+#ifdef DEBUG
+    std::cout << "point_var_reg_substs_to_heap" << std::endl;
+#endif
+    //This operation could theoretically be done later, when finding
+    //Var bindings. But doing it now allows us to clear register and permanent registers
+    //From dead exec
+    auto const& var_reg_substs = executor.solves_term_code->getSubstitutions();
 
+    executor.substitutions.reserve(var_reg_substs.size());
 
+    std::transform(var_reg_substs.begin(),
+             var_reg_substs.end(),
+             std::back_inserter(executor.substitutions),
+           [&](const var_reg_substitution& reg_sub){
+               size_t heap_index = reg_sub.is_permanent_register ?
+                                   executor.environments.top().permanent_registers.at(reg_sub.register_index).index
+                                  : executor.registers.at(reg_sub.register_index).index;
 
-
-
-
-
-
+               return var_heap_substitution(
+                        reg_sub.var_name,
+                        heap_index
+               );
+    });
+}

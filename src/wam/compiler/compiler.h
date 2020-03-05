@@ -24,7 +24,7 @@ namespace wam {
 
     helper::reg_func_counts assign_registers(node &functor, node* first_body_atom = nullptr);
     node build_tree(const std::string &line);
-    std::vector<const node *> flatten(const node &outer_functor);
+    std::vector<const node *> flatten_program(const node &outer_functor);
 
     template<typename OutputIter>
     void
@@ -38,8 +38,9 @@ namespace wam {
 
     functor_view make_functor_view(const node &node);
 
-    template<typename OutputIter>
-    void find_substitutions(const node &atom, size_t atom_number, OutputIter out);
+
+    std::vector<wam::var_reg_substitution>
+    find_var_reg_substitutions(const node &atom, size_t atom_number);
 
     std::vector<const node *> flatten_query(const node &node);
 
@@ -51,8 +52,7 @@ namespace wam {
     /*
      * Parses a query term e.G. p(Z,h(Z,W),f(W))
      */
-    std::tuple<std::vector<term_code>, std::vector<var_reg_substitution>>
-    compile_query(const std::string_view query_code);
+    std::vector<term_code> compile_query(std::string_view query_code);
 }
 
 
