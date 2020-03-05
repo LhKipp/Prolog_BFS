@@ -19,6 +19,12 @@
             // save current program and query every x milliseconds
             var autosaveInterval = 60000;
             
+            // how long to store the autosaved code in a cookie; in days
+            var autosaveCookieLifetime = 7;
+            
+            // show error alert for x milliseconds
+            var errorAlertDisplayDuration = 10000;
+            
             // End of config
             
             /**
@@ -66,7 +72,7 @@
                 // automatically hide
                 setTimeout(function() {
                     hideError();
-                }, 5000);
+                }, errorAlertDisplayDuration);
             }
             
             /**
@@ -229,9 +235,9 @@
              * data loss when the browser crashes.
              */
             function autosave() {
-                // Store program code for 7 days
-                Cookies.set('programcode', ace.edit("program").getValue(), { expires: 7 });
-                Cookies.set('querycode', ace.edit("query").getValue(), { expires: 7 });
+                // Store program code for autosaveCookieLifetime days
+                Cookies.set('programcode', ace.edit("program").getValue(), { expires:  autosaveCookieLifetime });
+                Cookies.set('querycode', ace.edit("query").getValue(), { expires: autosaveCookieLifetime });
             }
             
             /*
