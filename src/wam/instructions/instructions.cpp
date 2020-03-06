@@ -335,7 +335,7 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
     }
 
     auto range = organizer->program_code.equal_range(functor);
-    auto old_exec_index = organizer->archive(old_executor);
+    auto old_exec_index = organizer->next_archive_index();
     std::for_each(range.first, range.second,
                   [&](auto &entries) {
                       executor new_executor{};
@@ -343,11 +343,12 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
 
                       std::for_each(entries.second.rbegin(), entries.second.rend(),
                                     [&](wam::term_code &term_code) {
-                                        new_executor.term_codes
-                                        .push(&term_code);
+                                        new_executor.term_codes.push(&term_code);
                                     });
                       organizer->executors.push_back(new_executor);
                   });
+    old_executor.clear();
+    organizer->archive(std::move(old_executor));
 }
 
 void wam::proceed(wam::executor &old_exec) {
@@ -360,10 +361,10 @@ void wam::proceed(wam::executor &old_exec) {
     //the instructions
     bfs_organizer *organizer = old_exec.get_organizer();
 
-    //TODO clear unnecessary data on archieve, also in call instruction
-    const auto archive_index = organizer->archive(old_exec);
+    const auto archive_index = organizer->next_archive_index();
     executor new_executor{};
-    new_executor.set_parent(old_exec, archive_index);
+    new_executor.set_parent(std::move(old_exec), archive_index);
+    organizer->archive(std::move(old_exec));
     organizer->executors.push_back(new_executor);
 }
 
@@ -380,7 +381,7 @@ void wam::deallocate(wam::executor &executor) {
 #endif
     executor.environments.pop();
     bfs_organizer *organizer = executor.get_organizer();
-    organizer->executors.push_back(executor);
+    organizer->executors.push_back(std::move(executor));
 }
 
 void wam::point_var_reg_substs_to_heap(wam::executor &executor) {
