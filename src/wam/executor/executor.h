@@ -59,6 +59,8 @@ namespace wam {
 
         std::vector<regist> heap{};
 
+        std::variant<std::vector<executor>, std::unique_ptr<executor>> children;
+
     public:
         //Set in instruction point_var_regs_to_heap
         //The var_reg_substs are pointing into the heap
@@ -177,7 +179,6 @@ namespace wam {
             registers.clear();
         }
 
-        std::variant<std::vector<executor>, std::unique_ptr<executor>> children;
     };
 }
 
