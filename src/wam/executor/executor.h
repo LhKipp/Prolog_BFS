@@ -70,12 +70,6 @@ namespace wam {
             return solves_term_code->is_from_original_query();
         }
 
-        //TODO is this field necessary?
-        std::vector<var_substitution> found_substitutions;
-
-        //TODO is this field necessary
-        int cur_atom_begin;
-
         std::vector<regist> registers;
 
         mode read_or_write;
@@ -97,7 +91,6 @@ namespace wam {
             assert(!environments.empty());
             return environments.top().permanent_registers;
         }
-
 
         inline bfs_organizer *get_organizer() const {
             return organizer;
@@ -139,6 +132,19 @@ namespace wam {
 
         regist heap_at(size_t index)const;
 
+        inline void set_parent(executor&& parent, size_t archive_index){
+            parent_index = archive_index;
+            heap_start_index = parent.heap_size();
+            organizer = parent.organizer;
+
+            environments = std::move(parent.environments);
+            registers = std::move(parent.registers);
+            term_codes = std::move(parent.term_codes);
+
+            changes_to_parent.reserve(5);
+            heap.reserve(parent.heap.size());
+        }
+
         inline void set_parent(const executor& parent, size_t archive_index){
             parent_index = archive_index;
             heap_start_index = parent.heap_size();
@@ -158,6 +164,16 @@ namespace wam {
 
         inline bool has_parent()const {
             return parent_index != std::numeric_limits<size_t>::max();
+        }
+
+        /**
+         * Clears all data from this executor which is no longer needed when saving
+         */
+        inline void clear(){
+            //TODO use vectors to make clear in O(1) possible
+            term_codes = std::stack<term_code*>{};
+            environments = std::stack<wam::environment>{};
+            registers.clear();
         }
     };
 }

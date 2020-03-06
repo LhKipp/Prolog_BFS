@@ -105,11 +105,6 @@ void wam::bfs_organizer::clear(){
     permanent_substitutions.clear();
 }
 
-size_t wam::bfs_organizer::archive(const wam::executor &executor) {
-    dead_executors.push_back(executor);
-    return dead_executors.size() -1;
-}
-
 std::string wam::bfs_organizer::validate_program(const std::string_view code) {
 //TODO the code uses the parser code, a simple syntax checker would be good enough here
     try{

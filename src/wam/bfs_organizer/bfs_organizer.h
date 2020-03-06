@@ -46,9 +46,19 @@ namespace wam {
         /**
          * Archives the given executor
          * @param executor the executor to store
-         * @return pointer to the memory address where the executor has been stored
+         * @return
          */
-        size_t archive(const executor &executor);
+        void archive(executor&& executor){
+            dead_executors.push_back(executor);
+        }
+
+        size_t archive(const executor& executor){
+            dead_executors.push_back(executor);
+            return dead_executors.size() -1;
+        }
+        size_t inline next_archive_index(){
+            return dead_executors.empty() ? 0 : dead_executors.size() - 1;
+        }
 
         inline const executor& get_archived(size_t index){
             return dead_executors.at(index);
