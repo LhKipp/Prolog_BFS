@@ -11,12 +11,18 @@
 namespace wam{
     class parser_error {
     public:
+
+        parser_error(): _exists(false){}
+        parser_error(const std::string &expected, int onRow, int onCol) : expected(expected), on_row(onRow),
+                                                                          on_col(onCol), _exists(true){}
+
         std::string &get_expected(){
             return expected;
         }
         const std::string &get_expected() const {
             return expected;
         }
+
 
         void set_expected(const std::string &expected) {
             parser_error::expected = expected;
@@ -38,11 +44,16 @@ namespace wam{
             on_col = onCol;
         }
 
-        bool is_valid(){
-            return on_col !=0 && on_row !=0;
+        bool exists() const{
+            return _exists;
+        }
+
+        void set_exists(bool exists){
+            _exists = exists;
         }
 
     private:
+        bool _exists;
         std::string expected;
         int on_row;
         int on_col;

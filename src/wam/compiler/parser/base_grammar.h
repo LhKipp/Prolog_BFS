@@ -16,6 +16,7 @@ namespace wam{
 
     template<typename Iter, typename String>
     void operator()(parser_error& err, Iter begin, Iter end, Iter error_pos, String what) const {
+        err.set_exists(true);
         err.set_row(std::count(begin, error_pos, '\n'));
         err.set_col(std::distance(
                 std::find(std::make_reverse_iterator(error_pos),
