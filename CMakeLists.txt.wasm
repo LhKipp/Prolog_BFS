@@ -33,10 +33,9 @@ TARGET_LINK_LIBRARIES( prolog_bfs LINK_PUBLIC )
 # --emrun optimize for use with emrun (server to run the code)
 # DISABLE_EXCEPTION_CATCHING=0 to allow exceptions *within* the c++ code to be caught.
 #   Exceptions are disabled by default because of performance. We need them though.
-# USE_BOOST_HEADERS=1 automatically retrieve the boost headers 
+# USE_BOOST_HEADERS=1 automatically retrieve the boost headers and include them
 
-# compile flags @todo: this COMPILE_FLAGS is deprecated. convert this to target_compile_options
-set_target_properties(prolog_bfs PROPERTIES COMPILE_FLAGS "-s USE_BOOST_HEADERS=1 -s DISABLE_EXCEPTION_CATCHING=0")
+# Use "SHELL:" to prevent de-duplication of the -s flags! See https://stackoverflow.com/questions/60552844/how-do-i-migrate-from-compile-flags-to-target-compile-options-in-cmake/60553977#60553977
 
-# linker flags
-set_target_properties(prolog_bfs PROPERTIES LINK_FLAGS "--bind --emrun -s TOTAL_MEMORY=500MB -s USE_BOOST_HEADERS=1 -s DISABLE_EXCEPTION_CATCHING=0")
+target_compile_options(prolog_bfs PUBLIC "SHELL:-s USE_BOOST_HEADERS=1" "SHELL:-s DISABLE_EXCEPTION_CATCHING=0")
+target_link_options(prolog_bfs PUBLIC --bind --emrun "SHELL:-s USE_BOOST_HEADERS=1" "SHELL:-s DISABLE_EXCEPTION_CATCHING=0")
