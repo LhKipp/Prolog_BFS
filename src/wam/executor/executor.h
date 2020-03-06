@@ -83,17 +83,14 @@ namespace wam {
         size_t S;
 
         bool fail = false;
-        //Which atom number from the original query the executor is solving depends on the call instruction.
-        //The executor is solving the first (zeroth) atom from the query if the query-atom has been built on the heap,
-        //and the call instruction suceeded. Thous this data member should only be written by the call instruction
-        int solves_atom_number = -1;
 
-        std::stack<term_code*> instructions;
+        std::stack<term_code*> term_codes;
         std::stack<wam::environment> environments;
 
         executor& operator=(const executor & other)=default;
         executor& operator=(executor && other)=default;
         executor(const executor& other) = default;
+        executor(executor&& other) = default;
         executor() = default;
 
         inline std::vector<wam::regist>& cur_permanent_registers(){
@@ -152,7 +149,7 @@ namespace wam {
             //TODO figure out whether the registers are only necessary to copy from
             //head func -> first body atom
             registers = parent.registers;
-            instructions = parent.instructions;
+            term_codes = parent.term_codes;
 
             //TODO Monitor different heuristics
             changes_to_parent.reserve(5);

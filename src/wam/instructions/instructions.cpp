@@ -343,7 +343,8 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
 
                       std::for_each(entries.second.rbegin(), entries.second.rend(),
                                     [&](wam::term_code &term_code) {
-                                        new_executor.instructions.push(&term_code);
+                                        new_executor.term_codes
+                                        .push(&term_code);
                                     });
                       organizer->executors.push_back(new_executor);
                   });

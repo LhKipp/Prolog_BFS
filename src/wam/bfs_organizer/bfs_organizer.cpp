@@ -42,15 +42,15 @@ std::optional<std::vector<wam::var_substitution>> wam::bfs_organizer::get_answer
         executor next_exec = executors.front();
         executors.pop_front();
 
-        if (next_exec.instructions.empty()) {
+        if (next_exec.term_codes.empty()) {
             return find_substitutions(next_exec);
         }
 
-        term_code *next_term_code = next_exec.instructions.top();
+        term_code *next_term_code = next_exec.term_codes.top();
         //Let the exec save, what he has done :)
         next_exec.solves_term_code = next_term_code;
 
-        next_exec.instructions.pop();
+        next_exec.term_codes.pop();
 
         next_exec.registers.resize(next_term_code->expected_register_count);
         //*2 is a heuristic
@@ -85,7 +85,7 @@ void wam::bfs_organizer::load_query(const std::string &query_line) {
     //Copy references to query instructions into the executor instructions
     std::for_each(current_query_code.rbegin(), current_query_code.rend(),
                   [&](term_code &term_code) {
-                      init_executor.instructions.push(&term_code);
+                      init_executor.term_codes.push(&term_code);
                   });
     init_executor.organizer = this;
     executors.push_back(init_executor);
