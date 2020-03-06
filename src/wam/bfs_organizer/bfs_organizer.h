@@ -21,18 +21,12 @@
 
 namespace wam {
 
-    //Strong wrapper types
-    using code_as_string = NamedType<std::string, struct Code_as_string>;
-
-    using var_substitutions = std::vector<wam::var_substitution>;
     class bfs_organizer {
         friend struct executor;
         friend void wam::call(wam::executor &old_executor, const functor_view &functor);
         friend void wam::proceed(wam::executor &old_exec);
         friend void wam::deallocate(wam::executor &executor);
     private:
-        //Executors, beeing executed, saved so heap is still accessible
-        std::vector<executor> dead_executors;
         //Queue of executors, to execute
         std::list<executor> executors;
 
@@ -44,26 +38,37 @@ namespace wam {
 
         std::vector<var_reg_substitution> permanent_substitutions;
 
+
+        std::vector<executor> leaf_execs;
+        void archive_finished_exec(executor&& executor){
+            //To generate the unification tree out of all executors, we need the
+            //executors who finished (fail or success) because
+            executor.clear();
+            leaf_execs.push_back(std::move(executor));
+        }
+
+        //Executors, finished execution with call or proceed, saved so heap is still accessible
+        std::vector<executor> node_executors;
         /**
          * Archives the given executor
          * @param executor the executor to store
-         * @return
          */
-        void inline archive(executor&& executor){
-            dead_executors.push_back(executor);
-        }
-        size_t inline next_archive_index(){
-            return dead_executors.size();
+        void inline archive_node_exec(executor&& executor){
+            node_executors.push_back(std::move(executor));
         }
 
         inline const executor& get_archived(size_t index){
-            return dead_executors.at(index);
+            return node_executors.at(index);
+        }
+
+        size_t inline next_archive_index(){
+            return node_executors.size();
         }
 
         inline executor& parent_of(const executor& exec){
             assert(exec.has_parent());
             assert(exec.parent_index < 100000);
-            return dead_executors.at(exec.parent_index);
+            return node_executors.at(exec.parent_index);
         }
 
         std::vector<wam::var_substitution> find_substitutions(const executor &executor);
@@ -82,12 +87,14 @@ namespace wam {
 
 
         /*
-         * Returns a bool indicating whether an answer has been found (true = has answer) and a var_substitution.
+         * Returns var_substitutions if found otherwise std::nullopt
          * Note: This may run into an endless loop
          */
         std::optional<std::vector<wam::var_substitution>> get_answer();
 
-        bool has_code_for(const functor_view &functor) const;
+        bool has_code_for(const functor_view &functor) const{
+            return program_code.find(functor) != program_code.end();
+        }
 
     };
 

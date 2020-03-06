@@ -345,10 +345,10 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
                                     [&](wam::term_code &term_code) {
                                         new_executor.term_codes.push(&term_code);
                                     });
-                      organizer->executors.push_back(new_executor);
+                      organizer->executors.push_back(std::move(new_executor));
                   });
     old_executor.clear();
-    organizer->archive(std::move(old_executor));
+    organizer->archive_node_exec(std::move(old_executor));
 }
 
 void wam::proceed(wam::executor &old_exec) {
@@ -364,8 +364,8 @@ void wam::proceed(wam::executor &old_exec) {
     const auto archive_index = organizer->next_archive_index();
     executor new_executor{};
     new_executor.set_parent(std::move(old_exec), archive_index);
-    organizer->archive(std::move(old_exec));
-    organizer->executors.push_back(new_executor);
+    organizer->archive_node_exec(std::move(old_exec));
+    organizer->executors.push_back(std::move(new_executor));
 }
 
 void wam::allocate(wam::executor &executor, size_t permanent_var_count) {

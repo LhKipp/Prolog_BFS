@@ -21,6 +21,7 @@
 #include <unordered_map>
 #include <cassert>
 #include <iostream>
+#include <variant>
 
 namespace wam {
 
@@ -175,6 +176,8 @@ namespace wam {
             environments = std::stack<wam::environment>{};
             registers.clear();
         }
+
+        std::variant<std::vector<executor>, std::unique_ptr<executor>> children;
     };
 }
 

@@ -20,7 +20,7 @@ void wam::bfs_organizer::load_program(const std::string_view code) {
 void wam::bfs_organizer::load_term_lines(const std::string_view code) {
     program_code = wam::compile_program(code);
 
-    dead_executors.reserve(program_code.size());
+    node_executors.reserve(program_code.size());
     functor_index_map.reserve(program_code.size());
     functors.reserve(program_code.size());
 
@@ -39,7 +39,7 @@ void wam::bfs_organizer::load_term_lines(const std::string_view code) {
 
 std::optional<std::vector<wam::var_substitution>> wam::bfs_organizer::get_answer() {
     while (!executors.empty()) {
-        executor next_exec = executors.front();
+        executor next_exec = std::move(executors.front());
         executors.pop_front();
 
         if (next_exec.term_codes.empty()) {
@@ -76,7 +76,7 @@ std::optional<std::vector<wam::var_substitution>> wam::bfs_organizer::get_answer
 void wam::bfs_organizer::load_query(const std::string &query_line) {
     //Clear the old executors
     executors.clear();
-    dead_executors.clear();
+    node_executors.clear();
     //parse the query and save the results
     current_query_code = compile_query(query_line);
 
@@ -88,16 +88,12 @@ void wam::bfs_organizer::load_query(const std::string &query_line) {
                       init_executor.term_codes.push(&term_code);
                   });
     init_executor.organizer = this;
-    executors.push_back(init_executor);
-}
-
-bool wam::bfs_organizer::has_code_for(const functor_view &functor) const {
-    return program_code.find(functor) != program_code.end();
+    executors.push_back(std::move(init_executor));
 }
 
 void wam::bfs_organizer::clear(){
     executors.clear();
-    dead_executors.clear();
+    node_executors.clear();
     functor_index_map.clear();
     functors.clear();
     program_code.clear();
