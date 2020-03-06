@@ -7,6 +7,7 @@
 
 #include <emscripten/bind.h>
 using namespace emscripten;
+using namespace wam;
 
 
 class PrologBFSWasmWrapper{
@@ -45,7 +46,7 @@ public:
     wam::parser_error loadQuery(std::string query) {
         try{
             bfs_organizer.load_query(query);
-            return {}
+            return wam::parser_error{};
         }catch(const parser_error& e){
             return e;
         }
