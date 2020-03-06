@@ -43,26 +43,25 @@ std::optional<std::vector<wam::var_substitution>> wam::bfs_organizer::get_answer
         executors.pop_front();
 
         if (next_exec.term_codes.empty()) {
-            return find_substitutions(next_exec);
+            auto substitutes = find_substitutions(next_exec);
+            archive_finished_exec(std::move(next_exec));
+            return substitutes;
         }
 
         term_code *next_term_code = next_exec.term_codes.top();
         //Let the exec save, what he has done :)
         next_exec.solves_term_code = next_term_code;
-
         next_exec.term_codes.pop();
 
         next_exec.registers.resize(next_term_code->expected_register_count);
         //*2 is a heuristic
         next_exec.heap.reserve(next_term_code->expected_register_count * 2);
 
-        const auto size_before = executors.size();
-
-
         for (const auto &instruction : next_term_code->instructions) {
             instruction(next_exec);
             //if the executor fails we stop executing
             if (next_exec.fail) {
+                archive_finished_exec(std::move(next_exec));
                 break;
             }
         }
