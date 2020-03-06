@@ -10,7 +10,6 @@
 #include <functional>
 #include "util/node.h"
 #include "../executor/executor.h"
-#include "util/reg_func_counts.h"
 #include "../data/term_code.h"
 #include "../data/functor_view.h"
 #include "util/seen_register.h"
