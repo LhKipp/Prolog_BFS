@@ -16,6 +16,7 @@
 #include "../data/var_reg_substitution.h"
 #include "../executor/executor.h"
 #include "../instructions/instructions.h"
+#include "../compiler/parser/parser_error.h"
 
 
 namespace wam {
@@ -71,10 +72,10 @@ namespace wam {
     public:
         void clear();
 
-        std::string validate_program(std::string_view code);
-        std::string validate_query(std::string_view code);
+        wam::parser_error validate_program(std::string_view code);
+        wam::parser_error validate_query(std::string_view code);
         void load_program(std::string_view code);
-        void load_program_from_file(const std::string_view file_path);
+        void load_program_from_file(std::string_view file_path);
 
 
         void load_query(const std::string &query);

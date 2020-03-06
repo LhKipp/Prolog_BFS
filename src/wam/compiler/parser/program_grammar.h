@@ -9,6 +9,8 @@
 #include <boost/phoenix/phoenix.hpp>
 #include "../util/node.h"
 #include "util.h"
+#include "parser_error.h"
+#include "base_grammar.h"
 
 namespace wam {
 
@@ -28,8 +30,6 @@ namespace wam {
         qi::rule<Iterator, std::string(), Skipper> variable_name;
         qi::rule<Iterator, void(), Skipper> comment;
         qi::rule<Iterator, node(), Skipper> prolog_element;
-
-        std::stringstream error_msg;
 
         program_grammar() :
                 program_grammar::base_type(program, "program") {
@@ -106,17 +106,20 @@ namespace wam {
 #ifdef BOOST_SPIRIT_DEBUG
             BOOST_SPIRIT_DEBUG_NODES((program)(clause)(comment)(variable)(functor)(list)(constant)(prolog_element))
 #endif
-
             namespace phoenix = boost::phoenix;
-            qi::on_error<qi::fail>(program, phoenix::ref(error_msg)
-                    << phoenix::val("Error! Expecting ")
-                    << qi::_4                               // what failed?
-                    << phoenix::val(" here: \"")
-                    << phoenix::construct<std::string>(qi::_3, qi::_2)   // iterators to error-pos, end
-                    << phoenix::val("\"")
-                    << std::endl
+            qi::on_error<qi::fail>(program,
+                    phoenix::bind(phoenix::ref(handler),
+                            phoenix::ref(error),
+                            qi::_1,
+                            qi::_2,
+                            qi::_3,
+                            qi::_4)
             );
         }
+
+    public:
+        error_handler<> handler;
+        parser_error error;
     };
 }
 #endif //PROLOG_BFS_PROGRAM_GRAMMAR_H

@@ -27,6 +27,7 @@ cd Prolog_BFS
 ```
 There are 2 different build scripts. "build_native" builds the cli application and "build_wasm" builds the WebAssembly files.
 To build the wasm version further steps are required. Make sure to check the CMakeList.txt.wasm for further instructions.
+If you first build wasm, then native (or the other way around) make sure to delete the `CMakeCache.txt` file! Otherwise the build might fail.
 
 Known Limitations
 -----------------

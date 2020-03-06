@@ -9,6 +9,7 @@
 #include <boost/phoenix/phoenix.hpp>
 #include "../util/node.h"
 #include "util.h"
+#include "base_grammar.h"
 
 namespace qi = boost::spirit::qi;
 namespace wam{
@@ -23,7 +24,6 @@ namespace wam{
         qi::rule<Iterator, node(), Skipper> variable;
         qi::rule<Iterator, std::string(), Skipper> variable_name;
         qi::rule<Iterator, node(), Skipper> prolog_element;
-        std::stringstream error_msg;
 
         explicit query_grammar() :
                 query_grammar::base_type(query, "query") {
@@ -34,8 +34,8 @@ namespace wam{
             using qi::char_;
             using qi::on_error;
             using qi::fail;
-            //A program is either a clause or comments
-            query %= (functor | constant) % ',' > -lit('.');
+
+            query %= qi::eps > (functor | constant) % ',' > -lit('.');
 
             constant_name %= (lexeme[char_("a-z") > *char_("a-zA-Z_0-9")]);
             constant = (constant_name)
@@ -85,20 +85,23 @@ namespace wam{
             query.name("query");
 
 #ifdef BOOST_SPIRIT_DEBUG
-            BOOST_SPIRIT_DEBUG_NODES((query)(comment)(variable)(functor)(list)(constant)(prolog_element))
+            BOOST_SPIRIT_DEBUG_NODES((query)(variable)(functor)(list)(constant)(prolog_element))
 #endif
 
-
             namespace phoenix = boost::phoenix;
-            qi::on_error<qi::fail>(query, phoenix::ref(error_msg)
-                    << phoenix::val("Error! Expecting ")
-                    << qi::_4                               // what failed?
-                    << phoenix::val(" here: \"")
-                    << phoenix::construct<std::string>(qi::_3, qi::_2)   // iterators to error-pos, end
-                    << phoenix::val("\"")
-                    << std::endl
+            qi::on_error<qi::fail>(query,
+                                   phoenix::bind(phoenix::ref(handler),
+                                                 phoenix::ref(error),
+                                                 qi::_1,
+                                                 qi::_2,
+                                                 qi::_3,
+                                                 qi::_4)
             );
         }
+
+        error_handler<> handler;
+    public:
+        parser_error error;
     };
 }
 #endif //PROLOG_BFS_QUERY_GRAMMAR_H
