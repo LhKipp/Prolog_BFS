@@ -22,8 +22,7 @@ namespace wam {
         bool r = phrase_parse(iter, end, grammar, boost::spirit::qi::space, result);
 
         if (!(r && iter == end)) {
-            auto error_msg = grammar.error_msg.str();
-            throw std::invalid_argument(error_msg);
+            throw grammar.error;
         }
     }
 
@@ -38,8 +37,7 @@ namespace wam {
         bool r = phrase_parse(iter, end, grammar, boost::spirit::qi::space, result);
 
         if (!(r && iter == end)) {
-            auto error_msg = grammar.error_msg.str();
-            throw std::invalid_argument(error_msg);
+            throw grammar.error;
         }
     }
 }

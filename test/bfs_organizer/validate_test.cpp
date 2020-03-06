@@ -22,8 +22,8 @@ TEST_CASE("Validate correct program Code", "[validate]") {
 }
 TEST_CASE("Validate wrong program Code", "[validate]") {
     bfs_organizer org;
-    std::string r = org.validate_program("f(a) :- f(b) X .");
-//    std::cout << r << endl;
+    std::string r = org.validate_program("f(a) :- f(b) X.\nf(a) :- f(b), f(c)");
+    std::cout << r << endl;
     REQUIRE(!r.empty());
 }
 
