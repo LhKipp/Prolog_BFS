@@ -3,12 +3,11 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include "src/wam/bfs_organizer/bfs_organizer.h"
-
-#include <boost/exception/diagnostic_information.hpp>
+#include "../wam/bfs_organizer/bfs_organizer.h"
 
 #include <emscripten/bind.h>
 using namespace emscripten;
+using namespace wam;
 
 
 class PrologBFSWasmWrapper{
@@ -22,38 +21,34 @@ public:
     /**
      * Checks whether the given code is valid prolog program code
      * @param code - the code to validate
-     * @return  If the code is valid an empty string
-     *          Otherwise an string containing error information
      */
-    std::string validateProgramCode(std::string code){
+    wam::parser_error validateProgramCode(std::string code){
         return bfs_organizer.validate_program(code);
     }
 
     /**
      * Checks whether the given code is valid prolog query code
      * @param code - the code to validate
-     * @return  If the code is valid an empty string
-     *          Otherwise an string containing error information
      */
-    std::string validateQueryCode(std::string code){
+    wam::parser_error validateQueryCode(std::string code){
         return bfs_organizer.validate_query(code);
     }
 
-    std::string loadProgram(std::string prog) {
+    wam::parser_error loadProgram(std::string prog) {
         try{
             bfs_organizer.load_program(prog);
-            return "";
-        }catch(const std::invalid_argument& e){
-            return e.what();
+            return parser_error{};
+        }catch(const parser_error& e){
+            return e;
         }
     }
 
-    std::string loadQuery(std::string query) {
+    wam::parser_error loadQuery(std::string query) {
         try{
             bfs_organizer.load_query(query);
-            return "";
-        }catch(const std::invalid_argument& e){
-            return e.what();
+            return wam::parser_error{};
+        }catch(const parser_error& e){
+            return e;
         }
     }
 

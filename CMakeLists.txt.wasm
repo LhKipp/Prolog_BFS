@@ -13,13 +13,12 @@ set(CMAKE_CXX_STANDARD 17)
 #INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
 file(GLOB_RECURSE prolog_bfs_src
-    "src/util/*.h"
-    "src/util/*.cpp"
+    "src/wasm/*"
     "src/wam/*.h"
     "src/wam/*.cpp"
 )
 
-add_executable(prolog_bfs wasm.cpp ${prolog_bfs_src})
+add_executable(prolog_bfs ${prolog_bfs_src})
 
 # no need to mention boost libs anymore because of -s USE_BOOST_HEADERS=1
 TARGET_LINK_LIBRARIES( prolog_bfs LINK_PUBLIC )
