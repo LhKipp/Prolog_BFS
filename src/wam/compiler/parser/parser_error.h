@@ -15,14 +15,9 @@ namespace wam{
         parser_error(): _exists(false){}
         parser_error(const std::string &expected, int onRow, int onCol) : expected(expected), on_row(onRow),
                                                                           on_col(onCol), _exists(true){}
-
-        std::string &get_expected(){
-            return expected;
-        }
         const std::string &get_expected() const {
             return expected;
         }
-
 
         void set_expected(const std::string &expected) {
             parser_error::expected = expected;

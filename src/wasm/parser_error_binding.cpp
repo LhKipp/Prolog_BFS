@@ -12,6 +12,6 @@ EMSCRIPTEN_BINDINGS(parser_error) {
                 .function("get_row", &wam::parser_error::get_row)
                 .function("get_col", &wam::parser_error::get_col)
                 .function("exists", &wam::parser_error::exists)
-//                .function("get_expected", &wam::parser_error::get_expected)
+                .function("get_expected", &wam::parser_error::get_expected)
         ;
 }
