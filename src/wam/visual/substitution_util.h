@@ -5,7 +5,9 @@
 #ifndef PROLOG_BFS_SUBSTITUTION_UTIL_H
 #define PROLOG_BFS_SUBSTITUTION_UTIL_H
 
-#include "../../executor/executor.h"
+#include "../executor/executor.h"
+#include "../data/functor_view.h"
+#include <string>
 
 namespace wam {
     std::string

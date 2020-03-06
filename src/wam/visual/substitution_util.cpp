@@ -2,8 +2,8 @@
 // Created by leonhard on 29.07.19.
 //
 #include "substitution_util.h"
-#include "../../instructions/util/instructions_util.h"
-#include "../../config/config.h"
+#include "../instructions/util/instructions_util.h"
+#include "../config/config.h"
 
 
 //TODO recursive function, could be optimized through use of stack

@@ -3,7 +3,7 @@
 //
 
 #include "bfs_organizer.h"
-#include "util/substitution_util.h"
+#include "../visual/substitution_util.h"
 #include "../compiler/compiler.h"
 #include "util/read_program_code.h"
 #include "../compiler/parser/parser.h"
