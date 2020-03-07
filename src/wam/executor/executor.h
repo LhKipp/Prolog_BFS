@@ -47,7 +47,7 @@ namespace wam {
 
         //Pointer to the executor from whom this executor emerged in the call instruction
         //Note: size_t::max represents that this exec has no parent -- see @func has_parent
-        size_t parent_index = std::numeric_limits<size_t>::max();
+        const executor* parent = nullptr;
 
         //Every child reuses the heap of the parent. So the child heaps build upon the parents heap. Thous
         //the child-heap starts at index parent-heap.size and ends at parent-heap.size + child-heap.size
@@ -59,7 +59,7 @@ namespace wam {
 
         std::vector<regist> heap{};
 
-        std::variant<std::vector<executor>, std::unique_ptr<executor>> children;
+        std::vector<std::unique_ptr<executor>> children;
 
     public:
         //Set in instruction point_var_regs_to_heap
@@ -135,8 +135,8 @@ namespace wam {
 
         regist heap_at(size_t index)const;
 
-        inline void set_parent(executor&& parent, size_t archive_index){
-            parent_index = archive_index;
+        inline void set_parent(executor&& parent){
+            this->parent = &parent;
             heap_start_index = parent.heap_size();
             organizer = parent.organizer;
 
@@ -148,8 +148,8 @@ namespace wam {
             heap.reserve(parent.heap.size());
         }
 
-        inline void set_parent(const executor& parent, size_t archive_index){
-            parent_index = archive_index;
+        inline void set_parent(const executor& parent){
+            this->parent = &parent;
             heap_start_index = parent.heap_size();
 
             //Necessary copies - for now
@@ -166,7 +166,20 @@ namespace wam {
         }
 
         inline bool has_parent()const {
-            return parent_index != std::numeric_limits<size_t>::max();
+            return parent != nullptr;
+        }
+
+        inline const executor& get_parent()const{
+            return *parent;
+        }
+
+        inline void push_back_child(executor&& child){
+            children.push_back(std::make_unique<executor>(std::move(child)));
+        }
+
+        inline executor& get_last_child()const {
+            assert(!children.empty());
+            return *children.back();
         }
 
         /**

@@ -335,20 +335,19 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
     }
 
     auto range = organizer->program_code.equal_range(functor);
-    auto old_exec_index = organizer->next_archive_index();
     std::for_each(range.first, range.second,
                   [&](auto &entries) {
                       executor new_executor{};
-                      new_executor.set_parent(old_executor, old_exec_index);
+                      new_executor.set_parent(old_executor);
 
                       std::for_each(entries.second.rbegin(), entries.second.rend(),
                                     [&](wam::term_code &term_code) {
                                         new_executor.term_codes.push(&term_code);
                                     });
-                      organizer->executors.push_back(std::move(new_executor));
+                      old_executor.push_back_child(std::move(new_executor));
+                      organizer->executors.push_back(&old_executor.get_last_child());
                   });
     old_executor.clear();
-    organizer->archive_node_exec(std::move(old_executor));
 }
 
 void wam::proceed(wam::executor &old_exec) {
@@ -361,11 +360,10 @@ void wam::proceed(wam::executor &old_exec) {
     //the instructions
     bfs_organizer *organizer = old_exec.get_organizer();
 
-    const auto archive_index = organizer->next_archive_index();
     executor new_executor{};
-    new_executor.set_parent(std::move(old_exec), archive_index);
-    organizer->archive_node_exec(std::move(old_exec));
-    organizer->executors.push_back(std::move(new_executor));
+    new_executor.set_parent(std::move(old_exec));
+    old_exec.push_back_child(std::move(new_executor));
+    organizer->executors.push_back(&old_exec.get_last_child());
 }
 
 void wam::allocate(wam::executor &executor, size_t permanent_var_count) {
@@ -381,7 +379,7 @@ void wam::deallocate(wam::executor &executor) {
 #endif
     executor.environments.pop();
     bfs_organizer *organizer = executor.get_organizer();
-    organizer->executors.push_back(std::move(executor));
+    organizer->executors.push_back(&executor);
 }
 
 void wam::point_var_reg_substs_to_heap(wam::executor &executor) {

@@ -20,7 +20,6 @@ void wam::bfs_organizer::load_program(const std::string_view code) {
 void wam::bfs_organizer::load_term_lines(const std::string_view code) {
     program_code = wam::compile_program(code);
 
-    node_executors.reserve(program_code.size());
     functor_index_map.reserve(program_code.size());
     functors.reserve(program_code.size());
 
@@ -39,29 +38,27 @@ void wam::bfs_organizer::load_term_lines(const std::string_view code) {
 
 std::optional<std::vector<wam::var_substitution>> wam::bfs_organizer::get_answer() {
     while (!executors.empty()) {
-        executor next_exec = std::move(executors.front());
+        executor* next_exec = executors.front();
         executors.pop_front();
 
-        if (next_exec.term_codes.empty()) {
-            auto substitutes = find_substitutions(next_exec);
-            archive_finished_exec(std::move(next_exec));
+        if (next_exec->term_codes.empty()) {
+            auto substitutes = find_substitutions(*next_exec);
             return substitutes;
         }
 
-        term_code *next_term_code = next_exec.term_codes.top();
+        term_code *next_term_code = next_exec->term_codes.top();
         //Let the exec save, what he has done :)
-        next_exec.solves_term_code = next_term_code;
-        next_exec.term_codes.pop();
+        next_exec->solves_term_code = next_term_code;
+        next_exec->term_codes.pop();
 
-        next_exec.registers.resize(next_term_code->expected_register_count);
+        next_exec->registers.resize(next_term_code->expected_register_count);
         //*2 is a heuristic
-        next_exec.heap.reserve(next_term_code->expected_register_count * 2);
+        next_exec->heap.reserve(next_term_code->expected_register_count * 2);
 
         for (const auto &instruction : next_term_code->instructions) {
-            instruction(next_exec);
+            instruction(*next_exec);
             //if the executor fails we stop executing
-            if (next_exec.fail) {
-                archive_finished_exec(std::move(next_exec));
+            if (next_exec->fail) {
                 break;
             }
         }
@@ -75,29 +72,25 @@ std::optional<std::vector<wam::var_substitution>> wam::bfs_organizer::get_answer
 void wam::bfs_organizer::load_query(const std::string &query_line) {
     //Clear the old executors
     executors.clear();
-    node_executors.clear();
     //parse the query and save the results
     current_query_code = compile_query(query_line);
 
-    //create one initialiser executor
-    executor init_executor;
+    init_executor = executor{};
     //Copy references to query instructions into the executor instructions
     std::for_each(current_query_code.rbegin(), current_query_code.rend(),
                   [&](term_code &term_code) {
                       init_executor.term_codes.push(&term_code);
                   });
     init_executor.organizer = this;
-    executors.push_back(std::move(init_executor));
+    executors.push_back(&init_executor);
 }
 
 void wam::bfs_organizer::clear(){
     executors.clear();
-    node_executors.clear();
     functor_index_map.clear();
     functors.clear();
     program_code.clear();
     current_query_code.clear();
-    permanent_substitutions.clear();
 }
 
 wam::parser_error wam::bfs_organizer::validate_program(const std::string_view code) {
@@ -129,8 +122,8 @@ std::vector<wam::var_substitution> wam::bfs_organizer::find_substitutions(const 
     //This exec is an empty executor. According to impl of proceed instruction, the father will have
     //unified a term. So we can skip this exec and his father
 
-    const wam::executor* parent = &parent_of(executor);
-    parent = &parent_of(*parent);
+    const wam::executor* parent = &executor.get_parent();
+    parent = &parent->get_parent();
     while(true){
         if(parent->is_from_user_entered_query()){
             for(const auto& var_heap_sub : parent->substitutions){
@@ -153,8 +146,8 @@ std::vector<wam::var_substitution> wam::bfs_organizer::find_substitutions(const 
 
         //Its always: query_exec --> fact_exec --> query_exec -->fact_exec ...
         //So we can skip the fact execs
-        parent = &parent_of(*parent);
-        parent = &parent_of(*parent);
+        parent = &parent->get_parent();
+        parent = &parent->get_parent();
     }
     return result;
 }
