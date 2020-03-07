@@ -62,15 +62,12 @@ namespace wam {
         std::vector<std::unique_ptr<executor>> children;
 
     public:
-        //Set in instruction point_var_regs_to_heap
-        //The var_reg_substs are pointing into the heap
-        std::vector<var_heap_substitution> substitutions;
-        //We also need to keep track whether the var_heap_substitutions
-        //are from an original user entered query
+        //We also need to keep track whether this exec is from an original user entered query
         //the information is stored in solves_term_code.is_from_original_query()
-        wam::term_code* solves_term_code;
+        //whatever the exec solved the last is stored in term_codes.back()
         inline bool is_from_user_entered_query() const{
-            return solves_term_code->is_from_original_query();
+            assert(term_codes.size() == 1);
+            return term_codes.back()->is_from_original_query();
         }
 
         std::vector<regist> registers;
@@ -139,14 +136,26 @@ namespace wam {
 
         regist heap_at(size_t index)const;
 
-        inline void set_parent(executor&& parent){
+        inline void move_from_parent(executor& parent){
             this->parent = &parent;
             heap_start_index = parent.heap_size();
             organizer = parent.organizer;
 
-            environments = parent.environments;
+            if(!parent.environments.empty()){
+                environments = std::move(parent.environments);
+                parent.environments.clear();
+                parent.environments.push_back(environments.back());
+            }
+            //Copy only as needed, but shrink to fit always to make sure, size is as small as possible
+            parent.environments.shrink_to_fit();
+
             registers = parent.registers;
+
             term_codes = std::move(parent.term_codes);
+            parent.term_codes.clear();
+            parent.term_codes.push_back(term_codes.back());
+            parent.term_codes.shrink_to_fit();
+            term_codes.pop_back();
 
             changes_to_parent.reserve(5);
             heap.reserve(parent.heap.size());
@@ -157,12 +166,14 @@ namespace wam {
             heap_start_index = parent.heap_size();
 
             //Necessary copies - for now
+
             organizer = parent.organizer;
-            environments = parent.environments;//TODO use parent environments
+            environments = parent.environments;
             //TODO figure out whether the registers are only necessary to copy from
             //head func -> first body atom
             registers = parent.registers;
-            term_codes = parent.term_codes;
+
+            //term_codes are more efficiently copied in call instruction
 
             //TODO Monitor different heuristics
             changes_to_parent.reserve(5);
@@ -191,14 +202,17 @@ namespace wam {
          */
         inline void clear(){
             //TODO use vectors to make clear in O(1) possible
-            term_codes = std::vector<term_code*>{};
-            //environments = std::stack<wam::environment>{};
+            term_codes.erase(term_codes.begin(), term_codes.end() -1);
+            term_codes.shrink_to_fit();
+            if(environments.size() > 1){
+                environments.erase(environments.begin(), environments.end() -1);
+            }
 //            registers.clear();
         }
 
         term_code *get_solved_term_code()const {
-//            assert(term_codes.size() == 1);
-            return solves_term_code;
+            assert(term_codes.size() == 1);
+            return term_codes.back();
         }
 
         void set_failed(){

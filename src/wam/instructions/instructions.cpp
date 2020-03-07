@@ -7,7 +7,7 @@
 #include "util/instructions_util.h"
 #include "../bfs_organizer/bfs_organizer.h"
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 #include <iostream>
 #endif
@@ -339,13 +339,18 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
     auto range = organizer->program_code.equal_range(functor);
     std::for_each(range.first, range.second,
                   [&](auto &entries) {
-                      executor new_executor{};
+                      executor new_executor{old_executor.term_codes.size() -1 + entries.second.size()};
+//                      Copy the term_codes
+                      auto parent_codes_end = std::copy(old_executor.term_codes.begin(),
+                              old_executor.term_codes.end() -1,
+                              new_executor.term_codes.begin());
+                      std::transform(entries.second.rbegin(),
+                                    entries.second.rend(),
+                                    parent_codes_end,
+                                    [](wam::term_code& term_code){return &term_code;});
                       new_executor.set_parent(old_executor);
 
-                      std::for_each(entries.second.rbegin(), entries.second.rend(),
-                                    [&](wam::term_code &term_code) {
-                                        new_executor.term_codes.push_back(&term_code);
-                                    });
+
                       old_executor.push_back_child(std::move(new_executor));
                       organizer->executors.push_back(&old_executor.get_last_child());
                   });
@@ -363,7 +368,7 @@ void wam::proceed(wam::executor &old_exec) {
     bfs_organizer *organizer = old_exec.get_organizer();
 
     executor new_executor{};
-    new_executor.set_parent(std::move(old_exec));
+    new_executor.move_from_parent(old_exec);
     old_exec.push_back_child(std::move(new_executor));
     organizer->executors.push_back(&old_exec.get_last_child());
 }
@@ -373,7 +378,7 @@ void wam::allocate(wam::executor &executor, size_t permanent_var_count) {
     std::cout << "allocate" << std::endl;
     std::cout << "exec environment size before: " << executor.environments.size() << std::endl;
 #endif
-    executor.environments.push_back(wam::environment{permanent_var_count});
+    executor.environments.emplace_back(permanent_var_count);
 }
 
 void wam::deallocate(wam::executor &executor) {
@@ -383,6 +388,12 @@ void wam::deallocate(wam::executor &executor) {
 #endif
     assert(!executor.environments.empty());
     executor.environments.pop_back();
+
+    //This executor finished his term_code. But storing executors only doing deallocates is
+    //unecessary, so we give him a new task, through term_codes.pop_back and inserting him in
+    //executors list
+
+    executor.term_codes.pop_back();
     bfs_organizer *organizer = executor.get_organizer();
     organizer->executors.push_back(&executor);
 }
