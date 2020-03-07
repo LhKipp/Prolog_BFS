@@ -77,5 +77,3 @@ wam::regist wam::executor::heap_at(size_t index) const {
         }
     }
 }
-
-

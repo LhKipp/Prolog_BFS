@@ -342,7 +342,7 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
 
                       std::for_each(entries.second.rbegin(), entries.second.rend(),
                                     [&](wam::term_code &term_code) {
-                                        new_executor.term_codes.push(&term_code);
+                                        new_executor.term_codes.push_back(&term_code);
                                     });
                       old_executor.push_back_child(std::move(new_executor));
                       organizer->executors.push_back(&old_executor.get_last_child());
@@ -369,15 +369,18 @@ void wam::proceed(wam::executor &old_exec) {
 void wam::allocate(wam::executor &executor, size_t permanent_var_count) {
 #ifdef DEBUG
     std::cout << "allocate" << std::endl;
+    std::cout << "exec environment size before: " << executor.environments.size() << std::endl;
 #endif
-    executor.environments.push(environment{permanent_var_count});
+    executor.environments.push_back(wam::environment{permanent_var_count});
 }
 
 void wam::deallocate(wam::executor &executor) {
 #ifdef DEBUG
     std::cout << "deallocate" << std::endl;
+    std::cout << "exec environment size before: " << executor.environments.size() << std::endl;
 #endif
-    executor.environments.pop();
+    assert(!executor.environments.empty());
+    executor.environments.pop_back();
     bfs_organizer *organizer = executor.get_organizer();
     organizer->executors.push_back(&executor);
 }

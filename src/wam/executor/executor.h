@@ -81,8 +81,10 @@ namespace wam {
 
         bool fail = false;
 
-        std::stack<term_code*> term_codes;
-        std::stack<wam::environment> environments;
+        //Used as a stack
+        std::vector<term_code*> term_codes;
+        //Used as a stack
+        std::vector<wam::environment> environments;
 
         executor& operator=(const executor & other)=default;
         executor& operator=(executor && other)=default;
@@ -90,9 +92,11 @@ namespace wam {
         executor(executor&& other) = default;
         executor() = default;
 
+        executor(size_t term_codes_size): term_codes{term_codes_size}{}
+
         inline std::vector<wam::regist>& cur_permanent_registers(){
             assert(!environments.empty());
-            return environments.top().permanent_registers;
+            return environments.back().permanent_registers;
         }
 
         inline bfs_organizer *get_organizer() const {
@@ -187,7 +191,7 @@ namespace wam {
          */
         inline void clear(){
             //TODO use vectors to make clear in O(1) possible
-            term_codes = std::stack<term_code*>{};
+            term_codes = std::vector<term_code*>{};
             //environments = std::stack<wam::environment>{};
 //            registers.clear();
         }

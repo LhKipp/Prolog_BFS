@@ -95,7 +95,7 @@ std::vector<wam::var_heap_substitution> wam::point_var_reg_substs_to_heap(const 
                    result.begin(),
                    [&](const var_reg_substitution& reg_sub){
                        size_t heap_index = reg_sub.is_permanent_register ?
-                                           executor->environments.top().permanent_registers.at(reg_sub.register_index).index
+                                           executor->environments.back().permanent_registers.at(reg_sub.register_index).index
                                                                          : executor->registers.at(reg_sub.register_index).index;
 
                        return var_heap_substitution(

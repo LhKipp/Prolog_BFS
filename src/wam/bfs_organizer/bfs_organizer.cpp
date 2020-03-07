@@ -46,10 +46,10 @@ std::optional<std::vector<wam::var_substitution>> wam::bfs_organizer::get_answer
             return substitutes;
         }
 
-        term_code *next_term_code = next_exec->term_codes.top();
+        term_code *next_term_code = next_exec->term_codes.back();
         //Let the exec save, what he has done :)
         next_exec->solves_term_code = next_term_code;
-        next_exec->term_codes.pop();
+        next_exec->term_codes.pop_back();
 
         next_exec->registers.resize(next_term_code->expected_register_count);
         //*2 is a heuristic
@@ -79,7 +79,7 @@ void wam::bfs_organizer::load_query(const std::string &query_line) {
     //Copy references to query instructions into the executor instructions
     std::for_each(current_query_code.rbegin(), current_query_code.rend(),
                   [&](term_code &term_code) {
-                      init_executor.term_codes.push(&term_code);
+                      init_executor.term_codes.push_back(&term_code);
                   });
     init_executor.organizer = this;
     executors.push_back(&init_executor);
