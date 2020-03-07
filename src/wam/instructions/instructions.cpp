@@ -382,28 +382,3 @@ void wam::deallocate(wam::executor &executor) {
     organizer->executors.push_back(&executor);
 }
 
-void wam::point_var_reg_substs_to_heap(wam::executor &executor) {
-#ifdef DEBUG
-    std::cout << "point_var_reg_substs_to_heap" << std::endl;
-#endif
-    //This operation could theoretically be done later, when finding
-    //Var bindings. But doing it now allows us to clear register and permanent registers
-    //From dead exec
-    auto const& var_reg_substs = executor.solves_term_code->get_substitutions();
-
-    executor.substitutions.reserve(var_reg_substs.size());
-
-    std::transform(var_reg_substs.begin(),
-             var_reg_substs.end(),
-             std::back_inserter(executor.substitutions),
-           [&](const var_reg_substitution& reg_sub){
-               size_t heap_index = reg_sub.is_permanent_register ?
-                                   executor.environments.top().permanent_registers.at(reg_sub.register_index).index
-                                  : executor.registers.at(reg_sub.register_index).index;
-
-               return var_heap_substitution(
-                        reg_sub.var_name,
-                        heap_index
-               );
-    });
-}

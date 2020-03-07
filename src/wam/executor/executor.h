@@ -140,8 +140,8 @@ namespace wam {
             heap_start_index = parent.heap_size();
             organizer = parent.organizer;
 
-            environments = std::move(parent.environments);
-            registers = std::move(parent.registers);
+            environments = parent.environments;
+            registers = parent.registers;
             term_codes = std::move(parent.term_codes);
 
             changes_to_parent.reserve(5);
@@ -188,10 +188,14 @@ namespace wam {
         inline void clear(){
             //TODO use vectors to make clear in O(1) possible
             term_codes = std::stack<term_code*>{};
-            environments = std::stack<wam::environment>{};
-            registers.clear();
+            //environments = std::stack<wam::environment>{};
+//            registers.clear();
         }
 
+        term_code *get_solved_term_code()const{
+//            assert(term_codes.size() == 1);
+            return solves_term_code;
+        }
     };
 }
 

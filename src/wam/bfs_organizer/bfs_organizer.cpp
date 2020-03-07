@@ -126,7 +126,8 @@ std::vector<wam::var_substitution> wam::bfs_organizer::find_substitutions(const 
     parent = &parent->get_parent();
     while(true){
         if(parent->is_from_user_entered_query()){
-            for(const auto& var_heap_sub : parent->substitutions){
+            auto var_heap_subs = wam::point_var_reg_substs_to_heap(parent);
+            for(const auto& var_heap_sub : var_heap_subs){
                 if(std::find_if(result.begin(), result.end(),
                         [&](const var_substitution& var_subst){
                     return var_subst.var_name == var_heap_sub.var_name;

@@ -47,10 +47,6 @@ namespace wam {
 
     void allocate(executor& executor, size_t permanent_var_count);
     void deallocate(executor& executor);
-
-    //Executor Var Substitution instructions
-    void point_var_reg_substs_to_heap(executor& executor);
-    void find_var_bindings(executor& executor);
 }
 
 #endif //PROLOG_BFS_INSTRUCTIONS_H

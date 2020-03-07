@@ -83,4 +83,26 @@ wam::string_representation_of(const executor &executor,
     return result + string_representation_of(executor, index + functor.arity, functors) + ")";
 }
 
+std::vector<wam::var_heap_substitution> wam::point_var_reg_substs_to_heap(const wam::executor *executor){
+#ifdef DEBUG_UNIFICATION_TREE
+    std::cout << "point_var_reg_substs_to_heap" << std::endl;
+#endif
+    auto const& var_reg_substs = executor->get_solved_term_code()->get_substitutions();
+    std::vector<wam::var_heap_substitution> result{var_reg_substs.size()};
 
+    std::transform(var_reg_substs.begin(),
+                   var_reg_substs.end(),
+                   result.begin(),
+                   [&](const var_reg_substitution& reg_sub){
+                       size_t heap_index = reg_sub.is_permanent_register ?
+                                           executor->environments.top().permanent_registers.at(reg_sub.register_index).index
+                                                                         : executor->registers.at(reg_sub.register_index).index;
+
+                       return var_heap_substitution(
+                               reg_sub.var_name,
+                               heap_index
+                       );
+                   });
+
+    return result;
+}

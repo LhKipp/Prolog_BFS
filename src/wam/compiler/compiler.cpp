@@ -202,9 +202,6 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term, cons
         }
     });
 
-    //after we have built the heap representation of the query atom, we need to point the var_reg_substs into the heap
-    *out = std::bind(wam::point_var_reg_substs_to_heap, _1);
-
     *out = std::bind(wam::call, _1, outer_functor.to_functor_view());
     ++out;
 }
@@ -286,20 +283,6 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term, Ou
             }
         }
     });
-
-
-    //In cases of:
-    // query: f(a).
-    // program: f(X).
-    //There should be a found unification of X/a. Therefore var_reg_subst in head_atom need to be found, and after
-    //fact unification with query resolved.
-    // The final found var_bindings are then the father resolved var_reg_substs + fact resolved var_reg_substs
-    *out = std::bind(wam::point_var_reg_substs_to_heap, _1);
-
-
-    //This is not true, it can be done at the end, when a executor finishes
-//    //after every fact unification, the exec needs to find his var_bindings
-//    *out = std::bind(wam::find_var_bindings,_1);
 
     *out = std::bind(wam::proceed, _1);
     ++out;
