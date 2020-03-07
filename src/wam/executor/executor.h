@@ -12,7 +12,7 @@
 #include "../data/var_reg_substitution.h"
 #include "../data/term_code.h"
 #include "../../util/named_type.h"
-#include "../data/var_substitution.h"
+#include "../data/var_binding.h"
 #include "../data/environment.h"
 #include "../data/var_heap_substitution.h"
 

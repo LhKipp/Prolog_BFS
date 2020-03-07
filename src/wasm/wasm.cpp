@@ -68,7 +68,7 @@ public:
 
         result += "[";
         for (int i = 0; i < answer->size(); i++) {
-            result += answer->at(i).var_name + "/" + answer->at(i).substitute;
+            result += answer->at(i).var_name + "/" + answer->at(i).binding;
             if (i != answer->size()-1) {
                 result += ", ";
             }

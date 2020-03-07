@@ -21,7 +21,7 @@ TEST_CASE("p3-0 test") {
             auto answer = org.get_answer();
             REQUIRE(answer.has_value());
             for (auto &elem : *answer) {
-//                cout << elem.substitute << endl;
+//                cout << elem.binding << endl;
             }
         }
 

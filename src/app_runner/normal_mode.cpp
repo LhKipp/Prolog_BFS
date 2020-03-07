@@ -54,7 +54,7 @@ namespace app_runner {
                     break;
                 }
                 //Cout variables substitutions
-                std::copy(answer->begin(), answer->end() -1, std::ostream_iterator<wam::var_substitution>{std::cout, "\n"});
+                std::copy(answer->begin(), answer->end() -1, std::ostream_iterator<wam::var_binding>{std::cout, "\n"});
                 std::cout << answer->back();
 
                 std::string more_answer_request;

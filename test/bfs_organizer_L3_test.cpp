@@ -4,7 +4,7 @@
 #include "../catch.hpp"
 
 #include "../src/wam/bfs_organizer/bfs_organizer.h"
-#include "../src/wam/data/var_substitution.h"
+#include "../src/wam/data/var_binding.h"
 #include <map>
 #include <string>
 
@@ -45,7 +45,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         REQUIRE(answer->size() == 1);
         for (auto &subst : *answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Easy endless loop"){
@@ -59,7 +59,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         REQUIRE(answer->size() == 1);
         for (auto &subst : *answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("hard with endless loop"){
@@ -74,7 +74,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         REQUIRE(answer->size() == 2);
         for (auto &subst : *answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Easy branch"){
@@ -89,7 +89,7 @@ auto setup_org = [&](string query) {
         while(answer) {
             total_answers += answer->size();
             for (auto &subst : *answer) {
-                actual_substs[subst.substitute]+= 1;
+                actual_substs[subst.binding]+= 1;
             }
             answer = org.get_answer();
         }
@@ -111,7 +111,7 @@ auto setup_org = [&](string query) {
         while(answer) {
             total_answers += answer->size();
             for (auto &subst : *answer) {
-                actual_substs[subst.substitute]+= 1;
+                actual_substs[subst.binding]+= 1;
             }
             answer = org.get_answer();
         }
@@ -135,7 +135,7 @@ auto setup_org = [&](string query) {
         while(answer) {
             total_answers += answer->size();
             for (auto &subst : *answer) {
-                actual_substs[subst.substitute]+= 1;
+                actual_substs[subst.binding]+= 1;
             }
             answer = org.get_answer();
             if(total_answers > 40) break;

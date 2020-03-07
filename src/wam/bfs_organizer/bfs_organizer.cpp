@@ -36,7 +36,7 @@ void wam::bfs_organizer::load_term_lines(const std::string_view code) {
 }
 
 
-std::optional<std::vector<wam::var_substitution>> wam::bfs_organizer::get_answer() {
+std::optional<std::vector<wam::var_binding>> wam::bfs_organizer::get_answer() {
     while (!executors.empty()) {
         executor* next_exec = executors.front();
         executors.pop_front();
@@ -113,8 +113,8 @@ wam::parser_error wam::bfs_organizer::validate_query(const std::string_view code
     }
 }
 
-std::vector<wam::var_substitution> wam::bfs_organizer::find_substitutions(const wam::executor& executor) {
-    std::vector<wam::var_substitution> result;
+std::vector<wam::var_binding> wam::bfs_organizer::find_substitutions(const wam::executor& executor) {
+    std::vector<wam::var_binding> result;
     //normally user have 1 to 5 vars in their queries. so using vector should be more efficient than set
 
     //This exec is an empty executor. According to impl of proceed instruction, the father will have
@@ -127,7 +127,7 @@ std::vector<wam::var_substitution> wam::bfs_organizer::find_substitutions(const 
             auto var_heap_subs = wam::point_var_reg_substs_to_heap(parent);
             for(const auto& var_heap_sub : var_heap_subs){
                 if(std::find_if(result.begin(), result.end(),
-                        [&](const var_substitution& var_subst){
+                        [&](const var_binding& var_subst){
                     return var_subst.var_name == var_heap_sub.var_name;
                 }) != result.end()){
                     continue;

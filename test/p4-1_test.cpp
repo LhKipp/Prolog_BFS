@@ -32,7 +32,7 @@ TEST_CASE("p4-1 test") {
 //            REQUIRE(answer.has_value());
 //            for (auto &elem : *answer) {
 //                /* std::cout << elem<< endl; */
-////                auto found = std::find(solutions.begin(), solutions.end(), elem.substitute);
+////                auto found = std::find(solutions.begin(), solutions.end(), elem.binding);
 ////                bool has_found = found != solutions.end();
 ////                REQUIRE(has_found);
 //            }

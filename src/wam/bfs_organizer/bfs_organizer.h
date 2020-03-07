@@ -11,7 +11,7 @@
 #include <list>
 #include <experimental/filesystem>
 #include "../data/functor_view.h"
-#include "../data/var_substitution.h"
+#include "../data/var_binding.h"
 #include "../data/term_code.h"
 #include "../data/var_reg_substitution.h"
 #include "../executor/executor.h"
@@ -42,7 +42,7 @@ namespace wam {
         //std::vector<var_reg_substitution> permanent_substitutions;
 
         //Executors, finished execution with call or proceed, saved so heap is still accessible
-        std::vector<wam::var_substitution> find_substitutions(const executor &executor);
+        std::vector<wam::var_binding> find_substitutions(const executor &executor);
 
         void load_term_lines(std::string_view term_lines);
     public:
@@ -61,7 +61,7 @@ namespace wam {
          * Returns var_substitutions if found otherwise std::nullopt
          * Note: This may run into an endless loop
          */
-        std::optional<std::vector<wam::var_substitution>> get_answer();
+        std::optional<std::vector<wam::var_binding>> get_answer();
 
         bool has_code_for(const functor_view &functor) const{
             return program_code.find(functor) != program_code.end();

@@ -299,7 +299,7 @@ TEST_CASE("p3-1 test") {
             answer = org.get_answer();
             REQUIRE(answer.has_value());
             for (auto &elem : *answer) {
-                auto found = std::find(solutions.begin(), solutions.end(), elem.substitute);
+                auto found = std::find(solutions.begin(), solutions.end(), elem.binding);
                 bool has_found = found != solutions.end();
                 REQUIRE(has_found);
                 solutions.erase(found);

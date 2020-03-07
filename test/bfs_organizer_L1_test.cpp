@@ -4,7 +4,7 @@
 #include "../catch.hpp"
 
 #include "../src/wam/bfs_organizer/bfs_organizer.h"
-#include "../src/wam/data/var_substitution.h"
+#include "../src/wam/data/var_binding.h"
 #include <map>
 #include <string>
 #include<iostream>
@@ -60,7 +60,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 2);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Query: f(g) : Program: f(X)") {
@@ -108,7 +108,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Query: r(f(X),h(a,b),x) : Program: ") {
@@ -122,7 +122,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Query: r(f(f(f(X))),h(f(f(f(f(Z)))),b)) : Program: ") {
@@ -136,7 +136,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
         actual_substs["Z"] = "b";
         REQUIRE(found_answer.has_value());
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Query: r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),b)) : Program: ") {
@@ -155,7 +155,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 3);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Query: r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),b)) : Program: ") {

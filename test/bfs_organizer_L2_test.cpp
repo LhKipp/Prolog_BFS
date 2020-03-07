@@ -4,7 +4,7 @@
 #include "../catch.hpp"
 
 #include "../src/wam/bfs_organizer/bfs_organizer.h"
-#include "../src/wam/data/var_substitution.h"
+#include "../src/wam/data/var_binding.h"
 #include <map>
 #include <string>
 #include<iostream>
@@ -48,7 +48,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         REQUIRE(answer->size() == 2);
         for (auto &subst : *answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Deep easy Chain"){
@@ -62,7 +62,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         REQUIRE(answer->size() == 2);
         for (auto &subst : *answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Deep hard Chain"){
@@ -78,7 +78,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         REQUIRE(answer->size() == 3);
         for (auto &subst : *answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Multiple Queries in once"){
@@ -96,7 +96,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         REQUIRE(answer->size() == 5);
         for (auto &subst : *answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Many Queries in once"){
@@ -113,7 +113,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         REQUIRE(answer->size() == 5);
         for (auto &subst : *answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Many Queries in once with constants"){
@@ -130,7 +130,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         REQUIRE(answer->size() == 5);
         for (auto &subst : *answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Many Queries in once with constants"){
@@ -147,7 +147,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         REQUIRE(answer->size() == 5);
         for (auto &subst : *answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Many Queries in once with constants"){
