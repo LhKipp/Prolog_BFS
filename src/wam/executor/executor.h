@@ -196,9 +196,17 @@ namespace wam {
 //            registers.clear();
         }
 
-        term_code *get_solved_term_code()const{
+        term_code *get_solved_term_code()const {
 //            assert(term_codes.size() == 1);
             return solves_term_code;
+        }
+
+        void set_failed(){
+            fail = true;
+        }
+
+        bool inline failed()const{
+            return fail;
         }
     };
 }

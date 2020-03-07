@@ -7,7 +7,7 @@
 #include "util/instructions_util.h"
 #include "../bfs_organizer/bfs_organizer.h"
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 #include <iostream>
 #endif
@@ -85,12 +85,13 @@ void wam::get_structure(wam::executor &executor, const functor_view &functor, si
             executor.S = addr + 1;
             executor.read_or_write = wam::mode::READ;
         } else {
-            executor.fail = true;
+            executor.set_failed();
         }
     } else if (reg.type == heap_tag::STR) {
+        //This should never happen
         throw int(3);
     } else {//Default case
-        executor.fail = true;
+        executor.set_failed();
     }
 }
 
@@ -204,8 +205,9 @@ void wam::unify(executor &executor, size_t addr_a, size_t addr_b) {
     PDL.push(addr_b);
     PDL.push(addr_a);
 
+    //TODO is this necessary?
     executor.fail = false;
-    while (!(PDL.empty() || executor.fail)) {
+    while (!(PDL.empty() || executor.failed())) {
         size_t d1, d2;
         if (executor.heap_at(PDL.top()).is_REF()){
             d1 = deref(executor, executor.heap_at(PDL.top()));
@@ -244,7 +246,7 @@ void wam::unify(executor &executor, size_t addr_a, size_t addr_b) {
                         PDL.push(reg2.index + i);
                     }
                 } else {
-                    executor.fail = true;
+                    executor.set_failed();
                     return;
                 }
             }
@@ -330,7 +332,7 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
 #ifdef DEBUG
         std::cout << "call failed" << std::endl;
 #endif
-        old_executor.fail = true;
+        old_executor.set_failed();
         return;
     }
 
