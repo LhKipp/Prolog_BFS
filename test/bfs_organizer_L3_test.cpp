@@ -37,7 +37,7 @@ auto setup_org = [&](string query) {
     SECTION("Easy endless loop"){
         program_code.push_back("z(X) :- z(X).");
         program_code.push_back("z(a).");
-        setup_org("z(A)");
+        setup_org("z(A).");
 
         auto answer = org.get_answer();
         map<std::string, std::string> actual_substs;
@@ -51,7 +51,7 @@ auto setup_org = [&](string query) {
     SECTION("Easy endless loop"){
         program_code.push_back("z(X) :- z(X).");
         program_code.push_back("z(a).");
-        setup_org("z(A)");
+        setup_org("z(A).");
 
         auto answer = org.get_answer();
         map<std::string, std::string> actual_substs;
@@ -65,7 +65,7 @@ auto setup_org = [&](string query) {
     SECTION("hard with endless loop"){
         program_code.push_back("z(X) :- z(X).");
         program_code.push_back("z(a).");
-        setup_org("z(A), p(X,y), z(A), a(A,b)");
+        setup_org("z(A), p(X,y), z(A), a(A,b).");
 
         auto answer = org.get_answer();
         map<std::string, std::string> actual_substs;

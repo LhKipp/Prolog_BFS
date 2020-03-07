@@ -35,7 +35,7 @@ namespace wam{
             using qi::on_error;
             using qi::fail;
 
-            query %= qi::eps > (functor | constant) % ',' > -lit('.');
+            query %= qi::eps > (functor | constant) % ',' > lit('.');
 
             constant_name %= (lexeme[char_("a-z") > *char_("a-zA-Z_0-9")]);
             constant = (constant_name)

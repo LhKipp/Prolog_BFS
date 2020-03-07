@@ -30,7 +30,7 @@ auto setup_org = [&](string query) {
         REQUIRE(ans->at(0).substitute == "o");
     }
     SECTION("c") {
-        setup_org("test(Z)");
+        setup_org("test(Z).");
         map<string,bool> found;
         auto ans = org.get_answer();
         for(int i=0; i <5; i++){
