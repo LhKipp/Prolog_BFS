@@ -321,13 +321,14 @@ std::vector<wam::term_code> wam::compile_query(const std::string_view query_code
         compile_query_atom(atom, seen_registers, instructions, term_codes, true);
     }
 
-    if (permanent_count) {
-        instructions.emplace_back(std::bind(wam::deallocate, _1));
-        term_codes.emplace_back(
-                0,
-                instructions,
-                std::vector<var_reg_substitution>{});
-    }
+    //LOL Real brogrammes dont free bro :-)
+//    if (permanent_count) {
+//        instructions.emplace_back(std::bind(wam::deallocate, _1));
+//        term_codes.emplace_back(
+//                0,
+//                instructions,
+//                std::vector<var_reg_substitution>{});
+//    }
 
     return term_codes;
 }
