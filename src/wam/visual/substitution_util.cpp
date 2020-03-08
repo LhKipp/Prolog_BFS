@@ -116,7 +116,6 @@ std::vector<wam::var_binding> wam::find_substitutions_from_orig_query(const wam:
     //unified a term. So we can skip this exec and his father
 
     const wam::executor* parent = &executor.get_parent();
-    parent = &parent->get_parent();
     while(true){
         if(parent->is_from_user_entered_query()){
             auto var_heap_subs = wam::point_var_reg_substs_to_heap(*parent);

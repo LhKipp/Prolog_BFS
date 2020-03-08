@@ -35,6 +35,11 @@ namespace wam {
     using FUN_index = NamedType<size_t, FUN_Parameter>;
     using STR_index = NamedType<size_t, STR_Parameter>;
 
+    enum class STATE{
+        FAIL,
+        SUCCESS,
+        RUNNING
+    };
     struct executor {
 
         friend class bfs_organizer;
@@ -76,7 +81,7 @@ namespace wam {
 
         size_t S;
 
-        bool fail = false;
+        STATE state = STATE::RUNNING;
 
         //Used as a stack
         std::vector<term_code*> term_codes;
@@ -204,13 +209,11 @@ namespace wam {
          * Clears all data from this executor which is no longer needed when saving
          */
         inline void clear(){
-            //TODO use vectors to make clear in O(1) possible
             term_codes.erase(term_codes.begin(), term_codes.end() -1);
             term_codes.shrink_to_fit();
             if(environments.size() > 1){
                 environments.erase(environments.begin(), environments.end() -1);
             }
-//            registers.clear();
         }
 
         term_code *get_solved_term_code()const {
@@ -218,16 +221,34 @@ namespace wam {
             return term_codes.back();
         }
 
-        void set_failed(){
-            fail = true;
+        void inline set_failed(){
+            state = STATE::FAIL;
         }
 
         bool inline failed()const{
-            return fail;
+            return state == STATE::FAIL;
         }
 
-        bool inline is_leaf()const {
-            return children.empty() || failed();
+        bool is_leaf()const{
+            return false;
+        }
+
+        /*
+         * Checks whether this executor succeeded, and sets the internal state accordingly
+         */
+        bool inline check_success(){
+            if(!failed() &&
+                std::all_of(term_codes.rbegin() + 1,
+                        term_codes.rend(),
+                        [](const term_code* term_code){return term_code->is_deallocate();})){
+                state = STATE::SUCCESS;
+                return true;
+            }
+            return false;
+        }
+
+        bool inline succeeded() const{
+            return state== STATE::SUCCESS;
         }
     };
 }

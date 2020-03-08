@@ -41,10 +41,6 @@ std::optional<std::vector<wam::var_binding>> wam::bfs_organizer::get_answer() {
         executor* next_exec = executors.front();
         executors.pop_front();
 
-        if (next_exec->term_codes.empty()) {
-            auto substitutes = find_substitutions_from_orig_query(*next_exec, functors);
-            return substitutes;
-        }
 
         term_code *next_term_code = next_exec->term_codes.back();
 
@@ -55,9 +51,13 @@ std::optional<std::vector<wam::var_binding>> wam::bfs_organizer::get_answer() {
         for (const auto &instruction : next_term_code->instructions) {
             instruction(*next_exec);
             //if the executor fails we stop executing
-            if (next_exec->fail) {
+            if (next_exec->failed()) {
                 break;
             }
+        }
+
+        if(next_exec->succeeded()){
+            return find_substitutions_from_orig_query(*next_exec, functors);
         }
     }
 

@@ -21,29 +21,33 @@ wam::query_node wam::make_tree(const wam::executor &top_exec, const std::vector<
             result.getChildren().begin(),
             [&](const std::unique_ptr<wam::executor>& exec){
 
-        //TODO make proceed instruction set executor.success == true, and remove empty executor
-        if(exec->failed()){
-            term_code* fact_term_code = exec->get_solved_term_code();
-            //No work todo, just pass the term_code, fail flag set in constructor
-            return var_binding_node{fact_term_code};
-        }else if(exec->is_leaf()){
-            return var_binding_node{
-                nullptr,
-                {},
-                find_substitutions_from_orig_query(*exec, functors)
-            };
-        }else{ //exec has a following query
-            const auto exec_var_heap_subs = point_var_reg_substs_to_heap(*exec);
-            return var_binding_node{exec->get_solved_term_code(),
-                                    find_substitutions(
-                                            *exec,
-                                            functors,
-                                            query_var_heap_subs,
-                                            exec_var_heap_subs),
+                term_code* fact_term_code = exec->get_solved_term_code();
+                if(exec->failed()){
+                    //No work todo, just pass the term_code, fail flag set in constructor
+                    return var_binding_node{fact_term_code};
+                }else if(exec->succeeded()){
+                    const auto exec_var_heap_subs = point_var_reg_substs_to_heap(*exec);
+                    return var_binding_node{
+                            fact_term_code,
+                            find_substitutions(
+                                    *exec,
+                                    functors,
+                                    query_var_heap_subs,
+                                    exec_var_heap_subs),
+                            find_substitutions_from_orig_query(*exec, functors)
+                    };
+                }else{ //exec has a following query
+                    const auto exec_var_heap_subs = point_var_reg_substs_to_heap(*exec);
+                    return var_binding_node{fact_term_code,
+                                            find_substitutions(
+                                                    *exec,
+                                                    functors,
+                                                    query_var_heap_subs,
+                                                    exec_var_heap_subs),
                                             make_tree(exec->get_last_child(),
-                                                    functors)};
-            }
-        });
-        return result;
+                                                      functors)};
+                }
+            });
+    return result;
 }
 

@@ -46,6 +46,12 @@ namespace wam {
         const std::vector<var_reg_substitution> &get_substitutions() const {
             return substitutions;
         }
+
+        bool inline is_deallocate()const{
+            //There exists no query or program_line, that has only 1 instruction but the deallocate instruction
+            //So to do this should be save
+            return instructions.size() == 1;
+        }
     };
 }
 #endif //PROLOG_BFS_PROGRAM_TERM_CODE_H
