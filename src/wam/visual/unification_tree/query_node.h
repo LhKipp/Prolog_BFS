@@ -14,6 +14,25 @@ namespace wam {
     private:
         const term_code *query;
         std::unique_ptr<std::vector<var_binding_node>> children;
+
+    public:
+        query_node(){}
+        query_node(const term_code *query,
+                const size_t children_count) :
+                query(query),
+                children(std::make_unique<std::vector<var_binding_node>>(children_count)) {}
+
+        const term_code *get_query() const{
+            return query;
+        }
+
+        void set_query(const term_code *query){
+            this->query = query;
+        }
+
+        std::vector<var_binding_node> &getChildren(){
+            return *children;
+        }
     };
 }
 

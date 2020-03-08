@@ -42,7 +42,7 @@ std::optional<std::vector<wam::var_binding>> wam::bfs_organizer::get_answer() {
         executors.pop_front();
 
         if (next_exec->term_codes.empty()) {
-            auto substitutes = find_substitutions(*next_exec);
+            auto substitutes = find_substitutions_from_orig_query(*next_exec, functors);
             return substitutes;
         }
 
@@ -113,40 +113,3 @@ wam::parser_error wam::bfs_organizer::validate_query(const std::string_view code
     }
 }
 
-std::vector<wam::var_binding> wam::bfs_organizer::find_substitutions(const wam::executor& executor) {
-    std::vector<wam::var_binding> result;
-    //normally user have 1 to 5 vars in their queries. so using vector should be more efficient than set
-
-    //This exec is an empty executor. According to impl of proceed instruction, the father will have
-    //unified a term. So we can skip this exec and his father
-
-    const wam::executor* parent = &executor.get_parent();
-    parent = &parent->get_parent();
-    while(true){
-        if(parent->is_from_user_entered_query()){
-            auto var_heap_subs = wam::point_var_reg_substs_to_heap(parent);
-            for(const auto& var_heap_sub : var_heap_subs){
-                if(std::find_if(result.begin(), result.end(),
-                        [&](const var_binding& var_subst){
-                    return var_subst.var_name == var_heap_sub.var_name;
-                }) != result.end()){
-                    continue;
-                }
-
-                result.emplace_back(
-                                var_heap_sub.var_name,
-                                wam::string_representation_of(executor, var_heap_sub.heap_index, functors)
-                );
-            }
-        }
-        if(!parent->has_parent()){
-            break;
-        }
-
-        //Its always: query_exec --> fact_exec --> query_exec -->fact_exec ...
-        //So we can skip the fact execs
-        parent = &parent->get_parent();
-        parent = &parent->get_parent();
-    }
-    return result;
-}

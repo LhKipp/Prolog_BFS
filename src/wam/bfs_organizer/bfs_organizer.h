@@ -41,9 +41,6 @@ namespace wam {
 
         //std::vector<var_reg_substitution> permanent_substitutions;
 
-        //Executors, finished execution with call or proceed, saved so heap is still accessible
-        std::vector<wam::var_binding> find_substitutions(const executor &executor);
-
         void load_term_lines(std::string_view term_lines);
     public:
         void clear();

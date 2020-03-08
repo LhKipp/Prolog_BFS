@@ -188,6 +188,9 @@ namespace wam {
             return *parent;
         }
 
+        inline const std::vector<std::unique_ptr<executor>>& get_children()const{
+            return children;
+        }
         inline void push_back_child(executor&& child){
             children.push_back(std::make_unique<executor>(std::move(child)));
         }
@@ -221,6 +224,10 @@ namespace wam {
 
         bool inline failed()const{
             return fail;
+        }
+
+        bool inline is_leaf()const {
+            return children.empty() || failed();
         }
     };
 }
