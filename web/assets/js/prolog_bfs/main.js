@@ -13,6 +13,17 @@ var runtimeInitialized = false;
  */
 var instances = [];
 
+
+/*
+ * Alert on the top right to indicate errors
+ */
+var alert = new Alert();
+
+/*
+ * Used to indicate where in the code a syntax error occured
+ */
+var syntaxError = new SyntaxError();
+
 /*
  * Before an instance of prolog bfs can be created,
  * we need to be sure the runtime is initialized.
@@ -28,29 +39,6 @@ Module['onRuntimeInitialized'] = function () {
 function scrollResultsToBottom() {
     var theDiv = document.getElementById("results_container");
     theDiv.scrollTop = theDiv.scrollHeight;
-}
-
-/**
- * Show an alert to the user with the error message.
- * Hides automatically.
- * There can only be one error alert at a time
- * @param string Error message
- */
-function showError(errortext) {
-    document.getElementById("errorbox-text").textContent = errortext;
-    document.getElementById("errorbox").style.display = "block";
-
-    // automatically hide
-    setTimeout(function () {
-        hideError();
-    }, errorAlertDisplayDuration);
-}
-
-/**
- * Hide an error previously shown by showError
- */
-function hideError() {
-    document.getElementById("errorbox").style.display = "none";
 }
 
 /*

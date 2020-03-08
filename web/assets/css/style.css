@@ -6,7 +6,7 @@ html, body {
     /*overflow: hidden;*/
 }
 
-#errorbox {
+.prolog_bfs_alert {
     position: fixed;
     display: none;
     top: 1%;
@@ -44,4 +44,21 @@ html, body {
 
 .resultalert p {
     margin-bottom: 0.25rem;
+}
+
+.editor_syntax_error_line {
+    position:absolute;
+    /*z-index:20;*/
+    background-color: #ffff99;
+}
+
+.editor_syntax_error_col {
+    position:absolute;
+    
+    /* Make sure that there is also a marker if it affects the last
+    character of the line */
+    border-left: 3px solid red;
+    
+    /* Usual case: background for the affected character */
+    background-color: red;
 }

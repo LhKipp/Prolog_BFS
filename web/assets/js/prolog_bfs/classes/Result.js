@@ -3,6 +3,10 @@
  * It is responsible for the frontend behaviour and display of it.
  */
 class Result {
+    /*
+     * defines which interpreter instance this result belongs to
+     * @type int
+     */
     instanceid;
     
     /**

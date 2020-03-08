@@ -4,10 +4,6 @@ var autosaveInterval = 60000;
 // how long to store the autosaved code in a cookie; in days
 var autosaveCookieLifetime = 7;
 
-// show error alert for x milliseconds
-var errorAlertDisplayDuration = 10000;
-
-
 /*
  * Hotkey config
  */

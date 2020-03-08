@@ -49,15 +49,15 @@
                 <div class="bfs-container" style="display: flex; flex-flow: column; flex:1;">
                     <!-- query editor -->
                     <div class="editor" style="flex:1;" id="query"></div>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="execute()">Run!</button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="onRunClicked()">Run!</button>
                 </div>
             </div>
         </div>
         
-        <!-- errorbox on the top right for syntax errors etc. -->
-        <div class="alert alert-warning alert-dismissible" id="errorbox">
-            <button type="button" class="close" onclick="hideError()">&times;</button>
-            <span id="errorbox-text"></span>
+        <!-- alert on the top right for syntax errors etc. -->
+        <div class="alert alert-warning alert-dismissible prolog_bfs_alert" id="alert">
+            <button type="button" class="close" onclick="alert.hide()">&times;</button>
+            <span id="alert-text"></span>
         </div>
         
         <!-- infobox -->
@@ -71,17 +71,13 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>This is a very limited subset of Prolog! Especially because there is no advanced error handling, this is important to know:</p>
+                        <p>This is a very limited subset of Prolog! Don't get fooled by the syntax highlighting; it might provide highlighting
+                        for features that are not actually supported, because we didn't write the editor specifically for this
+                        interpreter.</p>
+                        <p>These are the limitations:</p>
                         <ul>
                             <li>
-                                There is <strong>no syntax checker</strong> for the program. Passing syntacticaly
-                                wrong code to the bfs-interpreter may cause undefined behaviour.
-                                It is recommended to let your code be checked by an external tool before
-                                passing it to the bfs-interpreter. You might even get <strong>false results without
-                                any notice!</strong> This also applies to the points below.
-                            </li>
-                            <li>
-                                Any kind of <strong>arithmetic is not supported</strong>. Use o for 0, s(o) for 1, s(s(o)) for 2, ...
+                                Any kind of <strong>arithmetic is not supported</strong>. You may use o for 0, s(o) for 1, s(s(o)) for 2, ...
                             </li>
                             <li>
                                 Variables / constant names <strong>starting</strong> with an <strong>underscore</strong>
@@ -101,6 +97,8 @@
         </div>
         
         <script src="/assets/js/prolog_bfs/config.js"></script>
+        <script src="/assets/js/prolog_bfs/classes/Alert.js"></script>
+        <script src="/assets/js/prolog_bfs/classes/SyntaxError.js"></script>
         <script src="/assets/js/prolog_bfs/classes/Result.js"></script>
         <script src="/assets/js/prolog_bfs/classes/InterpreterHandler.js"></script>
         <script src="/assets/js/prolog_bfs/main.js"></script>

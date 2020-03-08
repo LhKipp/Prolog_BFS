@@ -14,17 +14,6 @@ if (Cookies.get("programcode")) { // only setValue when cookie exists
     ace_program.setValue(Cookies.get("programcode"));
 }
 
-var Range = ace.require("ace/range").Range;
-var range = new Range(0, 0, 0, 2);
-
-/*
- ace_program.getSession().addMarker(
- range,
- "editor_marker",
- "text",
- false
- );*/
-
 var ace_query = ace.edit("query");
 ace_query.setTheme("ace/theme/dreamweaver");
 ace_query.session.setMode("ace/mode/prolog");

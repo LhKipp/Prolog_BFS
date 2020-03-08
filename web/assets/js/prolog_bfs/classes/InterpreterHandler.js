@@ -40,16 +40,18 @@ class InterpreterHandler {
         this.queryCode = query;
         
         // try to load the program
-        var result = this.interpreter.loadProgram(program);
-        if (result !== "") {
-            showError(result);
+        var program_error = this.interpreter.loadProgram(program);
+        if (program_error.exists()) { // check if there is a syntax error
+            syntaxError.show("program", program_error.get_row(), program_error.get_col());
+            alert.show("Syntax error in program line " + (program_error.get_row()+1) + ". Expected: " + program_error.get_expected(), 0);
             return false;
         }
         
         // try to load the query
-        result = this.interpreter.loadQuery(query);
-        if (result !== "") {
-            showError(result);
+        var query_error = this.interpreter.loadQuery(query);
+        if (query_error.exists()) {
+            syntaxError.show("query", query_error.get_row(), query_error.get_col());
+            alert.show("Syntax error in query line " + (query_error.get_row()+1) + ". Expected: " + query_error.get_expected(), 0);
             return false;
         }
         
@@ -75,7 +77,7 @@ class InterpreterHandler {
             
             scrollResultsToBottom();
         } catch (err) {
-            showError("Error getting result. Probably ran out of memory (infinite loop).");
+            alert.show("Error getting result. Probably ran out of memory (infinite loop).");
             console.log(err);
         }
     }
