@@ -7,6 +7,7 @@
 #include "../compiler/compiler.h"
 #include "util/read_program_code.h"
 #include "../compiler/parser/parser.h"
+#include "../visual/unification_tree/unification_tree.h"
 
 void wam::bfs_organizer::load_program_from_file(const std::string_view file_path) {
     auto code = read_file(file_path);
@@ -113,3 +114,6 @@ wam::parser_error wam::bfs_organizer::validate_query(const std::string_view code
     }
 }
 
+wam::query_node wam::bfs_organizer::get_unification_tree() const{
+    return wam::make_tree(init_executor, functors);
+}

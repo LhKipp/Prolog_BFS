@@ -17,6 +17,7 @@
 #include "../executor/executor.h"
 #include "../instructions/instructions.h"
 #include "../compiler/parser/parser_error.h"
+#include "../visual/unification_tree/query_node.h"
 
 
 namespace wam {
@@ -47,11 +48,13 @@ namespace wam {
 
         wam::parser_error validate_program(std::string_view code);
         wam::parser_error validate_query(std::string_view code);
+
         void load_program(std::string_view code);
         void load_program_from_file(std::string_view file_path);
 
-
         void load_query(const std::string &query);
+
+        query_node get_unification_tree() const;
 
 
         /*

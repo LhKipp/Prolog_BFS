@@ -15,6 +15,7 @@
 #include <ostream>
 #include "data_enums.h"
 #include "../../data/regist.h"
+#include "../../data/source_code_info.h"
 #include "../../data/functor_view.h"
 
 struct node {
@@ -25,6 +26,9 @@ private:
     STORED_OBJECT_FLAG type = STORED_OBJECT_FLAG ::NONE;
 
 public:
+
+    wam::source_code_info code_info;
+
     std::string name;
 
     //FUNCTOR / LIST exclusive field
@@ -152,6 +156,7 @@ public:
         os << "node: name: " << node.name;
         return os;
     }
+
 };
 
 
