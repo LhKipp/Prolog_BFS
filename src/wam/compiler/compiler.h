@@ -16,7 +16,7 @@
 
 namespace wam {
 
-    std::pair<functor_view, std::vector<term_code>> compile_program_term(node& program_node);
+    std::pair<functor_view, std::vector<term_code>> compile_program_term(std::vector<node>& atoms);
 
     int assign_registers(node &functor, node* first_body_atom = nullptr);
     int assign_permanent_registers(std::vector<node> &nodes, bool program_term);

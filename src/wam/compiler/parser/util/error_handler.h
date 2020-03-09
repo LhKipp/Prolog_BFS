@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include "../parser_error.h"
+#include <boost/spirit/include/support_line_pos_iterator.hpp>
 namespace wam {
     template<typename=void>
     struct error_handler {
@@ -22,13 +23,9 @@ namespace wam {
         template<typename Iter, typename String>
         void operator()(parser_error &err, Iter begin, Iter end, Iter error_pos, String what) const {
             err.set_exists(true);
-            err.set_row(std::count(begin, error_pos, '\n'));
-            err.set_col(std::distance(
-                    std::find(std::make_reverse_iterator(error_pos),
-                              std::make_reverse_iterator(begin),
-                              '\n').base(),
-                    error_pos
-            ));
+            //row and col are not 0 based in boost spirit, thats why -1
+            err.set_row(boost::spirit::get_line(error_pos) -1);
+            err.set_col(boost::spirit::get_column(begin, error_pos) -1);
             std::stringstream ss{};
             ss << what;
             err.set_expected(ss.str());

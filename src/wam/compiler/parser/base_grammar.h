@@ -6,6 +6,7 @@
 #define PROLOG_BFS_BASE_GRAMMAR_H
 
 #include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/repository/include/qi_iter_pos.hpp>
 #include <boost/phoenix/phoenix.hpp>
 #include "../util/node.h"
 #include "util/util.h"
@@ -32,6 +33,7 @@ namespace wam{
         qi::rule<Iterator, std::string(), Skipper> variable_name;
         qi::rule<Iterator, void(), Skipper> comment;
         qi::rule<Iterator, node(), Skipper> prolog_element;
+        qi::rule<Iterator, node, Skipper> atom;
 
         base_grammar(qi::rule<Iterator, Base_Value, Skipper> &start) : base_grammar::base_type(start) {
             namespace phoenix = boost::phoenix;
@@ -83,6 +85,11 @@ namespace wam{
                            ) | char_(']'));
 
             prolog_element %= functor | constant | variable | list;
+
+            using boost::spirit::repository::qi::iter_pos;
+            atom = (iter_pos >> (functor | constant) >> iter_pos)
+            [phoenix::bind(&add_source_code_info<Iterator>, phoenix::ref(qi::_2), qi::_1, qi::_3),
+                            phoenix::ref(qi::_val) = qi::_2];
 
             comment.name("comment");
             variable.name("variable");

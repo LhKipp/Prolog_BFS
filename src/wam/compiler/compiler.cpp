@@ -350,6 +350,7 @@ void wam::compile_query_atom(node &atom,
     term_codes.emplace_back(x_a_reg_counts,
                             instructions,
                             find_var_reg_substitutions(atom),
+                            std::move(atom.code_info),
                             from_original_query);
 
     //Clear the instructions generated so far
@@ -362,7 +363,7 @@ wam::compile_program(const std::string_view program_code){
     using namespace std::placeholders;
     namespace qi = boost::spirit::qi;
 
-    std::vector<boost::optional<node>> parser_result;
+    wam::_program_grammar::result_t parser_result;
     wam::parse_program(program_code, parser_result);
 
     std::unordered_multimap<wam::functor_view, std::vector<wam::term_code>> result;
@@ -379,9 +380,8 @@ wam::compile_program(const std::string_view program_code){
     return result;
 }
 
-std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_term(node& program_node) {
+std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_term(std::vector<node>& atoms) {
     using namespace std::placeholders;
-    std::vector<node> &atoms = *program_node.children;
 
     const auto permanent_count = assign_permanent_registers(atoms, true);
 
@@ -410,7 +410,8 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_t
             x_a_reg_count,
             std::move(instructions),
             //Also find the substitutions in the head atom (for more info see generate_program_instructions at the bottom)
-            find_var_reg_substitutions(head_atom));
+            find_var_reg_substitutions(head_atom),
+            std::move(head_atom.code_info));
 
     //Clear the generated instructions
     instructions.clear();
@@ -423,7 +424,8 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_t
 
         term_codes.emplace_back(x_a_reg_count,
                                 std::move(instructions),
-                                find_var_reg_substitutions(*first_body_atom));
+                                find_var_reg_substitutions(*first_body_atom),
+                                std::move(first_body_atom->code_info));
         //Clear the generated instructions
         instructions.clear();
     }
@@ -447,7 +449,8 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_t
         term_codes.emplace_back(
                 0,
                 instructions,
-                std::vector<var_reg_substitution>{});
+                std::vector<var_reg_substitution>{},
+                source_code_info{});
     }
 
     return std::make_pair(head_atom.to_functor_view(), term_codes);

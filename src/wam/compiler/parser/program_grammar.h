@@ -14,14 +14,18 @@
 
 namespace wam {
 
+    namespace _program_grammar{
+        using result_t = std::vector<boost::optional<std::vector<node>>>;
+    }
     namespace qi = boost::spirit::qi;
 
     template<typename Iterator, typename Skipper>
-    struct program_grammar : public base_grammar<Iterator, std::vector<boost::optional<node>>(), Skipper> {
-        using base = base_grammar<Iterator, std::vector<boost::optional<node>>(), Skipper>;
+    struct program_grammar : public base_grammar<Iterator, std::vector<boost::optional<std::vector<node>>>(), Skipper> {
 
-        qi::rule<Iterator, std::vector<boost::optional<node>>(), Skipper> program;
-        qi::rule<Iterator, node(), Skipper> clause;
+        using base = base_grammar<Iterator, _program_grammar::result_t(), Skipper>;
+
+        qi::rule<Iterator, _program_grammar::result_t(), Skipper> program;
+        qi::rule<Iterator, std::vector<node>(), Skipper> clause;
 
         program_grammar() : program_grammar::base_grammar(program) {
 
@@ -32,16 +36,12 @@ namespace wam {
             using qi::char_;
             using qi::on_error;
             using qi::fail;
-            //A program is either a clause or comments
-            program %= *(clause | base::comment);
+
+            program %= *(base::comment | clause);
+
             //clause = head :- body1, body2... whereas head and body are only allowed to be cons or func
-            clause = qi::eps
-                     [phoenix::bind(&make_to_top_node, qi::_1, phoenix::ref(_val))]
-                             >> (base::functor | base::constant)
-                             [phoenix::bind(&node::add_to_children, phoenix::ref(_val), qi::_1)]
-                     > -(":-" >> (base::functor | base::constant)
-                                 [phoenix::bind(&node::add_to_children, phoenix::ref(_val), qi::_1)]
-                                 % ',') > '.' > -base::comment;
+            clause = base::atom
+                     > -(":-" >> base::atom % ',') > '.' > -base::comment;
 
             clause.name("clause");
             program.name("program");

@@ -95,7 +95,7 @@ void wam::bfs_organizer::clear(){
 wam::parser_error wam::bfs_organizer::validate_program(const std::string_view code) {
 //TODO the code uses the parser code, a simple syntax checker would be good enough here
     try{
-        std::vector<boost::optional<node>> parser_result;
+        wam::_program_grammar::result_t parser_result;
         parse_program(code, parser_result);
         return parser_error{};
     }catch(const parser_error& e){

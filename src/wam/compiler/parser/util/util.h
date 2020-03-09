@@ -8,12 +8,10 @@
 #include <string>
 #include <boost/fusion/include/at_c.hpp>
 #include <boost/spirit/home/support/unused.hpp>
+#include <boost/spirit/include/support_line_pos_iterator.hpp>
 #include "../../util/node.h"
 
 namespace wam {
-
-    template<typename fusion_vec>
-    std::string boost_vec_to_string(fusion_vec vec);
 
 
     void make_to_top_node(boost::spirit::unused_type unused, node &n);
@@ -29,6 +27,23 @@ namespace wam {
     void set_list_finished(char unused_attribute, node &node);
 
     void childs_to_list(node &list_start, char unused_attribute);
+
+    template<typename Iter>
+    void add_source_code_info(node& node, Iter begin, Iter end);
+}
+
+template<typename Iter>
+void wam::add_source_code_info(node &node, Iter begin, Iter end) {
+    //For lower_bound info see boost spirit funcs
+    using namespace boost::spirit;
+    auto& code_info = node.code_info;
+    code_info.line = get_line(begin) -1;
+    //To implement get_column a lower_bound would be needed, that is
+    //At least at the line start or before. if lower_bound (as e.G. begin)
+    //would be on the same line, it will give wrong results
+    //So for now we let it be
+    //code_info.column = get_column(lower_bound, begin) -1;
+    code_info.value = std::string(begin, end);
 }
 
 #endif //PROLOG_BFS_UTIL_H
