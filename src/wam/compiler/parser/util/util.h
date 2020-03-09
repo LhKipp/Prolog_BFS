@@ -8,7 +8,7 @@
 #include <string>
 #include <boost/fusion/include/at_c.hpp>
 #include <boost/spirit/home/support/unused.hpp>
-#include "../util/node.h"
+#include "../../util/node.h"
 
 namespace wam {
 

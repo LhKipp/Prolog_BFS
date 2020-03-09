@@ -8,7 +8,7 @@
 #include <boost/spirit/include/qi.hpp>
 #include <boost/phoenix/phoenix.hpp>
 #include "../util/node.h"
-#include "util.h"
+#include "util/util.h"
 #include "parser_error.h"
 #include "base_grammar.h"
 
@@ -17,22 +17,14 @@ namespace wam {
     namespace qi = boost::spirit::qi;
 
     template<typename Iterator, typename Skipper>
-    struct program_grammar : qi::grammar<Iterator, std::vector<boost::optional<node>>(), Skipper> {
+    struct program_grammar : public base_grammar<Iterator, std::vector<boost::optional<node>>(), Skipper> {
+        using base = base_grammar<Iterator, std::vector<boost::optional<node>>(), Skipper>;
 
         qi::rule<Iterator, std::vector<boost::optional<node>>(), Skipper> program;
         qi::rule<Iterator, node(), Skipper> clause;
-        qi::rule<Iterator, node(), Skipper> constant;
-        qi::rule<Iterator, std::string(), Skipper> constant_name;
-        qi::rule<Iterator, node(), Skipper> functor;
-        qi::rule<Iterator, std::string(), Skipper> functor_name;
-        qi::rule<Iterator, node(), Skipper> list;
-        qi::rule<Iterator, node(), Skipper> variable;
-        qi::rule<Iterator, std::string(), Skipper> variable_name;
-        qi::rule<Iterator, void(), Skipper> comment;
-        qi::rule<Iterator, node(), Skipper> prolog_element;
 
-        program_grammar() :
-                program_grammar::base_type(program, "program") {
+        program_grammar() : program_grammar::base_grammar(program) {
+
             namespace phoenix = boost::phoenix;
             using boost::spirit::qi::_val;
             using boost::spirit::qi::lit;
@@ -41,85 +33,25 @@ namespace wam {
             using qi::on_error;
             using qi::fail;
             //A program is either a clause or comments
-            program %= *(clause | comment);
-            //Comments start with %
-            comment = lexeme['%' > *(char_ - lit('\n')) > '\n'];
-
+            program %= *(clause | base::comment);
             //clause = head :- body1, body2... whereas head and body are only allowed to be cons or func
             clause = qi::eps
-                     [phoenix::bind(&wam::make_to_top_node, qi::_1, phoenix::ref(_val))]
-                             >> (functor | constant)
+                     [phoenix::bind(&make_to_top_node, qi::_1, phoenix::ref(_val))]
+                             >> (base::functor | base::constant)
                              [phoenix::bind(&node::add_to_children, phoenix::ref(_val), qi::_1)]
-                     > -(":-" >> (functor | constant)
+                     > -(":-" >> (base::functor | base::constant)
                                  [phoenix::bind(&node::add_to_children, phoenix::ref(_val), qi::_1)]
-                                 % ',') > '.' > -comment;
-
-            constant_name %= (lexeme[char_("a-z") > *char_("a-zA-Z_0-9")]);
-            constant = (constant_name)
-            [phoenix::bind(&wam::make_to_cons, qi::_1, phoenix::ref(_val))];
-
-            functor_name %= lexeme[char_("a-z") >> *(char_("a-zA-Z_0-9")) >> '('];
-            functor = functor_name
-                      [phoenix::bind(&wam::make_to_func, qi::_1, phoenix::ref(_val))]
-                      //Append each upcoming child to result node
-                      > prolog_element
-                        [phoenix::bind(&node::add_to_children, phoenix::ref(_val), qi::_1)]
-                        % ','
-                      > ')';
-
-            variable_name %= (lexeme[char_("A-Z") > *char_("a-zA-Z_0-9")]);
-            variable = variable_name
-            [phoenix::bind(&wam::make_to_var, qi::_1, phoenix::ref(_val))];
-
-            //Every list is of type: list(X,Xs) or nil
-            //Where X is an value (const, func, list) and Xs is the rest list
-            //nil is represented as an empty list (list node without children)
-            list = char_('[')
-                   [phoenix::bind(&wam::make_to_list, qi::_1, phoenix::ref(_val))]
-                   //Append each upcoming list element to results children
-                   > (
-                           (prolog_element
-                            [phoenix::bind(&node::add_to_children, phoenix::ref(_val), qi::_1)]
-                            % ','
-                            //Every list may end with concatenation of rest list.
-                            //Rest list may be actual list or var
-                            > -(char_('|')
-                                [phoenix::bind(&wam::set_list_finished, qi::_1, phoenix::ref(_val))]
-                                > (variable | list)
-                                [phoenix::bind(&node::add_to_children, phoenix::ref(_val), qi::_1)]
-                           )
-                            > char_(']')
-                            [phoenix::bind(&wam::childs_to_list, phoenix::ref(_val), qi::_1)]
-                           ) | char_(']'));
-
-            prolog_element %= functor | constant | variable | list;
+                                 % ',') > '.' > -base::comment;
 
             clause.name("clause");
-            comment.name("comment");
-            variable.name("variable");
-            functor.name("functor");
-            list.name("list");
-            constant.name("constant");
-            prolog_element.name("prolog_element");
             program.name("program");
 
-#ifdef BOOST_SPIRIT_DEBUG
-            BOOST_SPIRIT_DEBUG_NODES((program)(clause)(comment)(variable)(functor)(list)(constant)(prolog_element))
-#endif
-            namespace phoenix = boost::phoenix;
-            qi::on_error<qi::fail>(program,
-                    phoenix::bind(phoenix::ref(handler),
-                            phoenix::ref(error),
-                            qi::_1,
-                            qi::_2,
-                            qi::_3,
-                            qi::_4)
-            );
-        }
+            base::activate_error_handler(program);
 
-    public:
-        error_handler<> handler;
-        parser_error error;
+#ifdef BOOST_SPIRIT_DEBUG
+            BOOST_SPIRIT_DEBUG_NODES((program)(clause))
+#endif
+        }
     };
 }
 #endif //PROLOG_BFS_PROGRAM_GRAMMAR_H
