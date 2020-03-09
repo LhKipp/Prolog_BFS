@@ -66,7 +66,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
     SECTION("Query: f(g) : Program: f(X)") {
         program_code.emplace_back("f(X).");
 
-        setup_org("f(g)");
+        setup_org("f(g).");
 
         auto found_answer = org.get_answer();
 
@@ -76,7 +76,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
     SECTION("Query: r(x,h(Z,W),f(g)) : Program: ") {
         program_code.emplace_back("r(Z,h(Z,f(a)),f(Z)).");
         //Z/x, W/f(a) , Z/g
-        setup_org("r(x,h(Z,W),f(g))");
+        setup_org("r(x,h(Z,W),f(g)).");
 
         auto found_answer = org.get_answer();
         REQUIRE(!(found_answer.has_value()));
@@ -84,7 +84,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
     SECTION("Query: r(x,x) : Program: ") {
         program_code.emplace_back("r(x).");
 
-        setup_org("r(x,x)");
+        setup_org("r(x,x).");
 
         auto found_answer = org.get_answer();
         REQUIRE(!(found_answer.has_value()));
@@ -92,7 +92,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
     SECTION("Query: r(f(X),h(a,b),x) : Program: ") {
         program_code.emplace_back("r(x).");
 
-        setup_org("r(f(X),h(a,b),x)");
+        setup_org("r(f(X),h(a,b),x).");
 
         auto found_answer = org.get_answer();
         REQUIRE(!(found_answer.has_value()));
@@ -100,7 +100,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
     SECTION("Query: r(f(X),h(a,b),x) : Program: ") {
         program_code.emplace_back("r(f(a),h(D,Z)).");
 
-        setup_org("r(f(X),h(a,b))");
+        setup_org("r(f(X),h(a,b)).");
         auto found_answer = org.get_answer();
         REQUIRE(found_answer.has_value());
         map<std::string, std::string> actual_substs;
@@ -114,7 +114,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
     SECTION("Query: r(f(X),h(a,b),x) : Program: ") {
         program_code.emplace_back("r(f(a),h(D,Z),J).");
 
-        setup_org("r(f(X),h(a,b),x)");
+        setup_org("r(f(X),h(a,b),x).");
         auto found_answer = org.get_answer();
         REQUIRE(found_answer.has_value());
         map<std::string, std::string> actual_substs;
@@ -128,7 +128,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
     SECTION("Query: r(f(f(f(X))),h(f(f(f(f(Z)))),b)) : Program: ") {
         program_code.emplace_back("r(f(f(f(a))),h(f(f(f(f(b)))),b)).");
 
-        setup_org("r(f(f(f(X))),h(f(f(f(f(Z)))),b))");
+        setup_org("r(f(f(f(X))),h(f(f(f(f(Z)))),b)).");
         auto found_answer = org.get_answer();
         REQUIRE(found_answer.has_value());
         map<std::string, std::string> actual_substs;
@@ -142,7 +142,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
     SECTION("Query: r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),b)) : Program: ") {
         program_code.emplace_back("r(f(h(a,f(f(b)))),h(f(f(f(f(b)))),b)).");
 
-        setup_org("r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),Y))");
+        setup_org("r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),Y)).");
 
 
 
@@ -161,7 +161,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
     SECTION("Query: r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),b)) : Program: ") {
         program_code.emplace_back("r(f(h(a,f(f(b)))),h(f(f(f(f(b)))),b)).");
 
-        setup_org("r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),X))");
+        setup_org("r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),X)).");
 
         auto found_answer = org.get_answer();
         REQUIRE(!found_answer.has_value());

@@ -37,7 +37,7 @@ auto setup_org = [&](string query) {
     org.load_query(query);
 };
     SECTION("Easy Chain"){
-        setup_org("p(X,Y)");
+        setup_org("p(X,Y).");
 
         auto answer = org.get_answer();
         REQUIRE(answer.has_value());
@@ -67,7 +67,7 @@ auto setup_org = [&](string query) {
     }
     SECTION("Deep hard Chain"){
 //        program_code.push_back("h(g(f(A),X),f(b),f(g(h(X,Y,B),c))) :- c(c,d), a(A,B), p(X,Y),e(E,F).");
-        setup_org("h(g(f(A),X),f(b),f(F))");
+        setup_org("h(g(f(A),X),f(b),f(F)).");
         auto answer = org.get_answer();
         REQUIRE(answer.has_value());
 

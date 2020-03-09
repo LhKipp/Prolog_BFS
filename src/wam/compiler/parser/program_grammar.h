@@ -37,7 +37,7 @@ namespace wam {
             using qi::on_error;
             using qi::fail;
 
-            program %= *(base::comment | clause);
+            program %= qi::eps > *(base::comment | clause) > qi::eoi ;
 
             //clause = head :- body1, body2... whereas head and body are only allowed to be cons or func
             clause = base::atom

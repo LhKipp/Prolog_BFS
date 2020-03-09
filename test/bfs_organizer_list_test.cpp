@@ -71,7 +71,7 @@ auto setup_org = [&](string query) {
     SECTION("Append") {
         program_code.emplace_back("f([a,b]).");
 
-        setup_org("f([a| B ])");
+        setup_org("f([a| B ]).");
 
         auto found_answer = org.get_answer();
 

@@ -21,7 +21,7 @@ namespace wam{
         query_grammar() : query_grammar::base_grammar(query) {
             using base = base_grammar<Iterator, std::vector<node>(), Skipper>;
 
-            query %= qi::eps > base::atom % ',' > -qi::lit('.');
+            query %= qi::eps > base::atom % ',' > qi::lit('.');
 
             query.name("query");
 
