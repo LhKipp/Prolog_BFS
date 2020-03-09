@@ -369,7 +369,7 @@ wam::compile_program(const std::string_view program_code){
     result.reserve(program_code.size());
 
     for(auto& program_line : parser_result){
-        if(!program_line){
+        if(!program_line){//If program_line is a comment
             continue;
         }
         const auto[head_functor, code] = wam::compile_program_term(*program_line);
