@@ -31,8 +31,8 @@ public:
      * @param code - the code to validate
      */
     wam::parser_error validateQueryCode(std::string code){
-        if(query.back() != '.'){
-            query.push_back('.');
+        if(code.back() != '.'){
+            code.push_back('.');
         }
         return bfs_organizer.validate_query(code);
     }
