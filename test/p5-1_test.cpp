@@ -26,7 +26,8 @@ TEST_CASE("p5-1 test") {
     SECTION("lVonM") {
 
         vector<string> solutions;
-        solutions.push_back("list(nix,nil)");
+        solutions.push_back("nil");
+//        solutions.push_back("list(nix,nil)");
         solutions.push_back("list(a,list(b,nil))");
         solutions.push_back("list(a,list(b,list(nix,nil)))");
         solutions.push_back("list(a,list(b,nil))");
