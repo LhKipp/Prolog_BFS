@@ -26,7 +26,8 @@ TEST_CASE("p5-1 test") {
     SECTION("lVonM") {
 
         vector<string> solutions;
-        solutions.push_back("list(nix,nil)");
+        solutions.push_back("nil");
+//        solutions.push_back("list(nix,nil)");
         solutions.push_back("list(a,list(b,nil))");
         solutions.push_back("list(a,list(b,list(nix,nil)))");
         solutions.push_back("list(a,list(b,nil))");
@@ -62,7 +63,7 @@ TEST_CASE("p5-1 test") {
             REQUIRE(answer.has_value());
             for (auto &elem : *answer) {
 //                std::cout << elem<< endl;
-                 auto found = std::find(solutions.begin(), solutions.end(), elem.substitute);
+                 auto found = std::find(solutions.begin(), solutions.end(), elem.binding);
                  bool has_found = found != solutions.end();
                  REQUIRE(has_found);
                  solutions.erase(found);

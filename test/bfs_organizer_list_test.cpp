@@ -34,7 +34,7 @@ auto setup_org = [&](string query) {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 4);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
 
@@ -50,7 +50,7 @@ auto setup_org = [&](string query) {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 0);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Easy Unification") {
@@ -64,14 +64,14 @@ auto setup_org = [&](string query) {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 0);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
 
     SECTION("Append") {
         program_code.emplace_back("f([a,b]).");
 
-        setup_org("f([a| B ])");
+        setup_org("f([a| B ]).");
 
         auto found_answer = org.get_answer();
 
@@ -80,7 +80,7 @@ auto setup_org = [&](string query) {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Append list properly coded - Empty list") {
@@ -96,7 +96,7 @@ auto setup_org = [&](string query) {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Append list properly coded - append") {
@@ -112,7 +112,7 @@ auto setup_org = [&](string query) {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Append list properly coded - append 2") {
@@ -128,7 +128,7 @@ auto setup_org = [&](string query) {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("Append list properly coded - append 3") {
@@ -144,7 +144,7 @@ auto setup_org = [&](string query) {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("List of list") {
@@ -159,7 +159,7 @@ auto setup_org = [&](string query) {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("List of list") {
@@ -176,7 +176,7 @@ auto setup_org = [&](string query) {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 3);
         for (auto &subst : *found_answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
 }

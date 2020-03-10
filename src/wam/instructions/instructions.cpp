@@ -7,6 +7,7 @@
 #include "util/instructions_util.h"
 #include "../bfs_organizer/bfs_organizer.h"
 
+//#define DEBUG
 #ifdef DEBUG
 #include <iostream>
 #endif
@@ -83,12 +84,13 @@ void wam::get_structure(wam::executor &executor, const functor_view &functor, si
             executor.S = addr + 1;
             executor.read_or_write = wam::mode::READ;
         } else {
-            executor.fail = true;
+            executor.set_failed();
         }
     } else if (reg.type == heap_tag::STR) {
+        //This should never happen
         throw int(3);
     } else {//Default case
-        executor.fail = true;
+        executor.set_failed();
     }
 }
 
@@ -198,8 +200,7 @@ void wam::unify(executor &executor, size_t addr_a, size_t addr_b) {
     PDL.push(addr_b);
     PDL.push(addr_a);
 
-    executor.fail = false;
-    while (!(PDL.empty() || executor.fail)) {
+    while (!(PDL.empty() || executor.failed())) {
         size_t d1, d2;
         if (executor.heap_at(PDL.top()).is_REF()){
             d1 = deref(executor, executor.heap_at(PDL.top()));
@@ -238,7 +239,7 @@ void wam::unify(executor &executor, size_t addr_a, size_t addr_b) {
                         PDL.push(reg2.index + i);
                     }
                 } else {
-                    executor.fail = true;
+                    executor.set_failed();
                     return;
                 }
             }
@@ -299,6 +300,7 @@ void wam::get_value(wam::executor &executor, size_t x_reg, size_t a_reg) {
 #ifdef DEBUG
     std::cout << "get_value" << std::endl;
 #endif
+    //feature/parser TODO should be swapped
     unify(executor, executor.registers.at(x_reg).index, executor.registers.at(a_reg).index);
 }
 
@@ -306,70 +308,92 @@ void wam::get_permanent_value(wam::executor &executor, size_t y_reg, size_t a_re
 #ifdef DEBUG
     std::cout << "get_permanent_value" << std::endl;
 #endif
+    //these should also be swapped feature/parser
     unify(executor, executor.cur_permanent_registers().at(y_reg).index, executor.registers.at(a_reg).index);
 }
 
-void wam::call(wam::executor &old_executor, const functor_view &functor, bool from_original_query) {
+void wam::call(wam::executor &old_executor, const functor_view &functor) {
 #ifdef DEBUG
     std::cout << "call" << std::endl;
+    std::cout << "call to: " << functor.name << std::endl;
 #endif
     bfs_organizer *organizer = old_executor.get_organizer();
 
-    //TODO Debug
-//    std::cout << "call to: " << functor.name << std::endl;
     if (!organizer->has_code_for(functor)) {
-//        std::cout << "call failed" << std::endl;
-        old_executor.fail = true;
+#ifdef DEBUG
+        std::cout << "call failed" << std::endl;
+#endif
+        old_executor.set_failed();
         return;
     }
 
-    old_executor.solves_atom_number += from_original_query;
-    assert(organizer->has_code_for(functor));
-    auto range = organizer->program_code.equal_range(functor);
-    auto old_exec_index = organizer->archive(old_executor);
-    std::for_each(range.first, range.second,
-                  [&](const auto &entries) {
-                      executor new_executor{};
-                      new_executor.set_parent(old_executor, old_exec_index);
+    auto& rule_term_codes = organizer->program_code[functor];
+    std::for_each(rule_term_codes.begin(), rule_term_codes.end(),
+                  [&](auto &term_codes) {
+                      executor new_executor{old_executor.term_codes.size() - 1 + term_codes.size()};
+//                      Copy the term_codes
+                      auto parent_codes_end = std::copy(old_executor.term_codes.begin(),
+                              old_executor.term_codes.end() -1,
+                              new_executor.term_codes.begin());
+                      std::transform(term_codes.rbegin(),
+                                     term_codes.rend(),
+                                     parent_codes_end,
+                                     [](wam::term_code& term_code){return &term_code;});
+                      new_executor.set_parent(old_executor);
 
-                      std::for_each(entries.second.rbegin(), entries.second.rend(),
-                                    [&](const wam::term_code &term_code) {
-                                        new_executor.instructions.push(&term_code);
-                                    });
-                      organizer->executors.push_back(new_executor);
+
+                      old_executor.push_back_child(std::move(new_executor));
+                      organizer->executors.push_back(&old_executor.get_last_child());
                   });
-
+    old_executor.clear();
+    old_executor.set_archived();
 }
 
-void wam::proceed(wam::executor &executor) {
+void wam::proceed(wam::executor &old_exec) {
 #ifdef DEBUG
     std::cout << "proceed" << std::endl;
 #endif
-    bfs_organizer *organizer = executor.get_organizer();
-    organizer->executors.push_back(executor);
+
+    if(old_exec.check_success()){
+        //No more work, eventhough there might be some deallocs.
+        //So we dealloc in clear
+        old_exec.clear();
+        return; //No more work
+    }
+
+    //The old_exec has unified a rule head atom / fact with an query
+    //To preserve the var_heap_subst in old_exec and the state after
+    //unification we start a new executor who continues with the rest of
+    //the instructions
+    bfs_organizer *organizer = old_exec.get_organizer();
+
+    executor new_executor{};
+    new_executor.move_from_parent(old_exec);
+    old_exec.push_back_child(std::move(new_executor));
+    organizer->executors.push_back(&old_exec.get_last_child());
 }
 
 void wam::allocate(wam::executor &executor, size_t permanent_var_count) {
 #ifdef DEBUG
     std::cout << "allocate" << std::endl;
+    std::cout << "exec environment size before: " << executor.environments.size() << std::endl;
 #endif
-    executor.environments.push(environment{permanent_var_count});
+    executor.environments.emplace_back(permanent_var_count);
 }
 
 void wam::deallocate(wam::executor &executor) {
 #ifdef DEBUG
     std::cout << "deallocate" << std::endl;
+    std::cout << "exec environment size before: " << executor.environments.size() << std::endl;
 #endif
-    executor.environments.pop();
+    assert(!executor.environments.empty());
+    executor.environments.pop_back();
+
+    //This executor finished his term_code. But storing executors only doing deallocates is
+    //unecessary, so we give him a new task, through term_codes.pop_back and inserting him in
+    //executors list
+    executor.term_codes.pop_back();
     bfs_organizer *organizer = executor.get_organizer();
-    organizer->executors.push_back(executor);
+    organizer->executors.push_back(&executor);
 }
-
-
-
-
-
-
-
-
 

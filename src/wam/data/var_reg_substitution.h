@@ -12,20 +12,18 @@ namespace wam {
 
         std::string var_name;
         size_t register_index;
-        size_t from_atom_number;
 
         bool is_permanent_register;
 
-        //TODO fix the substitution bug like this
-
         var_reg_substitution() = default;
 
-        var_reg_substitution(std::string varName, size_t registerIndex, size_t from_atom_number,
+        var_reg_substitution(std::string varName, size_t registerIndex,
                              bool permanent_regist = false) :
                 var_name(std::move(varName)),
                 register_index(registerIndex),
-                is_permanent_register{permanent_regist},
-                from_atom_number{from_atom_number}{}
+                is_permanent_register{permanent_regist}{
+
+        }
 
         bool operator==(const var_reg_substitution &rhs) const {
             return var_name == rhs.var_name;

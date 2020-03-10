@@ -12,14 +12,17 @@
 #include "../data/var_reg_substitution.h"
 #include "../data/term_code.h"
 #include "../../util/named_type.h"
-#include "../data/var_substitution.h"
+#include "../data/var_binding.h"
 #include "../data/environment.h"
+#include "../data/var_heap_substitution.h"
+#include "util/exec_state.h"
 
 #include <vector>
 #include <stack>
 #include <unordered_map>
 #include <cassert>
 #include <iostream>
+#include <variant>
 
 namespace wam {
 
@@ -45,7 +48,7 @@ namespace wam {
 
         //Pointer to the executor from whom this executor emerged in the call instruction
         //Note: size_t::max represents that this exec has no parent -- see @func has_parent
-        size_t parent_index = std::numeric_limits<size_t>::max();
+        const executor* parent = nullptr;
 
         //Every child reuses the heap of the parent. So the child heaps build upon the parents heap. Thous
         //the child-heap starts at index parent-heap.size and ends at parent-heap.size + child-heap.size
@@ -57,12 +60,16 @@ namespace wam {
 
         std::vector<regist> heap{};
 
+        std::vector<std::unique_ptr<executor>> children;
+
     public:
-
-        std::vector<var_reg_substitution> substitutions;
-        std::vector<var_substitution> found_substitutions;
-
-        int cur_atom_begin;
+        //We also need to keep track whether this exec is from an original user entered query
+        //the information is stored in solves_term_code.is_from_original_query()
+        //whatever the exec solved the last is stored in term_codes.back()
+        inline bool is_from_user_entered_query() const{
+            assert(term_codes.size() == 1);
+            return term_codes.back()->is_from_original_query();
+        }
 
         std::vector<regist> registers;
 
@@ -70,25 +77,25 @@ namespace wam {
 
         size_t S;
 
-        bool fail = false;
-        //Which atom number from the original query the executor is solving depends on the call instruction.
-        //The executor is solving the first (zeroth) atom from the query if the query-atom has been built on the heap,
-        //and the call instruction suceeded. Thous this data member should only be written by the call instruction
-        int solves_atom_number = -1;
+        EXEC_STATE state = EXEC_STATE::RUNNING;
 
-        std::stack<const term_code*> instructions;
-        std::stack<wam::environment> environments;
+        //Used as a stack
+        std::vector<term_code*> term_codes;
+        //Used as a stack
+        std::vector<wam::environment> environments;
 
         executor& operator=(const executor & other)=default;
         executor& operator=(executor && other)=default;
         executor(const executor& other) = default;
+        executor(executor&& other) = default;
         executor() = default;
+
+        executor(size_t term_codes_size): term_codes{term_codes_size}{}
 
         inline std::vector<wam::regist>& cur_permanent_registers(){
             assert(!environments.empty());
-            return environments.top().permanent_registers;
+            return environments.back().permanent_registers;
         }
-
 
         inline bfs_organizer *get_organizer() const {
             return organizer;
@@ -130,20 +137,46 @@ namespace wam {
 
         regist heap_at(size_t index)const;
 
-        inline void set_parent(const executor& parent, size_t archive_index){
-            parent_index = archive_index;
+        inline void move_from_parent(executor& parent){
+            this->parent = &parent;
+            heap_start_index = parent.heap_size();
+            organizer = parent.organizer;
+
+            if(!parent.environments.empty()){
+                environments = std::move(parent.environments);
+                parent.environments.clear();
+                parent.environments.push_back(environments.back());
+            }
+            //Copy only as needed, but shrink to fit always to make sure, size is as small as possible
+            parent.environments.shrink_to_fit();
+
+            registers = parent.registers;
+
+            term_codes = std::move(parent.term_codes);
+            parent.term_codes.clear();
+            parent.term_codes.push_back(term_codes.back());
+            parent.term_codes.shrink_to_fit();
+            term_codes.pop_back();
+
+            changes_to_parent.reserve(5);
+            heap.reserve(parent.heap.size());
+
+            parent.state = EXEC_STATE::ARCHIVED;
+        }
+
+        inline void set_parent(const executor& parent){
+            this->parent = &parent;
             heap_start_index = parent.heap_size();
 
             //Necessary copies - for now
-            //Solves atom number increased in call instruction if necessary
-            solves_atom_number = parent.solves_atom_number;
+
             organizer = parent.organizer;
-            environments = parent.environments;//TODO use parent environments
-            cur_atom_begin = parent.cur_atom_begin;
-            substitutions = parent.substitutions; //TODO use parents subs and found subs
-            found_substitutions = parent.found_substitutions;
+            environments = parent.environments;
+            //TODO figure out whether the registers are only necessary to copy from
+            //head func -> first body atom
             registers = parent.registers;
-            instructions = parent.instructions;
+
+            //term_codes are more efficiently copied in call instruction
 
             //TODO Monitor different heuristics
             changes_to_parent.reserve(5);
@@ -151,7 +184,90 @@ namespace wam {
         }
 
         inline bool has_parent()const {
-            return parent_index != std::numeric_limits<size_t>::max();
+            return parent != nullptr;
+        }
+
+        inline const executor& get_parent()const{
+            return *parent;
+        }
+
+        inline const std::vector<std::unique_ptr<executor>>& get_children()const{
+            return children;
+        }
+        inline void push_back_child(executor&& child){
+            children.push_back(std::make_unique<executor>(std::move(child)));
+        }
+
+        inline executor& get_last_child()const {
+            assert(!children.empty());
+            return *children.back();
+        }
+
+        /**
+         * Clears all data from this executor which is no longer needed when saving
+         */
+        inline void clear(){
+            term_codes.erase(term_codes.begin(), term_codes.end() -1);
+            term_codes.shrink_to_fit();
+            if(environments.size() > 1){
+                environments.erase(environments.begin(), environments.end() -1);
+            }
+        }
+
+        inline void set_archived(){
+            state = EXEC_STATE ::ARCHIVED;
+        }
+
+        term_code* get_cur_or_solved_term_code()const{
+            return term_codes.back();
+        }
+
+        term_code *get_current_term_code()const{
+            return term_codes.back();
+        }
+
+        term_code *get_solved_term_code()const {
+            assert(term_codes.size() == 1);
+            return term_codes.back();
+        }
+
+        void inline set_failed(){
+            state = EXEC_STATE::FAIL;
+            clear();
+        }
+
+        bool inline failed()const{
+            return state == EXEC_STATE::FAIL;
+        }
+
+        bool is_leaf()const{
+            return false;
+        }
+
+        /*
+         * Checks whether this executor succeeded, and sets the internal state accordingly
+         */
+        bool inline check_success(){
+            if(!failed() &&
+                std::all_of(term_codes.rbegin() + 1,
+                        term_codes.rend(),
+                        [](const term_code* term_code){return term_code->is_deallocate();})){
+                state = EXEC_STATE::SUCCESS;
+                return true;
+            }
+            return false;
+        }
+
+        bool inline succeeded() const{
+            return state == EXEC_STATE::SUCCESS;
+        }
+
+        bool inline is_archived()const{
+            return state == EXEC_STATE ::ARCHIVED;
+        }
+
+        bool inline is_running()const{
+            return state == EXEC_STATE ::RUNNING;
         }
     };
 }

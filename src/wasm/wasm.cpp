@@ -31,6 +31,9 @@ public:
      * @param code - the code to validate
      */
     wam::parser_error validateQueryCode(std::string code){
+        if(code.back() != '.'){
+            code.push_back('.');
+        }
         return bfs_organizer.validate_query(code);
     }
 
@@ -44,6 +47,9 @@ public:
     }
 
     wam::parser_error loadQuery(std::string query) {
+        if(query.back() != '.'){
+            query.push_back('.');
+        }
         try{
             bfs_organizer.load_query(query);
             return wam::parser_error{};
@@ -68,7 +74,7 @@ public:
 
         result += "[";
         for (int i = 0; i < answer->size(); i++) {
-            result += answer->at(i).var_name + "/" + answer->at(i).substitute;
+            result += answer->at(i).var_name + "/" + answer->at(i).binding;
             if (i != answer->size()-1) {
                 result += ", ";
             }

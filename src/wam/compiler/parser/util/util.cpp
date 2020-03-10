@@ -3,17 +3,8 @@
 //
 
 #include <algorithm>
+#include <iterator>
 #include "util.h"
-
-template<typename fusion_vec>
-std::string wam::boost_vec_to_string(fusion_vec vec) {
-    using boost::fusion::at_c;
-    std::string result;
-    result += at_c<0>(vec);
-    std::copy(std::begin(at_c<1>(vec)), std::end(at_c<1>(vec)),
-              std::back_insert_iterator(result));
-    return result;
-}
 
 void wam::make_to_top_node(boost::spirit::unused_type unused, node &n) {
     n.set_type(STORED_OBJECT_FLAG::NONE);
@@ -79,3 +70,4 @@ void wam::childs_to_list(node &list_start, char unused_attribute) {
         cur_parent->children->push_back(std::move(*(new_childs->end() - 1)));
     }
 }
+

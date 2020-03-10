@@ -3,7 +3,7 @@
 //
 #include "../catch.hpp"
 #include "../src/wam/bfs_organizer/bfs_organizer.h"
-#include "../src/wam/data/var_substitution.h"
+#include "../src/wam/data/var_binding.h"
 
 #include <iostream>
 #include <string>
@@ -63,7 +63,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         REQUIRE(answer->size() == 1);
         for (auto &subst : *answer) {
-            REQUIRE(actual_substs.at(subst.var_name) == subst.substitute);
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
     SECTION("zustandEnd") {
@@ -73,12 +73,12 @@ auto setup_org = [&](string query) {
         auto answer = org.get_answer();
         REQUIRE(answer.has_value());
         for (auto &subst : *answer) {
-            actual_substs[subst.substitute]++;
+            actual_substs[subst.binding]++;
         }
         auto next_answer = org.get_answer();
         REQUIRE(next_answer.has_value());
         for (auto &subst : *next_answer) {
-            actual_substs[subst.substitute]++;
+            actual_substs[subst.binding]++;
         }
         REQUIRE(actual_substs.at("readSigma") == 1);
         REQUIRE(actual_substs.at("dele") == 1);
@@ -88,21 +88,21 @@ auto setup_org = [&](string query) {
 
         auto answer = org.get_answer();
         REQUIRE(answer.has_value());
-        REQUIRE(answer->at(0).substitute == "list(a,list(b,list(c,list(d,list(e,list(f,nil))))))");
+        REQUIRE(answer->at(0).binding == "list(a,list(b,list(c,list(d,list(e,list(f,nil))))))");
     }
     SECTION("lappend") {
         setup_org("lappend(nil, list(a,list(b,nil)),Z).");
 
         auto answer = org.get_answer();
         REQUIRE(answer.has_value());
-        REQUIRE(answer->at(0).substitute == "list(a,list(b,nil))");
+        REQUIRE(answer->at(0).binding == "list(a,list(b,nil))");
     }
     SECTION("lappend") {
         setup_org("lappend(list(a,list(b,nil)),nil, Z).");
 
         auto answer = org.get_answer();
         REQUIRE(answer.has_value());
-        REQUIRE(answer->at(0).substitute == "list(a,list(b,nil))");
+        REQUIRE(answer->at(0).binding == "list(a,list(b,nil))");
     }
     SECTION("es") {
         setup_org("es(readSigma, list(a,nil), list(raute,nil), ZN, nil,list(a,list(raute,nil))).");
@@ -111,7 +111,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         while (answer) {
             for (auto &subst : *answer) {
-                actual_substs[subst.substitute]++;
+                actual_substs[subst.binding]++;
             }
             answer = org.get_answer();
         }
@@ -125,7 +125,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         while (answer) {
             for (auto &subst : *answer) {
-                actual_substs[subst.substitute]++;
+                actual_substs[subst.binding]++;
                 cout << subst << endl;
             }
             answer = org.get_answer();

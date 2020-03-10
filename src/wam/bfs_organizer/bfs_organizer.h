@@ -11,52 +11,37 @@
 #include <list>
 #include <experimental/filesystem>
 #include "../data/functor_view.h"
-#include "../data/var_substitution.h"
+#include "../data/var_binding.h"
 #include "../data/term_code.h"
 #include "../data/var_reg_substitution.h"
 #include "../executor/executor.h"
 #include "../instructions/instructions.h"
 #include "../compiler/parser/parser_error.h"
+#include "../visual/unification_tree/query_node.h"
 
 
 namespace wam {
 
-    //Strong wrapper types
-    using code_as_string = NamedType<std::string, struct Code_as_string>;
-
-    using var_substitutions = std::vector<wam::var_substitution>;
     class bfs_organizer {
         friend struct executor;
-        friend void wam::call(wam::executor &old_executor, const functor_view &functor, bool from_original_query);
-        friend void wam::proceed(wam::executor &executor);
+        friend void wam::call(wam::executor &old_executor, const functor_view &functor);
+        friend void wam::proceed(wam::executor &old_exec);
         friend void wam::deallocate(wam::executor &executor);
     private:
-        //Executors, beeing executed, saved so heap is still accessible
-        std::vector<executor> dead_executors;
+
+        executor init_executor;
+
         //Queue of executors, to execute
-        std::list<executor> executors;
+        std::list<executor*> executors;
 
         //Global storage for all executors
         std::unordered_map<functor_view, size_t> functor_index_map;
         std::vector<functor_view> functors;
-        std::unordered_multimap<functor_view, std::vector<term_code>> program_code;
+        //functor to multiple term_codes
+        std::unordered_map<functor_view, std::vector<std::vector<term_code>>> program_code;
         std::vector<term_code> current_query_code;
 
-        std::vector<var_reg_substitution> permanent_substitutions;
-
-        void find_temporary_substitutions(executor&);
-        void find_permanent_substitutions(executor &executor);
-        /**
-         * Archives the given executor
-         * @param executor the executor to store
-         * @return pointer to the memory address where the executor has been stored
-         */
-        size_t archive(const executor &executor);
-
-        inline const executor& get_archived(size_t index){
-            return dead_executors.at(index);
-
-        }
+        //std::vector<var_reg_substitution> permanent_substitutions;
 
         void load_term_lines(std::string_view term_lines);
     public:
@@ -64,22 +49,24 @@ namespace wam {
 
         wam::parser_error validate_program(std::string_view code);
         wam::parser_error validate_query(std::string_view code);
+
         void load_program(std::string_view code);
         void load_program_from_file(std::string_view file_path);
 
-
         void load_query(const std::string &query);
+
+        query_node get_unification_tree() const;
 
 
         /*
-         * Returns a bool indicating whether an answer has been found (true = has answer) and a var_substitution.
+         * Returns var_substitutions if found otherwise std::nullopt
          * Note: This may run into an endless loop
          */
-        std::optional<std::vector<wam::var_substitution>> get_answer();
+        std::optional<std::vector<wam::var_binding>> get_answer();
 
-        bool has_code_for(const functor_view &functor) const;
-
-        void point_reg_substs_to_heap(executor &executor);
+        bool has_code_for(const functor_view &functor) const{
+            return program_code.find(functor) != program_code.end();
+        }
 
     };
 
