@@ -218,6 +218,10 @@ namespace wam {
             state = EXEC_STATE ::ARCHIVED;
         }
 
+        term_code* get_cur_or_solved_term_code()const{
+            return term_codes.back();
+        }
+
         term_code *get_current_term_code()const{
             return term_codes.back();
         }

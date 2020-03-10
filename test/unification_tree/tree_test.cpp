@@ -33,7 +33,48 @@ TEST_CASE("Tree mult") {
 
     var_binding_node& continuation = facts[1];
     assert(continuation.continues());
-    assert(continuation.get_fact_as_string() == "mult(s(A), B, C)");
+    assert(continuation.get_fact_as_string() == "mult(s(A), B, C) ");
+    auto& bindings = continuation.get_var_bindings();
+
+    vector<var_binding> solutions;
+    solutions.emplace_back("Z","G_16" );
+    solutions.emplace_back("B","s(s(s(o)))");
+    solutions.emplace_back("C","G_16");
+    solutions.emplace_back("A","o");
+    for (auto &elem : bindings) {
+        std::cout << elem<< endl;
+        auto found = std::find(solutions.begin(), solutions.end(), elem);
+        bool has_found = found != solutions.end();
+        REQUIRE(has_found);
+        solutions.erase(found);
+    }
+    REQUIRE(solutions.empty());
+
+    const auto& q2 = continuation.get_continuing_query();
+    REQUIRE(!q2.failed());
+    REQUIRE(q2.get_query_as_string() == "mult(A, B, D)");
+    REQUIRE(!q2.is_from_orig_query());
+    REQUIRE(q2.getChildren().size() == 2);
+
+    auto& mult_fact = q2.getChildren()[0];
+    REQUIRE(mult_fact.get_fact_as_string() == "mult(o, X, o)");
+    REQUIRE(mult_fact.continues());
+    REQUIRE(mult_fact.continues());
+
+    const auto& bindings2 = mult_fact.get_var_bindings();
+    solutions.emplace_back("D","o" );
+    solutions.emplace_back("A","o" );
+    solutions.emplace_back("X","s(s(s(o)))");
+    solutions.emplace_back("B","s(s(s(o)))");
+    for (const auto &elem : bindings2) {
+        std::cout << elem<< endl;
+        auto found = std::find(solutions.begin(), solutions.end(), elem);
+        bool has_found = found != solutions.end();
+        REQUIRE(has_found);
+        solutions.erase(found);
+    }
+
+
 
 
 }

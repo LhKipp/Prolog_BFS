@@ -87,7 +87,7 @@ std::vector<wam::var_heap_substitution> wam::point_var_reg_substs_to_heap(const 
 #ifdef DEBUG_UNIFICATION_TREE
     std::cout << "point_var_reg_substs_to_heap" << std::endl;
 #endif
-    auto const& var_reg_substs = executor.get_solved_term_code()->get_substitutions();
+    auto const& var_reg_substs = executor.get_cur_or_solved_term_code()->get_substitutions();
     std::vector<wam::var_heap_substitution> result{var_reg_substs.size()};
 
     std::transform(var_reg_substs.begin(),

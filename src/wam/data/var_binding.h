@@ -19,6 +19,9 @@ namespace wam{
 
         friend std::ostream &operator<<(std::ostream &os, const var_binding &substitution);
 
+        bool operator==(const var_binding &rhs) const;
+
+        bool operator!=(const var_binding &rhs) const;
 
     };
 

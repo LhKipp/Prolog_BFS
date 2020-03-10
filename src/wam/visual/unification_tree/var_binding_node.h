@@ -56,6 +56,11 @@ class var_binding_node {
         return var_bindings;
     }
 
+    const std::vector<var_binding>& get_var_bindings()const{
+        assert(!failed());
+        return var_bindings;
+    }
+
     /**
      * Returns whether the unification process failed with this fact.
      * @return true if the unification process failed, false otherwise.

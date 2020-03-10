@@ -38,6 +38,10 @@ namespace wam {
             return *children;
         }
 
+        const std::vector<var_binding_node> &getChildren()const{
+            return *children;
+        }
+
         /**
          *
          * @return the query as string
