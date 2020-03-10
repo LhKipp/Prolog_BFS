@@ -15,6 +15,7 @@
 #include "../data/var_binding.h"
 #include "../data/environment.h"
 #include "../data/var_heap_substitution.h"
+#include "util/exec_state.h"
 
 #include <vector>
 #include <stack>
@@ -35,11 +36,6 @@ namespace wam {
     using FUN_index = NamedType<size_t, FUN_Parameter>;
     using STR_index = NamedType<size_t, STR_Parameter>;
 
-    enum class STATE{
-        FAIL,
-        SUCCESS,
-        RUNNING
-    };
     struct executor {
 
         friend class bfs_organizer;
@@ -81,7 +77,7 @@ namespace wam {
 
         size_t S;
 
-        STATE state = STATE::RUNNING;
+        EXEC_STATE state = EXEC_STATE::RUNNING;
 
         //Used as a stack
         std::vector<term_code*> term_codes;
@@ -164,6 +160,8 @@ namespace wam {
 
             changes_to_parent.reserve(5);
             heap.reserve(parent.heap.size());
+
+            parent.state = EXEC_STATE::ARCHIVED;
         }
 
         inline void set_parent(const executor& parent){
@@ -216,17 +214,26 @@ namespace wam {
             }
         }
 
+        inline void set_archived(){
+            state = EXEC_STATE ::ARCHIVED;
+        }
+
+        term_code *get_current_term_code()const{
+            return term_codes.back();
+        }
+
         term_code *get_solved_term_code()const {
             assert(term_codes.size() == 1);
             return term_codes.back();
         }
 
         void inline set_failed(){
-            state = STATE::FAIL;
+            state = EXEC_STATE::FAIL;
+            clear();
         }
 
         bool inline failed()const{
-            return state == STATE::FAIL;
+            return state == EXEC_STATE::FAIL;
         }
 
         bool is_leaf()const{
@@ -241,14 +248,22 @@ namespace wam {
                 std::all_of(term_codes.rbegin() + 1,
                         term_codes.rend(),
                         [](const term_code* term_code){return term_code->is_deallocate();})){
-                state = STATE::SUCCESS;
+                state = EXEC_STATE::SUCCESS;
                 return true;
             }
             return false;
         }
 
         bool inline succeeded() const{
-            return state== STATE::SUCCESS;
+            return state == EXEC_STATE::SUCCESS;
+        }
+
+        bool inline is_archived()const{
+            return state == EXEC_STATE ::ARCHIVED;
+        }
+
+        bool inline is_running()const{
+            return state == EXEC_STATE ::RUNNING;
         }
     };
 }

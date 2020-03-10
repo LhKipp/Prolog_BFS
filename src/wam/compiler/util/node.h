@@ -133,7 +133,8 @@ public:
 
     node(node &&other) = default;
 
-    node(const node &other) : type{other.type}, name{other.name}, a_reg{other.a_reg}, x_reg{other.x_reg}{
+    node(const node &other) : type{other.type}, name{other.name}, a_reg{other.a_reg}, x_reg{other.x_reg},
+                              code_info{other.code_info}{
         if (other.children) {
             children = std::make_unique<std::vector<node>>(*other.children);
         }
@@ -147,6 +148,7 @@ public:
         if (other.children) {
             children = std::make_unique<std::vector<node>>(*other.children);
         }
+        this->code_info = other.code_info;
         return *this;
     }
 
