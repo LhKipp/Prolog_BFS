@@ -152,7 +152,7 @@ wam::find_substitutions(
         const std::vector<var_heap_substitution> &var_heap_subst_query,
         const std::vector<var_heap_substitution> &var_heap_subst_func) {
     using namespace wam;
-    std::vector<var_binding> result{var_heap_subst_func.size() + var_heap_subst_query.max_size()};
+    std::vector<var_binding> result{var_heap_subst_func.size() + var_heap_subst_query.size()};
     auto transformation = [&](const auto& var_heap_substs, const auto result_begin){
         std::transform(
                 var_heap_substs.begin(),

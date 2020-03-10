@@ -38,7 +38,7 @@ namespace wam {
 
 
 
-    std::unordered_multimap<wam::functor_view, std::vector<wam::term_code>>
+    std::unordered_map<wam::functor_view, std::vector<std::vector<wam::term_code>>>
     compile_program(std::string_view program_code);
     /*
      * Parses a query term e.G. p(Z,h(Z,W),f(W))

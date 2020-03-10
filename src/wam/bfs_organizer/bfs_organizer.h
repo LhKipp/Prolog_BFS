@@ -37,7 +37,8 @@ namespace wam {
         //Global storage for all executors
         std::unordered_map<functor_view, size_t> functor_index_map;
         std::vector<functor_view> functors;
-        std::unordered_multimap<functor_view, std::vector<term_code>> program_code;
+        //functor to multiple term_codes
+        std::unordered_map<functor_view, std::vector<std::vector<term_code>>> program_code;
         std::vector<term_code> current_query_code;
 
         //std::vector<var_reg_substitution> permanent_substitutions;

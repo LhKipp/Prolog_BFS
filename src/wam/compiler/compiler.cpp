@@ -358,7 +358,7 @@ void wam::compile_query_atom(node &atom,
     remove_x_a_regs(seen_registers);
 }
 
-std::unordered_multimap<wam::functor_view, std::vector<wam::term_code>>
+std::unordered_map<wam::functor_view, std::vector<std::vector<wam::term_code>>>
 wam::compile_program(const std::string_view program_code){
     using namespace std::placeholders;
     namespace qi = boost::spirit::qi;
@@ -366,7 +366,8 @@ wam::compile_program(const std::string_view program_code){
     wam::_program_grammar::result_t parser_result;
     wam::parse_program(program_code, parser_result);
 
-    std::unordered_multimap<wam::functor_view, std::vector<wam::term_code>> result;
+    //func -> list of term_codes
+    std::unordered_map<wam::functor_view, std::vector<std::vector<wam::term_code>>> result;
     result.reserve(program_code.size());
 
     for(auto& program_line : parser_result){
@@ -375,7 +376,15 @@ wam::compile_program(const std::string_view program_code){
         }
         const auto[head_functor, code] = wam::compile_program_term(*program_line);
 
-        result.emplace(head_functor, code);
+        auto inserted_func = result.find(head_functor);
+        if(inserted_func == result.end()){
+            std::vector<std::vector<term_code>> func_rules{};
+            func_rules.reserve(4);
+            func_rules.emplace_back(code);
+            result.emplace(std::make_pair(head_functor, func_rules));
+        }else{
+            inserted_func->second.push_back(code);
+        }
     }
     return result;
 }

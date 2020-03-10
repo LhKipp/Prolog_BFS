@@ -327,18 +327,18 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
         return;
     }
 
-    auto range = organizer->program_code.equal_range(functor);
-    std::for_each(range.first, range.second,
-                  [&](auto &entries) {
-                      executor new_executor{old_executor.term_codes.size() -1 + entries.second.size()};
+    auto& rule_term_codes = organizer->program_code[functor];
+    std::for_each(rule_term_codes.begin(), rule_term_codes.end(),
+                  [&](auto &term_codes) {
+                      executor new_executor{old_executor.term_codes.size() - 1 + term_codes.size()};
 //                      Copy the term_codes
                       auto parent_codes_end = std::copy(old_executor.term_codes.begin(),
                               old_executor.term_codes.end() -1,
                               new_executor.term_codes.begin());
-                      std::transform(entries.second.rbegin(),
-                                    entries.second.rend(),
-                                    parent_codes_end,
-                                    [](wam::term_code& term_code){return &term_code;});
+                      std::transform(term_codes.rbegin(),
+                                     term_codes.rend(),
+                                     parent_codes_end,
+                                     [](wam::term_code& term_code){return &term_code;});
                       new_executor.set_parent(old_executor);
 
 
@@ -346,6 +346,7 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
                       organizer->executors.push_back(&old_executor.get_last_child());
                   });
     old_executor.clear();
+    old_executor.set_archived();
 }
 
 void wam::proceed(wam::executor &old_exec) {
