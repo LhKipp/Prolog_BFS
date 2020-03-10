@@ -183,24 +183,24 @@ size_t wam::bfs_organizer::archive(const wam::executor &executor) {
     return dead_executors.size() -1;
 }
 
-std::string wam::bfs_organizer::validate_program(const std::string_view code) {
+wam::parser_error wam::bfs_organizer::validate_program(const std::string_view code) {
 //TODO the code uses the parser code, a simple syntax checker would be good enough here
     try{
         std::vector<boost::optional<node>> parser_result;
         parse_program(code, parser_result);
-        return "";
-    }catch(const std::invalid_argument& e){
-        return e.what();
+        return parser_error{};
+    }catch(const parser_error& e){
+        return e;
     }
 }
 
-std::string wam::bfs_organizer::validate_query(const std::string_view code) {
+wam::parser_error wam::bfs_organizer::validate_query(const std::string_view code) {
 //TODO the code uses the parser code, a simple syntax checker would be good enough here
     try{
         std::vector<node> query_nodes; //= compiler result
         parse_query(code, query_nodes);
-        return "";
-    }catch(const std::invalid_argument& e){
-        return e.what();
+        return parser_error{};
+    }catch(const parser_error& e){
+        return e;
     }
 }

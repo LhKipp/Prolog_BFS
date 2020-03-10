@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.10)
 project(prolog_bfs)
 
 set(CMAKE_CXX_STANDARD 17)
+
+# set where the build output should go
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build)
+
 FIND_PACKAGE(Boost 1.60 COMPONENTS program_options REQUIRED )
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
@@ -9,6 +15,8 @@ file(GLOB_RECURSE prolog_bfs_src
     "src/*.h"
     "src/*.cpp"
 )
+list(FILTER prolog_bfs_src EXCLUDE REGEX ".*wasm/.*")
+
 file(GLOB_RECURSE prolog_bfs_test
         "test/*.h"
         "test/*.cpp"

@@ -1,10 +1,3 @@
-# due to a suspected bug (https://github.com/emscripten-core/emscripten/issues/10630)
-# it is important to manually download the boost libraries from https://www.boost.org/users/history/version_1_72_0.html
-# and extract the 'boost' folder that is in the archive into your emsdk folder,
-# particularly in emsdk/upstream/emscripten/system/include/.
-# The extracted folder must still be called 'boost' and it contains folders
-# such as 'spirit' and files like 'version.hpp'.
-
 cmake_minimum_required(VERSION 3.10)
 project(prolog_bfs)
 
@@ -20,17 +13,28 @@ set(CMAKE_CXX_STANDARD 17)
 #INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
 
 file(GLOB_RECURSE prolog_bfs_src
-    "src/util/*.h"
-    "src/util/*.cpp"
+    "src/wasm/*"
     "src/wam/*.h"
     "src/wam/*.cpp"
 )
 
-add_executable(prolog_bfs wasm.cpp ${prolog_bfs_src})
+add_executable(prolog_bfs ${prolog_bfs_src})
 
 # no need to mention boost libs anymore because of -s USE_BOOST_HEADERS=1
 TARGET_LINK_LIBRARIES( prolog_bfs LINK_PUBLIC )
 
-# linker flags
-# enable embind with --bind flag
-set_target_properties(prolog_bfs PROPERTIES LINK_FLAGS "--bind --emrun -s USE_BOOST_HEADERS=1 -s TOTAL_MEMORY=500MB")
+##########################
+# compile and link options
+##########################
+
+# FLAG EXPLANATION
+# --bind enable embind
+# --emrun optimize for use with emrun (server to run the code)
+# DISABLE_EXCEPTION_CATCHING=0 to allow exceptions *within* the c++ code to be caught.
+#   Exceptions are disabled by default because of performance. We need them though.
+# USE_BOOST_HEADERS=1 automatically retrieve the boost headers and include them
+
+# Use "SHELL:" to prevent de-duplication of the -s flags! See https://stackoverflow.com/questions/60552844/how-do-i-migrate-from-compile-flags-to-target-compile-options-in-cmake/60553977#60553977
+
+target_compile_options(prolog_bfs PUBLIC "SHELL:-s USE_BOOST_HEADERS=1" "SHELL:-s DISABLE_EXCEPTION_CATCHING=0")
+target_link_options(prolog_bfs PUBLIC --bind --emrun "SHELL:-s USE_BOOST_HEADERS=1" "SHELL:-s DISABLE_EXCEPTION_CATCHING=0")

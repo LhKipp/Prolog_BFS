@@ -11,200 +11,10 @@
         
         <script src="/build/prolog_bfs.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script> <!-- https://github.com/js-cookie/js-cookie-->
-        <script src="https://pagecdn.io/lib/ace/1.4.5/ace.js" type="text/javascript" charset="utf-8"></script> <!-- editor -->
+        <script src="https://pagecdn.io/lib/ace/1.4.8/ace.js" type="text/javascript" charset="utf-8"></script> <!-- editor -->
         <script src="/assets/js/hotkeys.min.js"></script>
-
-	<script>
-            // Config
-            // save current program and query every x milliseconds
-            var autosaveInterval = 60000;
-            
-            // End of config
-            
-            // set to true once the wasm runtime is ready.
-            var runtimeInitialized = false;
-            
-            /*
-             * Array holding all instances of prolog bfs.
-             * The "instanceid" is the key of the instance in this array.
-             * @TODO: automatically deleted old instances to save resources.
-             */
-            var instances = [];
-            
-            /*
-             * Before an instance of prolog bfs can be created,
-             * we need to be sure the runtime is initialized.
-             */
-            Module['onRuntimeInitialized'] = function() {
-                    runtimeInitialized = true;
-            };
-            
-            function scrollResultsToBottom() {
-                var theDiv = document.getElementById("results_container");
-                theDiv.scrollTop = theDiv.scrollHeight;
-            }
-            
-            function showError(errortext) {
-                document.getElementById("errorbox-text").textContent = errortext;
-                document.getElementById("errorbox").style.display = "block";
-                
-                // automatically hide
-                setTimeout(function() {
-                    hideError();
-                }, 5000);
-            }
-            
-            function hideError() {
-                document.getElementById("errorbox").style.display = "none";
-            }
-            
-            /*
-             * Append another result to an existin Result div
-             */
-            function appendResult(instanceid, result) {
-                var results = document.getElementById("resultlist_" + instanceid);
-                var newchild = document.createElement('p');
-                newchild.innerHTML = result;
-                results.appendChild(newchild);
-            }
-            
-            /*
-             * Creates a new Result div on the right column that
-             * contains the query as the header and one result.
-             * More results may be appended using appendResult.
-             */
-            function pushResult(instanceid, query, result) {
-                var theDiv = document.getElementById("results_container");
-                
-                theDiv.innerHTML +=
-                    '<div class="alert alert-secondary alert-dismissible fade show resultalert code" role="alert" id="resultalert_'+instanceid+'">'
-                    + '?- ' + query
-                    + '<hr>\
-                       <div id="resultlist_' + instanceid + '">\
-                       </div>'
-                    + ' <button type="button" class="close" aria-label="Close" onclick="popResult(' + instanceid + ')"> \
-                            <span aria-hidden="true">&times;</span> \
-                        </button> \
-                        <button type="button" class="btn btn-light btn-sm" onclick="nextAnswer(' + instanceid + ')">Next</button> \
-                    </div>';
-                
-                appendResult(instanceid, result);
-                scrollResultsToBottom();
-            }
-            
-            /*
-             * Remove a result-alert (the container it's in)
-             * from the list and kill the instance behind it.
-             */
-            function popResult(instanceid) {
-                killInstance(instanceid);
-                document.getElementById('resultalert_' + instanceid).remove();
-            }
-            
-            /*
-             * Get the next answer. Requires a program and query to
-             * be loaded first.
-             */
-            function getAnswer(instanceid) {
-                try {
-                    var result = instances[instanceid].getAnswer();
-                } catch(err) {
-                    showError("Error getting result. Probably ran out of memory (infinite loop).");
-                    console.log(err);
-                    killInstance(instanceid);
-                }
-                
-                return result;
-            }
-            
-            function killInstance(instanceid) {
-                if (!instances[instanceid]) { // already killed
-                    return;
-                }
-                instances[instanceid].clear();
-                instances[instanceid] = false;
-            }
-            
-            /*
-             * onclick event of the "run" button.
-             * This processes the current program and query input
-             * and displays the result.
-             */
-            function execute() {
-                if (runtimeInitialized === false) {
-                    alert("Please wait until Prolog BFS is loaded and try again. This might take a second.");
-                }
-                
-                // create new instance and store it globally
-                instances.push(new Module.PrologBFSWasmWrapper());
-                var instanceid = instances.length-1;
-                
-                var inputProgram  = ace.edit("program").getValue();
-                var inputQuery  = ace.edit("query").getValue();
-                
-                if (!inputProgram || !inputQuery) {
-                    // nothing to do
-                    return;
-                }
-                
-                //load program to the interpreter
-                try {
-                    instances[instanceid].loadProgram(inputProgram);
-                } catch(err) {
-                    showError("Error while loading program. Most likely a syntax problem.");
-                    return;
-                }
-                // load query
-                try {
-                    instances[instanceid].loadQuery(inputQuery);
-                } catch(err) {
-                    showError("Error while loading query. Most likely a syntax problem.");
-                    return;
-                }
-                
-                // get answer
-                var result = getAnswer(instanceid);
-                
-                pushResult(instanceid, inputQuery, result);
-            }
-            
-            /*
-             * onclick event of the "next" button.
-             * Gets the next answer from the interpreter
-             * and displays it.
-             */
-            function nextAnswer(instanceid) {
-                appendResult(instanceid, getAnswer(instanceid));
-                scrollResultsToBottom();
-            }
-            
-            function autosave() {
-                // Store program code for 7 days
-                Cookies.set('programcode', ace.edit("program").getValue(), { expires: 7 });
-                Cookies.set('querycode', ace.edit("query").getValue(), { expires: 7 });
-            }
-            
-            window.onbeforeunload = function() {
-                autosave();
-            };
-            
-            setInterval(function() {
-                autosave();
-            }, autosaveInterval);
-            
-            /*
-             * register hotkeys for use outside the editors.
-             * Unfortunately ace editor overwrites it or something,
-             * so the same hotkeys must be defined again for ace.
-             */
-            hotkeys('ctrl+enter', 
-            function(event,handler) {
-                switch(handler.key) {
-                    case "ctrl+enter": execute(); break;
-                }
-            });
-		
-	</script>
+        
+        
     </head>
     <body>
         
@@ -239,15 +49,15 @@
                 <div class="bfs-container" style="display: flex; flex-flow: column; flex:1;">
                     <!-- query editor -->
                     <div class="editor" style="flex:1;" id="query"></div>
-                    <button type="button" class="btn btn-primary btn-sm" onclick="execute()">Run!</button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="onRunClicked()">Run!</button>
                 </div>
             </div>
         </div>
         
-        <!-- errorbox on the top right for syntax errors etc. -->
-        <div class="alert alert-danger alert-dismissible" id="errorbox">
-            <button type="button" class="close" onclick="hideError()">&times;</button>
-            <span id="errorbox-text"></span>
+        <!-- alert on the top right for syntax errors etc. -->
+        <div class="alert alert-warning alert-dismissible prolog_bfs_alert" id="alert">
+            <button type="button" class="close" onclick="alert.hide()">&times;</button>
+            <span id="alert-text"></span>
         </div>
         
         <!-- infobox -->
@@ -261,17 +71,13 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>This is a very limited subset of Prolog! Especially because there is no advanced error handling, this is important to know:</p>
+                        <p>This is a very limited subset of Prolog! Don't get fooled by the syntax highlighting; it might provide highlighting
+                        for features that are not actually supported, because we didn't write the editor specifically for this
+                        interpreter.</p>
+                        <p>These are the limitations:</p>
                         <ul>
                             <li>
-                                There is <strong>no syntax checker</strong> for the program. Passing syntacticaly
-                                wrong code to the bfs-interpreter may cause undefined behaviour.
-                                It is recommended to let your code be checked by an external tool before
-                                passing it to the bfs-interpreter. You might even get <strong>false results without
-                                any notice!</strong> This also applies to the points below.
-                            </li>
-                            <li>
-                                Any kind of <strong>arithmetic is not supported</strong>. Use o for 0, s(o) for 1, s(s(o)) for 2, ...
+                                Any kind of <strong>arithmetic is not supported</strong>. You may use o for 0, s(o) for 1, s(s(o)) for 2, ...
                             </li>
                             <li>
                                 Variables / constant names <strong>starting</strong> with an <strong>underscore</strong>
@@ -290,31 +96,12 @@
             </div>
         </div>
         
-        <script>
-            var hotkey_execute = {
-                name: 'execute',
-                bindKey: {win: 'Ctrl-Enter',  mac: 'Command-Enter'},
-                exec: execute
-            };
-            
-            // setting up the editors
-            var ace_program = ace.edit("program");
-            ace_program.setTheme("ace/theme/dreamweaver"); // textmate, dreamweaver
-            ace_program.session.setMode("ace/mode/prolog");
-            ace_program.setShowPrintMargin(false); // don't show the vertical line
-            ace_program.commands.addCommand(hotkey_execute);
-            if (Cookies.get("programcode")) { // only setValue when cookie exists
-                ace_program.setValue(Cookies.get("programcode"));
-            }
-            
-            var ace_query = ace.edit("query");
-            ace_query.setTheme("ace/theme/dreamweaver");
-            ace_query.session.setMode("ace/mode/prolog");
-            ace_query.setShowPrintMargin(false);
-            ace_query.commands.addCommand(hotkey_execute);
-            if (Cookies.get("querycode")) {
-                ace_query.setValue(Cookies.get("querycode"));
-            }
-        </script>
+        <script src="/assets/js/prolog_bfs/config.js"></script>
+        <script src="/assets/js/prolog_bfs/classes/Alert.js"></script>
+        <script src="/assets/js/prolog_bfs/classes/SyntaxError.js"></script>
+        <script src="/assets/js/prolog_bfs/classes/Result.js"></script>
+        <script src="/assets/js/prolog_bfs/classes/InterpreterHandler.js"></script>
+        <script src="/assets/js/prolog_bfs/main.js"></script>
+        <script src="/assets/js/prolog_bfs/ace_editor_setup.js"></script>
     </body>
 </html>
