@@ -61,6 +61,10 @@ namespace wam {
         source_code_info& get_code_info(){
             return code_info;
         }
+
+        const source_code_info& get_code_info()const {
+            return code_info;
+        }
     };
 }
 #endif //PROLOG_BFS_PROGRAM_TERM_CODE_H
