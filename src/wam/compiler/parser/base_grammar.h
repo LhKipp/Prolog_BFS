@@ -88,7 +88,7 @@ namespace wam{
 
             using boost::spirit::repository::qi::iter_pos;
             atom = (iter_pos >> (functor | constant) >> iter_pos)
-            [phoenix::bind(&add_source_code_info<Iterator>,phoenix::ref(qi::_val), phoenix::ref(qi::_2), qi::_1, qi::_3),
+            [phoenix::bind(&add_source_code_info<Iterator>, phoenix::ref(qi::_2), qi::_1, qi::_3),
              qi::_val = qi::_2];
 
             comment.name("comment");
