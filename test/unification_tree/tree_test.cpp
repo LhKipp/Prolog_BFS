@@ -42,7 +42,7 @@ TEST_CASE("Tree mult") {
     solutions.emplace_back("C","G_16");
     solutions.emplace_back("A","o");
     for (auto &elem : bindings) {
-        std::cout << elem<< endl;
+//        std::cout << elem<< endl;
         auto found = std::find(solutions.begin(), solutions.end(), elem);
         bool has_found = found != solutions.end();
         REQUIRE(has_found);
@@ -67,7 +67,7 @@ TEST_CASE("Tree mult") {
     solutions.emplace_back("X","s(s(s(o)))");
     solutions.emplace_back("B","s(s(s(o)))");
     for (const auto &elem : bindings2) {
-        std::cout << elem<< endl;
+//        std::cout << elem<< endl;
         auto found = std::find(solutions.begin(), solutions.end(), elem);
         bool has_found = found != solutions.end();
         REQUIRE(has_found);
