@@ -15,7 +15,7 @@ class InterpreterHandler {
         if (runtimeInitialized === false) {
             alert("Please wait until Prolog BFS is loaded and try again. This might take a second.");
         } else {
-            this.interpreter = new Module.PrologBFSWasmWrapper();
+            this.interpreter = new emscriptenModuleInstance.PrologBFSWasmWrapper();
         }
         
         this.resultDiv = new Result(this.instanceid);
