@@ -22,6 +22,21 @@ namespace wam {
                 query(query),
                 children(std::make_unique<std::vector<var_binding_node>>(children_count)) {}
 
+        query_node(const query_node& other){
+            query = other.query;
+            if(other.children){
+                children = std::make_unique<std::vector<var_binding_node>>(*other.children);
+            }
+        }
+        query_node& operator=(const query_node& other) {
+            query = other.query;
+            if (other.children) {
+                children = std::make_unique<std::vector<var_binding_node>>(*other.children);
+            }
+            return *this;
+        }
+
+
         /**
          * @return true if there is no fact with similar most outer functor as this query has,
          * and therefore the unification process failed.
@@ -34,11 +49,11 @@ namespace wam {
          *
          * @return all fact nodes with which a unification has been tried.
          */
-        std::vector<var_binding_node> &getChildren(){
+        std::vector<var_binding_node> &get_children(){
             return *children;
         }
 
-        const std::vector<var_binding_node> &getChildren()const{
+        const std::vector<var_binding_node> &get_children()const{
             return *children;
         }
 
@@ -46,7 +61,7 @@ namespace wam {
          *
          * @return the query as string
          */
-        const std::string& get_query_as_string() const{
+        const std::string& get_query_as_str() const{
             return query->get_code_info().value;
         }
 
