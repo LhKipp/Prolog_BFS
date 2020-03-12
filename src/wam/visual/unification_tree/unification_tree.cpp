@@ -18,7 +18,7 @@ wam::query_node wam::make_tree(const wam::executor &top_exec, const std::vector<
 
     std::transform(fact_execs.begin(),
             fact_execs.end(),
-            result.getChildren().begin(),
+                   result.get_children().begin(),
             [&](const std::unique_ptr<wam::executor>& exec){
 
                 if(exec->is_running()){

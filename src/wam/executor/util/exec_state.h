@@ -15,7 +15,9 @@ namespace wam{
         //If the exec is to be continued
         RUNNING,
         //If the exec was RUNNING and ended not failing, nor succedding in a call or proceed instrc.
-        ARCHIVED
+        ARCHIVED,
+
+        NO_STATE
     };
 };
 #endif //PROLOG_BFS_EXEC_STATE_H

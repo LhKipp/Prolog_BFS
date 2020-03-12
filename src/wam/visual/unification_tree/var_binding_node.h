@@ -10,6 +10,8 @@
 #include <variant>
 #include <memory>
 #include <cassert>
+#include <sstream>
+#include "../../../util/vector_util.h"
 #include "../../data/var_binding.h"
 #include "../../data/term_code.h"
 #include "../../executor/util/exec_state.h"
@@ -29,10 +31,16 @@ class var_binding_node {
          * orig query_vars or continues with a new query_node
          * For each case is one constructor
          */
-        std::variant<std::vector<wam::var_binding>, std::unique_ptr<query_node>> child;
+        std::variant<std::monostate, std::vector<wam::var_binding>, std::unique_ptr<query_node>> child;
 
     public:
-    var_binding_node()= default;
+    var_binding_node(){
+        state = EXEC_STATE ::NO_STATE;
+        called_functor = nullptr;
+    }
+    var_binding_node(const var_binding_node& other);
+    var_binding_node& operator=(const var_binding_node& other);
+    ~var_binding_node();
 
     var_binding_node(const term_code *calledFunctor): called_functor(calledFunctor),
         state{EXEC_STATE ::FAIL}{}
@@ -59,6 +67,15 @@ class var_binding_node {
     const std::vector<var_binding>& get_var_bindings()const{
         assert(!failed());
         return var_bindings;
+    }
+
+    std::string get_var_bindings_as_str()const{
+        std::stringstream result;
+        std::copy(var_bindings.begin(),
+                var_bindings.end(),
+                std::ostream_iterator<wam::var_binding>(std::cout, " "));
+
+        return result.str();
     }
 
     /**
@@ -106,22 +123,36 @@ class var_binding_node {
         return std::get<std::vector<var_binding>>(child);
     }
 
+    const std::vector<var_binding>& get_final_var_bindings()const{
+        assert(succeeded());
+        return std::get<std::vector<var_binding>>(child);
+    }
+
+    std::string get_final_var_bindings_as_str()const{
+        std::stringstream result;
+        auto& bindings = get_final_var_bindings();
+        std::copy(bindings.begin(),
+                  bindings.end(),
+                  std::ostream_iterator<wam::var_binding>(std::cout, " "));
+
+        return result.str();
+    }
+
     /**
      *
      * @return the following query_node if the unification process continues.
      * If this node doesn't continue, this method may throw an error.
      */
-    query_node& get_continuing_query(){
-        assert(continues());
-        return *std::get<std::unique_ptr<query_node>>(child);
-    }
+    query_node* get_continuing_query();
+
+    const query_node& get_continuing_query()const;
 
 
     /**
      *
      * @return the called fact as a string
      */
-    const std::string& get_fact_as_string() const{
+    const std::string& get_fact_as_str() const{
         return called_functor->get_code_info().value;
     }
 
