@@ -120,6 +120,7 @@ std::vector<wam::var_binding> wam::find_substitutions_from_orig_query(const wam:
         if(parent->is_from_user_entered_query()){
             auto var_heap_subs = wam::point_var_reg_substs_to_heap(*parent);
             for(const auto& var_heap_sub : var_heap_subs){
+                //If the var has been found in a parent exe already continue
                 if(std::find_if(result.begin(), result.end(),
                                 [&](const var_binding& var_subst){
                                     return var_subst.var_name == var_heap_sub.var_name;
