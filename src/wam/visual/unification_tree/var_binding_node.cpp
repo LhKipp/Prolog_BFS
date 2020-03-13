@@ -72,3 +72,7 @@ wam::query_node *wam::var_binding_node::get_continuing_query() {
     assert(continues());
     return std::get<std::unique_ptr<query_node>>(child).get();
 }
+
+const wam::query_node &wam::var_binding_node::get_continuing_query_wasm() const {
+    return get_continuing_query();
+}

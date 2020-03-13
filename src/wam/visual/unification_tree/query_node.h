@@ -56,6 +56,15 @@ namespace wam {
         const std::vector<var_binding_node> &get_children()const{
             return *children;
         }
+        
+        /*
+        * emscripten isn't able to compile with the two above overloaded functions
+        * and select_overload also doesn't work because of const overloads seem to
+        * be not supported. Created this extra method so there is no overload anymore.
+        */
+        const std::vector<var_binding_node> &get_children_wasm()const{
+            return *children;
+        }
 
         /**
          *

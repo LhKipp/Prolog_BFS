@@ -146,7 +146,13 @@ class var_binding_node {
     query_node* get_continuing_query();
 
     const query_node& get_continuing_query()const;
-
+    
+    /*
+     * emscripten isn't able to compile with the two above overloaded functions
+     * and select_overload also doesn't work because of const overloads seem to
+     * be not supported. Created this extra method so there is no overload anymore.
+     */
+    const query_node& get_continuing_query_wasm()const;
 
     /**
      *
