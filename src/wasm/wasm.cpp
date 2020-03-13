@@ -83,18 +83,22 @@ public:
 
         return result;
     }
-
+    
+    wam::query_node getUnificationTree() const{
+        return bfs_organizer.get_unification_tree();
+    }
 };
 
 // Binding code
 EMSCRIPTEN_BINDINGS(PrologBFSWasmWrapper) {
         class_<PrologBFSWasmWrapper>("PrologBFSWasmWrapper")
                 .constructor()
+                .function("clear", &PrologBFSWasmWrapper::clear)
                 .function("validateQueryCode", &PrologBFSWasmWrapper::validateQueryCode)
                 .function("validateProgramCode", &PrologBFSWasmWrapper::validateProgramCode)
                 .function("loadProgram", &PrologBFSWasmWrapper::loadProgram)
                 .function("loadQuery", &PrologBFSWasmWrapper::loadQuery)
                 .function("getAnswer", &PrologBFSWasmWrapper::getAnswer)
-                .function("clear", &PrologBFSWasmWrapper::clear)
+                .function("getUnificationTree", &PrologBFSWasmWrapper::getUnificationTree)
         ;
 }

@@ -73,7 +73,7 @@ class var_binding_node {
         std::stringstream result;
         std::copy(var_bindings.begin(),
                 var_bindings.end(),
-                std::ostream_iterator<wam::var_binding>(std::cout, " "));
+                std::ostream_iterator<wam::var_binding>(result, " "));
 
         return result.str();
     }
@@ -133,7 +133,7 @@ class var_binding_node {
         auto& bindings = get_final_var_bindings();
         std::copy(bindings.begin(),
                   bindings.end(),
-                  std::ostream_iterator<wam::var_binding>(std::cout, " "));
+                  std::ostream_iterator<wam::var_binding>(result, " "));
 
         return result.str();
     }
@@ -143,10 +143,16 @@ class var_binding_node {
      * @return the following query_node if the unification process continues.
      * If this node doesn't continue, this method may throw an error.
      */
-    query_node* get_continuing_query();
+    query_node& get_continuing_query();
 
     const query_node& get_continuing_query()const;
-
+    
+    /*
+     * emscripten isn't able to compile with the two above overloaded functions
+     * and select_overload also doesn't work because of const overloads seem to
+     * be not supported. Created this extra method so there is no overload anymore.
+     */
+    const query_node& get_continuing_query_wasm()const;
 
     /**
      *
