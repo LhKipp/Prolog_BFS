@@ -49,15 +49,16 @@ TEST_CASE("p5-2 test") {
         solutions.push_back("[a,a,a,a,a,a,a,a,a,a,a,b,b,b,b,b,b,b,b,b,b,b,nix]");
         solutions.push_back("[a,a,a,a,a,a,a,a,a,a,a,a,b,b,b,b,b,b,b,b,b,b,b,b]");
         solutions.push_back("[a,a,a,a,a,a,a,a,a,a,a,a,b,b,b,b,b,b,b,b,b,b,b,b,nix]");
-        solutions.push_back("[a,a,a,a,a,a,a,a,a,a,a,a,a,b,b,b,b,b,b,b,b,b,b,b,b,b]");
+//        solutions.push_back("[a,a,a,a,a,a,a,a,a,a,a,a,a,b,b,b,b,b,b,b,b,b,b,b,b,b]");
+        solutions.push_back("[a,a,a,a,a,a,a,a,a,a,a,a,a,b,b,b,b,b,b,b,b,b,b,b,b,b,nix]");
         org.load_query("lVonM(Z).");
 
         for (int i = 0; i < 25; i++) {
             auto answer = org.get_answer();
             REQUIRE(answer.has_value());
             for (auto &elem : *answer) {
-                /* std::cout << elem<< endl; */
-                auto found = std::find(solutions.begin(), solutions.end(), elem.substitute);
+//                std::cout << elem<< endl;
+                auto found = std::find(solutions.begin(), solutions.end(), elem.binding);
                 bool has_found = found != solutions.end();
                 REQUIRE(has_found);
                 solutions.erase(found);

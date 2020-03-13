@@ -5,7 +5,6 @@
 #ifndef PROLOG_BFS_INSTRUCTIONS_UTIL_H
 #define PROLOG_BFS_INSTRUCTIONS_UTIL_H
 
-#include <cstddef>
 #include "../../data/regist.h"
 #include "../../executor/executor.h"
 

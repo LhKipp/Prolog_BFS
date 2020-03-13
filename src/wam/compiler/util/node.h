@@ -15,6 +15,7 @@
 #include <ostream>
 #include "data_enums.h"
 #include "../../data/regist.h"
+#include "../../data/source_code_info.h"
 #include "../../data/functor_view.h"
 
 struct node {
@@ -25,6 +26,9 @@ private:
     STORED_OBJECT_FLAG type = STORED_OBJECT_FLAG ::NONE;
 
 public:
+
+    wam::source_code_info code_info;
+
     std::string name;
 
     //FUNCTOR / LIST exclusive field
@@ -129,7 +133,8 @@ public:
 
     node(node &&other) = default;
 
-    node(const node &other) : type{other.type}, name{other.name}, a_reg{other.a_reg}, x_reg{other.x_reg}{
+    node(const node &other) : type{other.type}, name{other.name}, a_reg{other.a_reg}, x_reg{other.x_reg},
+                              code_info{other.code_info}{
         if (other.children) {
             children = std::make_unique<std::vector<node>>(*other.children);
         }
@@ -143,6 +148,7 @@ public:
         if (other.children) {
             children = std::make_unique<std::vector<node>>(*other.children);
         }
+        this->code_info = other.code_info;
         return *this;
     }
 
@@ -152,6 +158,7 @@ public:
         os << "node: name: " << node.name;
         return os;
     }
+
 };
 
 

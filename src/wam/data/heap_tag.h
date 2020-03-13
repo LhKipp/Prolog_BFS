@@ -13,7 +13,6 @@ namespace wam {
         REF,
         FUN
     };
-
 }
 
 #endif //PROLOG_BFS_HEAP_TAG_H

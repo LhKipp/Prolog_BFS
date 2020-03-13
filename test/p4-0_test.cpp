@@ -33,7 +33,7 @@ TEST_CASE("p4-b test") {
             for (auto &elem : *answer) {
                 /* std::cout << elem<< endl; */
                 //Prolog file is buggy, but the test is working in this commit at least :)
-//                auto found = std::find(solutions.begin(), solutions.end(), elem.substitute);
+//                auto found = std::find(solutions.begin(), solutions.end(), elem.binding);
 //                bool has_found = found != solutions.end();
 //                REQUIRE(has_found);
 //                solutions.erase(found);

@@ -30,7 +30,7 @@ wam::regist wam::executor::heap_back() const {
     assert(heap_size() > 0);
     if(heap.empty()){
         assert(has_parent());
-        return organizer->get_archived(parent_index).heap_back();
+        return parent->heap_back();
     }else{
         return heap.back();
     }
@@ -51,7 +51,7 @@ wam::regist &wam::executor::heap_modify(size_t index) {
             //This executor has not overwritten the parent heap
             //So we give back a regist stored as a local change to parent
             //First copy the parent regist
-            changes_to_parent.insert({index, organizer->get_archived(parent_index).heap_at(index)});
+            changes_to_parent.insert({index, parent->heap_at(index)});
             return changes_to_parent.at(index);
         }
     }
@@ -71,11 +71,9 @@ wam::regist wam::executor::heap_at(size_t index) const {
         }else{
             //This executor has not overwritten the parent heap --> search in parent heap
             assert(has_parent());
-            return organizer->get_archived(parent_index).heap_at(index);
+            return parent->heap_at(index);
             //DEBUG
             //return regist{heap_tag::REF, 0};
         }
     }
 }
-
-
