@@ -27,6 +27,7 @@ TEST_CASE("p5-1 test") {
 
         vector<string> solutions;
         solutions.push_back("nil");
+        //TODO #IMPORTANT debug why this is not solution anymore
 //        solutions.push_back("list(nix,nil)");
         solutions.push_back("list(a,list(b,nil))");
         solutions.push_back("list(a,list(b,list(nix,nil)))");
