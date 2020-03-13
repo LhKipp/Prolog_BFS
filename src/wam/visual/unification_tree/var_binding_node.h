@@ -143,7 +143,7 @@ class var_binding_node {
      * @return the following query_node if the unification process continues.
      * If this node doesn't continue, this method may throw an error.
      */
-    query_node* get_continuing_query();
+    query_node& get_continuing_query();
 
     const query_node& get_continuing_query()const;
     
