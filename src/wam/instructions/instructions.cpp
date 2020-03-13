@@ -7,7 +7,7 @@
 #include "util/instructions_util.h"
 #include "../bfs_organizer/bfs_organizer.h"
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 #include <iostream>
 #endif
@@ -314,7 +314,6 @@ void wam::get_permanent_value(wam::executor &executor, size_t y_reg, size_t a_re
 
 void wam::call(wam::executor &old_executor, const functor_view &functor) {
 #ifdef DEBUG
-    std::cout << "call" << std::endl;
     std::cout << "call to: " << functor.name << std::endl;
 #endif
     bfs_organizer *organizer = old_executor.get_organizer();
@@ -329,7 +328,14 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
 
     auto& rule_term_codes = organizer->program_code[functor];
     std::for_each(rule_term_codes.begin(), rule_term_codes.end(),
-                  [&](auto &term_codes) {
+                  [&](std::vector<term_code> &term_codes) {
+#ifdef DEBUG
+        std::cout << "found rule at line: "
+        << term_codes[0].get_code_info().line
+        << " "
+        << term_codes[0].get_code_info().value
+        << std::endl;
+#endif
                       executor new_executor{old_executor.term_codes.size() - 1 + term_codes.size()};
 //                      Copy the term_codes
                       auto parent_codes_end = std::copy(old_executor.term_codes.begin(),

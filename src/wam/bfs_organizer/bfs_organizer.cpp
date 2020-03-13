@@ -9,6 +9,8 @@
 #include "../compiler/parser/parser.h"
 #include "../visual/unification_tree/unification_tree.h"
 
+#define DEBUG
+
 void wam::bfs_organizer::load_program_from_file(const std::string_view file_path) {
     auto code = read_file(file_path);
     load_term_lines(code);
@@ -42,8 +44,11 @@ std::optional<std::vector<wam::var_binding>> wam::bfs_organizer::get_answer() {
         executor* next_exec = executors.front();
         executors.pop_front();
 
-
         term_code *next_term_code = next_exec->term_codes.back();
+#ifdef DEBUG
+        std::cout << "executing: " << next_term_code->get_code_info().value << " From line: "
+        << next_term_code->get_code_info().line;
+#endif
 
         next_exec->registers.resize(next_term_code->expected_register_count);
         //*2 is a heuristic
