@@ -9,7 +9,7 @@
 #include "../compiler/parser/parser.h"
 #include "../visual/unification_tree/unification_tree.h"
 
-#define DEBUG
+//#define DEBUG
 
 void wam::bfs_organizer::load_program_from_file(const std::string_view file_path) {
     auto code = read_file(file_path);

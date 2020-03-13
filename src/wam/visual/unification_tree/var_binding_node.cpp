@@ -56,13 +56,6 @@ wam::var_binding_node &wam::var_binding_node::operator=(const wam::var_binding_n
     return *this;
 }
 
-wam::var_binding_node::~var_binding_node() {
-    if(continues()){
-        delete std::get<std::unique_ptr<query_node>>(child).release();
-    }
-    child = std::monostate{};
-}
-
 const wam::query_node &wam::var_binding_node::get_continuing_query() const {
     assert(continues());
     return *std::get<std::unique_ptr<query_node>>(child);

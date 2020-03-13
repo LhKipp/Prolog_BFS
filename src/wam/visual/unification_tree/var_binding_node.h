@@ -31,7 +31,7 @@ class var_binding_node {
          * orig query_vars or continues with a new query_node
          * For each case is one constructor
          */
-        std::variant<std::monostate, std::vector<wam::var_binding>, std::unique_ptr<query_node>> child;
+        std::variant<std::vector<wam::var_binding>, std::unique_ptr<query_node>> child;
 
     public:
     var_binding_node(){
@@ -40,7 +40,6 @@ class var_binding_node {
     }
     var_binding_node(const var_binding_node& other);
     var_binding_node& operator=(const var_binding_node& other);
-    ~var_binding_node();
 
     var_binding_node(const term_code *calledFunctor): called_functor(calledFunctor),
         state{EXEC_STATE ::FAIL}{}
