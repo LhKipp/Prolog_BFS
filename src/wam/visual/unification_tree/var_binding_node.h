@@ -73,7 +73,7 @@ class var_binding_node {
         std::stringstream result;
         std::copy(var_bindings.begin(),
                 var_bindings.end(),
-                std::ostream_iterator<wam::var_binding>(std::cout, " "));
+                std::ostream_iterator<wam::var_binding>(result, " "));
 
         return result.str();
     }
@@ -133,7 +133,7 @@ class var_binding_node {
         auto& bindings = get_final_var_bindings();
         std::copy(bindings.begin(),
                   bindings.end(),
-                  std::ostream_iterator<wam::var_binding>(std::cout, " "));
+                  std::ostream_iterator<wam::var_binding>(result, " "));
 
         return result.str();
     }

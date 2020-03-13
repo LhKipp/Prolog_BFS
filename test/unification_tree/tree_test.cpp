@@ -20,20 +20,20 @@ TEST_CASE("Tree mult") {
     auto ans = org.get_answer();
     query_node t = org.get_unification_tree();
 
-    REQUIRE(t.get_query_as_string() == "mult(s(o),s(s(s(o))),Z)");
+    REQUIRE(t.get_query_as_str() == "mult(s(o),s(s(s(o))),Z)");
     REQUIRE(!t.failed());
     REQUIRE(t.is_from_orig_query());
 
-    std::vector<var_binding_node>& facts = t.getChildren();
+    std::vector<var_binding_node>& facts = t.get_children();
     assert(facts.size() == 2);
-    assert(facts[0].get_fact_as_string() == "mult(o, X, o)");
+    assert(facts[0].get_fact_as_str() == "mult(o, X, o)");
     assert(facts[0].failed());
     assert(!facts[0].succeeded());
     assert(!facts[0].continues());
 
     var_binding_node& continuation = facts[1];
     assert(continuation.continues());
-    assert(continuation.get_fact_as_string() == "mult(s(A), B, C) ");
+    assert(continuation.get_fact_as_str() == "mult(s(A), B, C) ");
     auto& bindings = continuation.get_var_bindings();
 
     vector<var_binding> solutions;
@@ -48,16 +48,17 @@ TEST_CASE("Tree mult") {
         REQUIRE(has_found);
         solutions.erase(found);
     }
+    REQUIRE(!continuation.get_var_bindings_as_str().empty());
     REQUIRE(solutions.empty());
 
     const auto& q2 = continuation.get_continuing_query();
     REQUIRE(!q2.failed());
-    REQUIRE(q2.get_query_as_string() == "mult(A, B, D)");
+    REQUIRE(q2.get_query_as_str() == "mult(A, B, D)");
     REQUIRE(!q2.is_from_orig_query());
-    REQUIRE(q2.getChildren().size() == 2);
+    REQUIRE(q2.get_children().size() == 2);
 
-    auto& mult_fact = q2.getChildren()[0];
-    REQUIRE(mult_fact.get_fact_as_string() == "mult(o, X, o)");
+    auto& mult_fact = q2.get_children()[0];
+    REQUIRE(mult_fact.get_fact_as_str() == "mult(o, X, o)");
     REQUIRE(mult_fact.continues());
     REQUIRE(mult_fact.continues());
 
