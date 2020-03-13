@@ -33,7 +33,7 @@ TEST_CASE("Tree mult") {
 
     var_binding_node& continuation = facts[1];
     assert(continuation.continues());
-    assert(continuation.get_fact_as_str() == "mult(s(A), B, C) ");
+    assert(continuation.get_fact_as_str() == "mult(s(A), B, C)");
     auto& bindings = continuation.get_var_bindings();
 
     vector<var_binding> solutions;
