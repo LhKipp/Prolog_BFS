@@ -10,6 +10,7 @@ class InterpreterHandler {
     queryCode;
     
     resultDiv;
+    treeView;
     
     constructor() {
         if (runtimeInitialized === false) {
@@ -19,6 +20,7 @@ class InterpreterHandler {
         }
         
         this.resultDiv = new Result(this.instanceid);
+        this.treeView = new TreeView(this.instanceid);
     }
     
     // instanceid is constant, so we don't need a setter
@@ -80,6 +82,12 @@ class InterpreterHandler {
             alert.show("Error getting result. Probably ran out of memory (infinite loop).");
             console.log(err);
         }
+    }
+    
+    showUnificationTree() {
+        $('#modal_tree_result').modal('show');
+        
+        this.treeView.draw(this.interpreter.getUnificationTree());
     }
     
     /**

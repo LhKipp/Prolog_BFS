@@ -51,6 +51,7 @@ class Result {
                                <span aria-hidden="true">&times;</span> \
                            </button> \
                            <button type="button" class="btn btn-light btn-sm" onclick="instances[' + this.instanceid + '].showAnswer()">Next</button> \
+                           <button type="button" class="btn btn-light btn-sm" onclick="instances[' + this.instanceid + '].showUnificationTree()">Show tree view</button> \
                        </div>';
         this.isInitialized = true;
     }

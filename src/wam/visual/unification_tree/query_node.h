@@ -14,15 +14,25 @@ namespace wam {
     private:
         const term_code *query;
         std::unique_ptr<std::vector<var_binding_node>> children;
+        
+        // used to identify the nodes when rendering a visual representation
+        // of the tree
+        static int query_node_counter; // amount of object created
+        int node_id;
 
     public:
-        query_node(){}
+        query_node() {
+            node_id = query_node_counter++;
+        }
         query_node(const term_code *query,
                 const size_t children_count) :
                 query(query),
-                children(std::make_unique<std::vector<var_binding_node>>(children_count)) {}
+                children(std::make_unique<std::vector<var_binding_node>>(children_count)) {
+            node_id = query_node_counter++;
+        }
 
-        query_node(const query_node& other){
+        query_node(const query_node& other) {
+            node_id = query_node_counter++;
             query = other.query;
             if(other.children){
                 children = std::make_unique<std::vector<var_binding_node>>(*other.children);
@@ -36,6 +46,9 @@ namespace wam {
             return *this;
         }
 
+        int get_node_id() {
+            return node_id;
+        }
 
         /**
          * @return true if there is no fact with similar most outer functor as this query has,
