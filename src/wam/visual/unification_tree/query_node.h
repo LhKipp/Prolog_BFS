@@ -15,30 +15,29 @@ namespace wam {
         const term_code *query;
         std::unique_ptr<std::vector<var_binding_node>> children;
         
-        // used to identify the nodes when rendering a visual representation
-        // of the tree
-        static int query_node_counter; // amount of object created
-        int node_id;
+        int _id;
 
     public:
         query_node() {
-            node_id = query_node_counter++;
         }
+
         query_node(const term_code *query,
-                const size_t children_count) :
+                const size_t children_count,
+                const int node_id) :
+                _id(node_id),
                 query(query),
                 children(std::make_unique<std::vector<var_binding_node>>(children_count)) {
-            node_id = query_node_counter++;
         }
 
         query_node(const query_node& other) {
-            node_id = query_node_counter++;
+            _id = other._id;
             query = other.query;
             if(other.children){
                 children = std::make_unique<std::vector<var_binding_node>>(*other.children);
             }
         }
         query_node& operator=(const query_node& other) {
+            _id = other._id;
             query = other.query;
             if (other.children) {
                 children = std::make_unique<std::vector<var_binding_node>>(*other.children);
@@ -47,7 +46,7 @@ namespace wam {
         }
 
         int get_node_id() {
-            return node_id;
+            return _id;
         }
 
         /**

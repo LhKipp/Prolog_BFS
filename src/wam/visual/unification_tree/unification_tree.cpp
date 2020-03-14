@@ -6,6 +6,10 @@
 #include "../substitution_util.h"
 
 wam::query_node wam::make_tree(const wam::executor &top_exec, const std::vector<wam::functor_view>& functors) {
+    int node_id_counter = 0;
+    return make_tree(top_exec, functors, node_id_counter);
+}
+wam::query_node wam::make_tree(const wam::executor &top_exec, const std::vector<wam::functor_view>& functors, int& node_id_counter) {
     using namespace wam;
 
     //The top exec is always an query_node
@@ -14,7 +18,8 @@ wam::query_node wam::make_tree(const wam::executor &top_exec, const std::vector<
     const auto& fact_execs = top_exec.get_children();
 
     query_node result{top_exec.get_solved_term_code(),
-                      fact_execs.size()};
+                      fact_execs.size(),
+                      node_id_counter++};
 
     std::transform(fact_execs.begin(),
             fact_execs.end(),
@@ -29,14 +34,15 @@ wam::query_node wam::make_tree(const wam::executor &top_exec, const std::vector<
                                 *exec,
                                 functors,
                                 query_var_heap_subs,
-                                exec_var_heap_subs)
+                                exec_var_heap_subs),
+                                node_id_counter++
                     };
                 }
 
                 term_code* fact_term_code = exec->get_solved_term_code();
                 if(exec->failed()){
                     //No more work, just pass the term_code, fail flag set in constructor
-                    return var_binding_node{fact_term_code};
+                    return var_binding_node{fact_term_code, node_id_counter++};
                 }else if(exec->succeeded()){
                     const auto exec_var_heap_subs = point_var_reg_substs_to_heap(*exec);
                     return var_binding_node{
@@ -46,10 +52,12 @@ wam::query_node wam::make_tree(const wam::executor &top_exec, const std::vector<
                                     functors,
                                     query_var_heap_subs,
                                     exec_var_heap_subs),
-                            find_substitutions_from_orig_query(*exec, functors)
+                            find_substitutions_from_orig_query(*exec, functors),
+                            node_id_counter++
                     };
                 }else{ //exec has a following query
                     const auto exec_var_heap_subs = point_var_reg_substs_to_heap(*exec);
+                    const int this_id = node_id_counter++;
                     return var_binding_node{fact_term_code,
                                             find_substitutions(
                                                     *exec,
@@ -57,7 +65,8 @@ wam::query_node wam::make_tree(const wam::executor &top_exec, const std::vector<
                                                     query_var_heap_subs,
                                                     exec_var_heap_subs),
                                             make_tree(exec->get_last_child(),
-                                                      functors)};
+                                                      functors, node_id_counter),
+                                                      this_id};
                 }
             });
     return result;

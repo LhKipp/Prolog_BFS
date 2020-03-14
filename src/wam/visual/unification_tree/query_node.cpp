@@ -4,5 +4,3 @@
 
 #include "query_node.h"
 
-// initialize static property
-int wam::query_node::query_node_counter = 0;
