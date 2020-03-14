@@ -48,6 +48,8 @@ class TreeView {
      * query_node = node
      * 
      * @todo was ist, wenn der baum leer ist
+     *   Die oberste query_node ist die vom benutzer eingegebene.
+     * Der Benutzer kann keine leere Eingabe machen, daher ist der Baum niemals leer.
      * @todo erste node 
      */
     convertToVisNetwork(tree) {
@@ -58,10 +60,29 @@ class TreeView {
         queue.enqueue(tree);
         
         var additional_node_counter = -1;
-        
+
         while (!queue.isEmpty()) {
             var current_query_node = queue.dequeue();
             var current_query_node_id = current_query_node.getNodeID();
+
+
+            // add current query_node as node to vis network
+            nodes.push({ id: current_query_node_id, label: current_query_node.getQueryAsString() });
+
+            if(current_query_node.failed()){
+                var failed_node_id = additional_node_counter--;
+                nodes.push({ id: failed_node_id, label: "failed! (No such rule)" });
+                edges.push( {
+                    from: current_query_node_id,
+                    to: failed_node_id,
+                    label: "",
+                    font: { align: "LeEtCoDeFOnt" }
+                });
+                //This query_node failed, and has no children, continue with next
+                continue;
+            }
+
+
             var var_binding_nodes = current_query_node.getChildren();
             
             // add children to the queue
@@ -77,31 +98,50 @@ class TreeView {
                     edges.push( {
                         from: current_query_node_id, 
                         to: var_binding_nodes.get(i).getContinuingQuery().getNodeID(),
-                        label: var_binding_nodes.get(i).getVarBindingsAsString(),
+                        //line 11: "bindings...", siehe fassbender baum (R2)
+                        label: var_binding_nodes.get(i).get_fact_code_line()
+                            + var_binding_nodes.get(i).getVarBindingsAsString(),
                         font: { align: "horizontal" }
-                    } );
+                    });
                     
                 }
                 // reached end: display that this has failed
                 else if (var_binding_nodes.get(i).failed()) {
                     /** @todo */
+                        //Der Fassbender baum lässt manche failed nodes weg... Deshalb hier an jeder edge die rule line
                     var failed_node_id = additional_node_counter--;
                     nodes.push({ id: failed_node_id, label: "failed" });
-                    edges.push( { from: current_query_node_id, to: failed_node_id } );
+                    edges.push( {
+                        from: current_query_node_id,
+                        to: failed_node_id,
+                        label: var_binding_nodes.get(i).get_fact_code_line(),
+                        font: { align: "horizontal" }
+                    } );
                 }
                 // reached end: display that this path lead to success
                 else if (var_binding_nodes.get(i).succeeded()){
-                    /** @todo */
+                    var succeeded_node_id = additional_node_counter--;
+                    nodes.push({ id: succeeded_node_id, label: var_binding_nodes.getFinalVarBindingsAsStr() });
+                    edges.push( {
+                        from: current_query_node_id,
+                        to: succeeded_node_id,
+                        //The edge still shows the immediate var_bindings and with which rule unific. happend
+                        label: var_binding_nodes.get(i).get_fact_code_line()
+                            + var_binding_nodes.get(i).getVarBindingsAsString(),
+                        font: { align: "horizontal" }
+                    } );
                 }
                 // to be continued
                 else {
                     /** @todo */
-                    console.log("to be continued");
+                    var to_be_continued_node = additional_node_counter--;
+                    nodes.push({ id: to_be_continued_node, label: "Query not yet executed. Answer found earlier." /*Click here to execute :)"*/ });
+                    edges.push( {
+                        from: current_query_node_id,
+                        to: to_be_continued_node
+                    });
                 }
             }
-            
-            // add current query_node as node to vis network
-            nodes.push({ id: current_query_node_id, label: current_query_node.getQueryAsString() });
         }
         
         console.log(nodes);
