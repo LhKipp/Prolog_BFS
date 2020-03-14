@@ -44,7 +44,7 @@ std::optional<std::vector<wam::var_binding>> wam::bfs_organizer::get_answer() {
         executor* next_exec = executors.front();
         executors.pop_front();
 
-        term_code *next_term_code = next_exec->term_codes.back();
+        compiled_atom *next_term_code = next_exec->term_codes.back();
 #ifdef DEBUG
         std::cout << "executing: " << next_term_code->get_code_info().value << " From line: "
         << next_term_code->get_code_info().line;
@@ -78,11 +78,11 @@ void wam::bfs_organizer::load_query(const std::string &query_line) {
     //parse the query and save the results
     current_query_code = compile_query(query_line);
 
-    init_executor = executor{current_query_code.size()};
+    init_executor = executor{current_query_code.atoms().size()};
     //Copy references to query instructions into the executor instructions
-    std::transform(current_query_code.rbegin(), current_query_code.rend(),
+    std::transform(current_query_code.atoms().rbegin(), current_query_code.atoms().rend(),
                   init_executor.term_codes.begin(),
-                  [&](term_code &term_code) {
+                  [&](compiled_atom &term_code) {
                     return &term_code;
                   });
     init_executor.organizer = this;
@@ -94,7 +94,7 @@ void wam::bfs_organizer::clear(){
     functor_index_map.clear();
     functors.clear();
     program_code.clear();
-    current_query_code.clear();
+    current_query_code.atoms().clear();
 }
 
 wam::parser_error wam::bfs_organizer::validate_program(const std::string_view code) {

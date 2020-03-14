@@ -6,7 +6,7 @@
 #include "var_binding_node.h"
 
 
-wam::var_binding_node::var_binding_node(const wam::term_code *calledFunctor, std::vector<wam::var_binding> varBindings,
+wam::var_binding_node::var_binding_node(const wam::compiled_atom *calledFunctor, std::vector<wam::var_binding> varBindings,
                                         std::vector<wam::var_binding> final_orig_var_bindings):
                                         state{EXEC_STATE::SUCCESS},
                                         called_functor(calledFunctor),
@@ -15,7 +15,7 @@ wam::var_binding_node::var_binding_node(const wam::term_code *calledFunctor, std
 
 }
 
-wam::var_binding_node::var_binding_node(const wam::term_code *calledFunctor, std::vector<wam::var_binding> varBindings,
+wam::var_binding_node::var_binding_node(const wam::compiled_atom *calledFunctor, std::vector<wam::var_binding> varBindings,
                                         wam::query_node following_query)
                                         :state{EXEC_STATE::ARCHIVED},
                                         called_functor(calledFunctor),
@@ -25,7 +25,7 @@ wam::var_binding_node::var_binding_node(const wam::term_code *calledFunctor, std
 
 }
 
-wam::var_binding_node::var_binding_node(wam::term_code *term_code,
+wam::var_binding_node::var_binding_node(wam::compiled_atom *term_code,
         std::vector<var_binding> intermediate_bindings) :
         state{EXEC_STATE::RUNNING},
         called_functor{term_code},

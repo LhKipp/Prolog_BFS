@@ -10,7 +10,7 @@
 #include "../data/functor_view.h"
 #include "util/mode.h"
 #include "../data/var_reg_substitution.h"
-#include "../data/term_code.h"
+#include "../data/compiled_atom.h"
 #include "../../util/named_type.h"
 #include "../data/var_binding.h"
 #include "../data/environment.h"
@@ -80,7 +80,7 @@ namespace wam {
         EXEC_STATE state = EXEC_STATE::RUNNING;
 
         //Used as a stack
-        std::vector<term_code*> term_codes;
+        std::vector<compiled_atom*> term_codes;
         //Used as a stack
         std::vector<wam::environment> environments;
 
@@ -218,15 +218,15 @@ namespace wam {
             state = EXEC_STATE ::ARCHIVED;
         }
 
-        term_code* get_cur_or_solved_term_code()const{
+        compiled_atom* get_cur_or_solved_term_code()const{
             return term_codes.back();
         }
 
-        term_code *get_current_term_code()const{
+        compiled_atom *get_current_term_code()const{
             return term_codes.back();
         }
 
-        term_code *get_solved_term_code()const {
+        compiled_atom *get_solved_term_code()const {
             assert(term_codes.size() == 1);
             return term_codes.back();
         }
@@ -251,7 +251,7 @@ namespace wam {
             if(!failed() &&
                 std::all_of(term_codes.rbegin() + 1,
                         term_codes.rend(),
-                        [](const term_code* term_code){return term_code->is_deallocate();})){
+                        [](const compiled_atom* term_code){return term_code->is_deallocate();})){
                 state = EXEC_STATE::SUCCESS;
                 return true;
             }

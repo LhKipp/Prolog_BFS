@@ -13,7 +13,7 @@
 #include <sstream>
 #include "../../../util/vector_util.h"
 #include "../../data/var_binding.h"
-#include "../../data/term_code.h"
+#include "../../data/compiled_atom.h"
 #include "../../executor/util/exec_state.h"
 
 namespace wam {
@@ -23,7 +23,7 @@ class var_binding_node {
 
     private:
         EXEC_STATE state;
-        const term_code *called_functor;
+        const compiled_atom *called_functor;
         std::vector<wam::var_binding> var_bindings;
 
         /**
@@ -41,14 +41,14 @@ class var_binding_node {
     var_binding_node(const var_binding_node& other);
     var_binding_node& operator=(const var_binding_node& other);
 
-    var_binding_node(const term_code *calledFunctor): called_functor(calledFunctor),
-        state{EXEC_STATE ::FAIL}{}
+    var_binding_node(const compiled_atom *calledFunctor): called_functor(calledFunctor),
+                                                          state{EXEC_STATE ::FAIL}{}
 
-    var_binding_node(const term_code *calledFunctor,
+    var_binding_node(const compiled_atom *calledFunctor,
                      std::vector<wam::var_binding> varBindings,
                      std::vector<wam::var_binding> final_orig_var_bindings);
 
-    var_binding_node(const term_code *calledFunctor,
+    var_binding_node(const compiled_atom *calledFunctor,
                      std::vector<wam::var_binding> varBindings,
                      query_node following_query);
 
@@ -171,7 +171,7 @@ class var_binding_node {
     }
 
 
-    var_binding_node(term_code *term_code, std::vector<var_binding> intermediate_bindings);
+    var_binding_node(compiled_atom *term_code, std::vector<var_binding> intermediate_bindings);
 };
 }
 

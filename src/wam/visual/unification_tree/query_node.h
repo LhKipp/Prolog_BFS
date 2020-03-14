@@ -6,18 +6,18 @@
 #define PROLOG_BFS_QUERY_NODE_H
 
 #include "var_binding_node.h"
-#include "../../data/term_code.h"
+#include "../../data/compiled_atom.h"
 #include <memory>
 
 namespace wam {
     class query_node{
     private:
-        const term_code *query;
+        const compiled_atom *query;
         std::unique_ptr<std::vector<var_binding_node>> children;
 
     public:
         query_node(){}
-        query_node(const term_code *query,
+        query_node(const compiled_atom *query,
                 const size_t children_count) :
                 query(query),
                 children(std::make_unique<std::vector<var_binding_node>>(children_count)) {}

@@ -11,6 +11,7 @@
 #include "util/seen_register.h"
 
 #include "parser/parser.h"
+#include "../data/rule.h"
 
 /*
  * Assigns register to an functor (constant is also viable)
@@ -297,7 +298,7 @@ void remove_x_a_regs(std::unordered_map<wam::helper::seen_register, bool> &seen_
     }
 }
 
-std::vector<wam::term_code> wam::compile_query(const std::string_view query_code) {
+wam::rule wam::compile_query(const std::string_view query_code) {
     using namespace std::placeholders;
     using wam::helper::seen_register;
 
@@ -316,9 +317,9 @@ std::vector<wam::term_code> wam::compile_query(const std::string_view query_code
         instructions.emplace_back(std::bind(wam::allocate, _1, permanent_count));
     }
 
-    std::vector<term_code> term_codes;
+    wam::rule query;
     for (auto & atom : query_nodes) {
-        compile_query_atom(atom, seen_registers, instructions, term_codes, true);
+        compile_query_atom(atom, seen_registers, instructions, query, true);
     }
 
     //LOL Real brogrammes dont free bro :-)
@@ -330,13 +331,13 @@ std::vector<wam::term_code> wam::compile_query(const std::string_view query_code
 //                std::vector<var_reg_substitution>{});
 //    }
 
-    return term_codes;
+    return query;
 }
 
 void wam::compile_query_atom(node &atom,
                              std::unordered_map<wam::helper::seen_register, bool> &seen_registers,
                              std::vector<std::function<void(wam::executor &)>> &instructions,
-                             std::vector<term_code> &term_codes,
+                             wam::rule &rule,
                              bool from_original_query) {
     const int x_a_reg_counts = assign_registers(atom);
 
@@ -347,7 +348,7 @@ void wam::compile_query_atom(node &atom,
             std::back_inserter(instructions),
             seen_registers);
 
-    term_codes.emplace_back(x_a_reg_counts,
+    rule.atoms().emplace_back(x_a_reg_counts,
                             instructions,
                             find_var_reg_substitutions(atom),
                             std::move(atom.code_info),
@@ -358,7 +359,7 @@ void wam::compile_query_atom(node &atom,
     remove_x_a_regs(seen_registers);
 }
 
-std::unordered_map<wam::functor_view, std::vector<std::vector<wam::term_code>>>
+std::unordered_map<wam::functor_view, std::vector<wam::rule>>
 wam::compile_program(const std::string_view program_code){
     using namespace std::placeholders;
     namespace qi = boost::spirit::qi;
@@ -367,7 +368,7 @@ wam::compile_program(const std::string_view program_code){
     wam::parse_program(program_code, parser_result);
 
     //func -> list of term_codes
-    std::unordered_map<wam::functor_view, std::vector<std::vector<wam::term_code>>> result;
+    std::unordered_map<wam::functor_view, std::vector<wam::rule>> result;
     result.reserve(program_code.size());
 
     for(auto& program_line : parser_result){
@@ -378,7 +379,7 @@ wam::compile_program(const std::string_view program_code){
 
         auto inserted_func = result.find(head_functor);
         if(inserted_func == result.end()){
-            std::vector<std::vector<term_code>> func_rules{};
+            std::vector<wam::rule> func_rules{};
             func_rules.reserve(4);
             func_rules.emplace_back(code);
             result.emplace(std::make_pair(head_functor, func_rules));
@@ -389,14 +390,14 @@ wam::compile_program(const std::string_view program_code){
     return result;
 }
 
-std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_term(std::vector<node>& atoms) {
+std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<node>& atoms) {
     using namespace std::placeholders;
 
     const auto permanent_count = assign_permanent_registers(atoms, true);
 
     ////Generate the term_codes
 
-    std::vector<term_code> term_codes;
+    wam::rule rule;
     std::vector<std::function<void(wam::executor &)>> instructions;
 
     //Assign the registers for head + first body combined
@@ -415,7 +416,7 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_t
     to_program_instructions(flattened_form, std::back_inserter(instructions), seen_registers);
 
     //Build the head
-    term_codes.emplace_back(
+    rule.atoms().emplace_back(
             x_a_reg_count,
             std::move(instructions),
             //Also find the substitutions in the head atom (for more info see generate_program_instructions at the bottom)
@@ -431,7 +432,7 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_t
         to_query_instructions(first_body_flattened_form, *first_body_atom, std::back_inserter(instructions),
                               seen_registers );
 
-        term_codes.emplace_back(x_a_reg_count,
+        rule.atoms().emplace_back(x_a_reg_count,
                                 std::move(instructions),
                                 find_var_reg_substitutions(*first_body_atom),
                                 std::move(first_body_atom->code_info));
@@ -447,7 +448,7 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_t
             compile_query_atom(atom,
                     seen_registers,
                     instructions,
-                    term_codes,
+                    rule,
                     false);
         });
     }
@@ -455,14 +456,14 @@ std::pair<wam::functor_view, std::vector<wam::term_code>> wam::compile_program_t
     //All body atoms have been built append a optional deallocate instruction
     if (permanent_count) {
         instructions.emplace_back(std::bind(wam::deallocate, _1));
-        term_codes.emplace_back(
+        rule.atoms().emplace_back(
                 0,
                 instructions,
                 std::vector<var_reg_substitution>{},
                 source_code_info{});
     }
 
-    return std::make_pair(head_atom.to_functor_view(), term_codes);
+    return std::make_pair(head_atom.to_functor_view(), rule);
 }
 
 /*

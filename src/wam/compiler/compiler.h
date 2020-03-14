@@ -10,13 +10,14 @@
 #include <functional>
 #include "util/node.h"
 #include "../executor/executor.h"
-#include "../data/term_code.h"
+#include "../data/compiled_atom.h"
 #include "../data/functor_view.h"
 #include "util/seen_register.h"
+#include "../data/rule.h"
 
 namespace wam {
 
-    std::pair<functor_view, std::vector<term_code>> compile_program_term(std::vector<node>& atoms);
+    std::pair<functor_view, wam::rule> compile_program_term(std::vector<node>& atoms);
 
     int assign_registers(node &functor, node* first_body_atom = nullptr);
     int assign_permanent_registers(std::vector<node> &nodes, bool program_term);
@@ -38,17 +39,17 @@ namespace wam {
 
 
 
-    std::unordered_map<wam::functor_view, std::vector<std::vector<wam::term_code>>>
+    std::unordered_map<wam::functor_view, std::vector<wam::rule>>
     compile_program(std::string_view program_code);
     /*
      * Parses a query term e.G. p(Z,h(Z,W),f(W))
      */
-    std::vector<term_code> compile_query(std::string_view query_code);
+    wam::rule compile_query(std::string_view query_code);
 
     void compile_query_atom(node &atom,
                                  std::unordered_map<wam::helper::seen_register, bool> &seen_registers,
                                  std::vector<std::function<void(wam::executor &)>> &instructions,
-                                 std::vector<term_code> &term_codes,
+                                 wam::rule &term_codes,
                                  bool from_original_query);
 }
 

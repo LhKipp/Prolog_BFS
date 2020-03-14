@@ -6,6 +6,7 @@
 #include "instructions.h"
 #include "util/instructions_util.h"
 #include "../bfs_organizer/bfs_organizer.h"
+#include "../data/rule.h"
 
 //#define DEBUG
 #ifdef DEBUG
@@ -326,9 +327,9 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
         return;
     }
 
-    auto& rule_term_codes = organizer->program_code[functor];
-    std::for_each(rule_term_codes.begin(), rule_term_codes.end(),
-                  [&](std::vector<term_code> &term_codes) {
+    auto& rules = organizer->program_code[functor];
+    std::for_each(rules.begin(), rules.end(),
+                  [&](wam::rule& rule) {
 #ifdef DEBUG
         std::cout << "found rule at line: "
         << term_codes[0].get_code_info().line
@@ -336,15 +337,15 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
         << term_codes[0].get_code_info().value
         << std::endl;
 #endif
-                      executor new_executor{old_executor.term_codes.size() - 1 + term_codes.size()};
+                      executor new_executor{old_executor.term_codes.size() - 1 + rule.atoms().size()};
 //                      Copy the term_codes
                       auto parent_codes_end = std::copy(old_executor.term_codes.begin(),
                               old_executor.term_codes.end() -1,
                               new_executor.term_codes.begin());
-                      std::transform(term_codes.rbegin(),
-                                     term_codes.rend(),
+                      std::transform(rule.atoms().rbegin(),
+                                     rule.atoms().rend(),
                                      parent_codes_end,
-                                     [](wam::term_code& term_code){return &term_code;});
+                                     [](wam::compiled_atom& term_code){return &term_code;});
                       new_executor.set_parent(old_executor);
 
 
@@ -395,7 +396,7 @@ void wam::deallocate(wam::executor &executor) {
     assert(!executor.environments.empty());
     executor.environments.pop_back();
 
-    //This executor finished his term_code. But storing executors only doing deallocates is
+    //This executor finished his compiled_atom. But storing executors only doing deallocates is
     //unecessary, so we give him a new task, through term_codes.pop_back and inserting him in
     //executors list
     executor.term_codes.pop_back();

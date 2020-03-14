@@ -14,14 +14,14 @@
 namespace wam {
     struct executor;
 
-    struct term_code {
+    struct compiled_atom {
     private:
         //For building a nice tree representation, we need to save a visual representation
-        //of what this term_code is solving
+        //of what this compiled_atom is solving
         //node solves_node?
 
         //We need to keep track which var_reg_substs is from an original user entered query
-        //we store it in term_code to save some heap space
+        //we store it in compiled_atom to save some heap space
         std::vector<var_reg_substitution> substitutions;
 
         bool is_from_orig_query;
@@ -30,11 +30,11 @@ namespace wam {
         int expected_register_count;
         std::vector<std::function<void(wam::executor &)>> instructions;
 
-        term_code(int expectedRegisterCount,
-                  std::vector<std::function<void(executor &)>> instructions,
-                  std::vector<var_reg_substitution> substitutions,
-                  source_code_info&& codeInfo,
-                  bool is_from_original_query = false)
+        compiled_atom(int expectedRegisterCount,
+                      std::vector<std::function<void(executor &)>> instructions,
+                      std::vector<var_reg_substitution> substitutions,
+                      source_code_info&& codeInfo,
+                      bool is_from_original_query = false)
                 : expected_register_count(expectedRegisterCount),
                   instructions(std::move(instructions)),
                   substitutions(std::move(substitutions)),
@@ -42,7 +42,7 @@ namespace wam {
                   code_info(std::move(codeInfo)){
         }
 
-        term_code() = default;
+        compiled_atom() = default;
 
         inline bool is_from_original_query() const {
             return is_from_orig_query;

@@ -33,9 +33,9 @@ wam::query_node wam::make_tree(const wam::executor &top_exec, const std::vector<
                     };
                 }
 
-                term_code* fact_term_code = exec->get_solved_term_code();
+                compiled_atom* fact_term_code = exec->get_solved_term_code();
                 if(exec->failed()){
-                    //No more work, just pass the term_code, fail flag set in constructor
+                    //No more work, just pass the compiled_atom, fail flag set in constructor
                     return var_binding_node{fact_term_code};
                 }else if(exec->succeeded()){
                     const auto exec_var_heap_subs = point_var_reg_substs_to_heap(*exec);
