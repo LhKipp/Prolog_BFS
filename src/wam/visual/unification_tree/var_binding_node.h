@@ -26,11 +26,6 @@ class var_binding_node {
         const compiled_atom *called_functor;
         std::vector<wam::var_binding> var_bindings;
 
-        /**
-         * At the bottom of the tree, the unification either failed, suceeded in a final var_binding of the
-         * orig query_vars or continues with a new query_node
-         * For each case is one constructor
-         */
         std::variant<std::vector<wam::var_binding>, std::unique_ptr<query_node>> child;
 
         int _id;
@@ -60,8 +55,7 @@ class var_binding_node {
 
     /**
      * Returns the intermediate var_bindings from the parent query and this fact unification, only
-     * if the unification did not fail.
-     * If the unification failed, this method may throw an exception.
+     * if the unification did not fail and is not to be continued.
      * @return intermediate var_bindings if existent.
      */
     std::vector<var_binding>& get_var_bindings(){
