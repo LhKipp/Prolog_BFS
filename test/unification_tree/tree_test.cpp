@@ -86,7 +86,7 @@ TEST_CASE("Tree fuzzing"){
     org.load_program_from_file("test_src/p5-2.pl");
     org.load_query("lVonM(Z).");
 
-    for (int i = 0; i < 25; ++i) {
+    for (int i = 0; i < 5; ++i) {
         org.get_answer();
         org.get_unification_tree();
     }

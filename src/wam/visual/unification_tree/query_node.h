@@ -14,21 +14,30 @@ namespace wam {
     private:
         const compiled_atom *query;
         std::unique_ptr<std::vector<var_binding_node>> children;
+        
+        int _id;
 
     public:
-        query_node(){}
-        query_node(const compiled_atom *query,
-                const size_t children_count) :
-                query(query),
-                children(std::make_unique<std::vector<var_binding_node>>(children_count)) {}
+        query_node() {
+        }
 
-        query_node(const query_node& other){
+        query_node(const compiled_atom *query,
+                const size_t children_count,
+                const int node_id) :
+                _id(node_id),
+                query(query),
+                children(std::make_unique<std::vector<var_binding_node>>(children_count)) {
+        }
+
+        query_node(const query_node& other) {
+            _id = other._id;
             query = other.query;
             if(other.children){
                 children = std::make_unique<std::vector<var_binding_node>>(*other.children);
             }
         }
         query_node& operator=(const query_node& other) {
+            _id = other._id;
             query = other.query;
             if (other.children) {
                 children = std::make_unique<std::vector<var_binding_node>>(*other.children);
@@ -36,6 +45,9 @@ namespace wam {
             return *this;
         }
 
+        int get_node_id() {
+            return _id;
+        }
 
         /**
          * @return true if there is no fact with similar most outer functor as this query has,

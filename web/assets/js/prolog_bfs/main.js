@@ -1,12 +1,4 @@
 /**
- * Used to indicate whether the wasm runtime is initialized
- * and ready to use. Initialization is done in the background
- * automatically.
- * @type Boolean true if the runtime is initialized
- */
-var runtimeInitialized = false;
-
-/**
  * Array holding all instances of prolog bfs.
  * The "instanceid" is the key of the instance in this array.
  * @TODO: automatically delete old instances to save resources.
@@ -24,13 +16,30 @@ var alert = new Alert();
  */
 var syntaxError = new SyntaxError();
 
+/**
+ * Used to indicate whether the wasm runtime is initialized
+ * and ready to use. Initialization is done in the background
+ * automatically.
+ * @type Boolean true if the runtime is initialized
+ */
+var runtimeInitialized = false;
+
+/*
+ * This is a container for the emscripten Module that contains
+ * the PrologBFSWasmWrapper and other classes. It's set as
+ * soon as the web assembly runtime is set up.
+ */
+var emscriptenModuleInstance;
+
 /*
  * Before an instance of prolog bfs can be created,
- * we need to be sure the runtime is initialized.
+ * we need to be sure the wasm runtime is initialized.
  */
-Module['onRuntimeInitialized'] = function () {
+(new EmscriptenModule).then(function (Module) {
+    console.log("WebAssembly/Emscripten runtime initialized.");
     runtimeInitialized = true;
-};
+    emscriptenModuleInstance = Module;
+});
 
 /**
  * Scroll to the bottom in the results container. Useful after

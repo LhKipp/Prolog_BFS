@@ -33,6 +33,8 @@ class var_binding_node {
          */
         std::variant<std::vector<wam::var_binding>, std::unique_ptr<query_node>> child;
 
+        int _id;
+
     public:
     var_binding_node(){
         state = EXEC_STATE ::NO_STATE;
@@ -48,11 +50,13 @@ class var_binding_node {
 
     var_binding_node(const compiled_atom *calledFunctor,
                      std::vector<wam::var_binding> varBindings,
-                     std::vector<wam::var_binding> final_orig_var_bindings);
+                     std::vector<wam::var_binding> final_orig_var_bindings,
+                     int id);
 
     var_binding_node(const compiled_atom *calledFunctor,
                      std::vector<wam::var_binding> varBindings,
-                     query_node following_query);
+                     query_node following_query,
+                     int id);
 
     /**
      * Returns the intermediate var_bindings from the parent query and this fact unification, only
@@ -173,7 +177,7 @@ class var_binding_node {
     }
 
 
-    var_binding_node(compiled_atom *term_code, std::vector<var_binding> intermediate_bindings);
+    var_binding_node(compiled_atom *term_code, std::vector<var_binding> intermediate_bindings, int id);
 };
 }
 

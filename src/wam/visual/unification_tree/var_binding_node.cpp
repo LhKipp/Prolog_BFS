@@ -7,7 +7,9 @@
 
 
 wam::var_binding_node::var_binding_node(const wam::compiled_atom *calledFunctor, std::vector<wam::var_binding> varBindings,
-                                        std::vector<wam::var_binding> final_orig_var_bindings):
+                                        std::vector<wam::var_binding> final_orig_var_bindings,
+                                        int id):
+                                        _id(id),
                                         state{EXEC_STATE::SUCCESS},
                                         called_functor(calledFunctor),
                                         var_bindings(std::move(varBindings)),
@@ -15,9 +17,12 @@ wam::var_binding_node::var_binding_node(const wam::compiled_atom *calledFunctor,
 
 }
 
-wam::var_binding_node::var_binding_node(const wam::compiled_atom *calledFunctor, std::vector<wam::var_binding> varBindings,
-                                        wam::query_node following_query)
+wam::var_binding_node::var_binding_node(const wam::compiled_atom *calledFunctor,
+                                        std::vector<wam::var_binding> varBindings,
+                                        wam::query_node following_query,
+                                        int id)
                                         :state{EXEC_STATE::ARCHIVED},
+                                        _id(id),
                                         called_functor(calledFunctor),
                                         var_bindings(std::move(varBindings)),
                                         child(std::make_unique<wam::query_node>(std::move(following_query)))
@@ -26,7 +31,9 @@ wam::var_binding_node::var_binding_node(const wam::compiled_atom *calledFunctor,
 }
 
 wam::var_binding_node::var_binding_node(wam::compiled_atom *term_code,
-        std::vector<var_binding> intermediate_bindings) :
+        std::vector<var_binding> intermediate_bindings,
+        int id) :
+        _id(id),
         state{EXEC_STATE::RUNNING},
         called_functor{term_code},
         var_bindings{std::move(intermediate_bindings)}
@@ -34,6 +41,7 @@ wam::var_binding_node::var_binding_node(wam::compiled_atom *term_code,
 }
 
 wam::var_binding_node::var_binding_node(const wam::var_binding_node &other) {
+    _id = other._id;
     state = other.state;
     called_functor = other.called_functor;
     var_bindings = other.var_bindings;
@@ -45,6 +53,7 @@ wam::var_binding_node::var_binding_node(const wam::var_binding_node &other) {
 }
 
 wam::var_binding_node &wam::var_binding_node::operator=(const wam::var_binding_node &other) {
+    _id = other._id;
     state = other.state;
     called_functor = other.called_functor;
     var_bindings = other.var_bindings;

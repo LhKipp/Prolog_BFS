@@ -11,6 +11,7 @@
 namespace wam{
 
     query_node make_tree(const executor& top_exec, const std::vector<functor_view>& functors);
+    query_node make_tree(const executor& top_exec, const std::vector<functor_view>& functors, int& id_start);
 }
 
 #endif //PROLOG_BFS_UNIFICATION_TREE_H
