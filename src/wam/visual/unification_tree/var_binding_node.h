@@ -41,8 +41,10 @@ class var_binding_node {
     var_binding_node(const var_binding_node& other);
     var_binding_node& operator=(const var_binding_node& other);
 
-    var_binding_node(const compiled_atom *calledFunctor): called_functor(calledFunctor),
-                                                          state{EXEC_STATE ::FAIL}{}
+    var_binding_node(const compiled_atom *calledFunctor,EXEC_STATE state, int id):
+            _id(id),
+            called_functor(calledFunctor),
+            state{state}{}
 
     var_binding_node(const compiled_atom *calledFunctor,
                      std::vector<wam::var_binding> varBindings,

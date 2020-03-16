@@ -13,8 +13,9 @@ wam::query_node wam::make_tree(const wam::executor &top_exec, const std::vector<
     const std::vector<var_heap_substitution> query_var_heap_subs = point_var_reg_substs_to_heap(top_exec);
     const auto& fact_execs = top_exec.get_children();
 
-    query_node result{top_exec.get_solved_term_code(),
-                      fact_execs.size()};
+    query_node result{top_exec.get_cur_or_solved_term_code(),
+                      fact_execs.size(),
+                      node_id_counter++};
 
     std::transform(fact_execs.begin(),
             fact_execs.end(),
@@ -22,21 +23,17 @@ wam::query_node wam::make_tree(const wam::executor &top_exec, const std::vector<
             [&](const std::unique_ptr<wam::executor>& exec){
 
                 if(exec->is_running()){
-                    const auto exec_var_heap_subs = point_var_reg_substs_to_heap(*exec);
                     return var_binding_node{
                         exec->get_current_term_code(),
-                        find_substitutions(
-                                *exec,
-                                functors,
-                                query_var_heap_subs,
-                                exec_var_heap_subs)
+                        EXEC_STATE ::RUNNING,
+                        node_id_counter++
                     };
                 }
 
                 compiled_atom* fact_term_code = exec->get_solved_term_code();
                 if(exec->failed()){
-                    //No more work, just pass the compiled_atom, fail flag set in constructor
-                    return var_binding_node{fact_term_code};
+                    //No more work, just pass the term_code, fail flag set in constructor
+                    return var_binding_node{fact_term_code, EXEC_STATE ::FAIL, node_id_counter++};
                 }else if(exec->succeeded()){
                     const auto exec_var_heap_subs = point_var_reg_substs_to_heap(*exec);
                     return var_binding_node{
