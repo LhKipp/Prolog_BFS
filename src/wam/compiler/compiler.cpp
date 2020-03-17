@@ -302,10 +302,10 @@ wam::rule wam::compile_query(const std::string_view query_code) {
     using namespace std::placeholders;
     using wam::helper::seen_register;
 
-    std::vector<node> query_nodes; //= compiler result
+    node query_nodes; //= parser result
     wam::parse_query(query_code, query_nodes);
 
-    const auto permanent_count = assign_permanent_registers(query_nodes, false);
+    const auto permanent_count = assign_permanent_registers(*query_nodes.children, false);
 
     std::unordered_map<seen_register, bool> seen_registers;
     //Generate the Instructions
@@ -318,7 +318,7 @@ wam::rule wam::compile_query(const std::string_view query_code) {
     }
 
     wam::rule query;
-    for (auto & atom : query_nodes) {
+    for (auto & atom : *query_nodes.children) {
         compile_query_atom(atom, seen_registers, instructions, query, true);
     }
 
@@ -348,10 +348,10 @@ void wam::compile_query_atom(node &atom,
             std::back_inserter(instructions),
             seen_registers);
 
-    rule.atoms().emplace_back(x_a_reg_counts,
+    rule.add_atom(x_a_reg_counts,
                             instructions,
                             find_var_reg_substitutions(atom),
-                            std::move(atom.code_info),
+                            atom.code_info,
                             from_original_query);
 
     //Clear the instructions generated so far
@@ -371,11 +371,12 @@ wam::compile_program(const std::string_view program_code){
     std::unordered_map<wam::functor_view, std::vector<wam::rule>> result;
     result.reserve(program_code.size());
 
-    for(auto& program_line : parser_result){
-        if(!program_line){//If program_line is a comment
+    for(auto& rule : parser_result){
+        if(!rule){//If rule is a comment
             continue;
         }
-        const auto[head_functor, code] = wam::compile_program_term(*program_line);
+        auto[head_functor, code] = wam::compile_program_term(*rule->children);
+        code.set_code_info(rule->code_info);
 
         auto inserted_func = result.find(head_functor);
         if(inserted_func == result.end()){
@@ -384,7 +385,7 @@ wam::compile_program(const std::string_view program_code){
             func_rules.emplace_back(code);
             result.emplace(std::make_pair(head_functor, func_rules));
         }else{
-            inserted_func->second.push_back(code);
+            inserted_func->second.emplace_back(code);
         }
     }
     return result;
@@ -416,12 +417,12 @@ std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<no
     to_program_instructions(flattened_form, std::back_inserter(instructions), seen_registers);
 
     //Build the head
-    rule.atoms().emplace_back(
+    rule.add_atom(
             x_a_reg_count,
             std::move(instructions),
             //Also find the substitutions in the head atom (for more info see generate_program_instructions at the bottom)
             find_var_reg_substitutions(head_atom),
-            std::move(head_atom.code_info));
+            head_atom.code_info);
 
     //Clear the generated instructions
     instructions.clear();
@@ -432,7 +433,7 @@ std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<no
         to_query_instructions(first_body_flattened_form, *first_body_atom, std::back_inserter(instructions),
                               seen_registers );
 
-        rule.atoms().emplace_back(x_a_reg_count,
+        rule.add_atom(x_a_reg_count,
                                 std::move(instructions),
                                 find_var_reg_substitutions(*first_body_atom),
                                 std::move(first_body_atom->code_info));
@@ -456,12 +457,13 @@ std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<no
     //All body atoms have been built append a optional deallocate instruction
     if (permanent_count) {
         instructions.emplace_back(std::bind(wam::deallocate, _1));
-        rule.atoms().emplace_back(
+        rule.add_atom(
                 0,
                 instructions,
                 std::vector<var_reg_substitution>{},
                 source_code_info{});
     }
+
 
     return std::make_pair(head_atom.to_functor_view(), rule);
 }

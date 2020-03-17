@@ -6,11 +6,17 @@
 #include <iterator>
 #include "util.h"
 
-void wam::make_to_top_node(boost::spirit::unused_type unused, node &n) {
-    n.set_type(STORED_OBJECT_FLAG::NONE);
-    n.children = std::make_unique<std::vector<node>>();
+
+void wam::make_to_query(node& top_node, std::vector<node>& atoms){
+    wam::make_to_children(top_node, atoms);
+    top_node.code_info.line_begin = std::numeric_limits<unsigned>::max();
+    top_node.code_info.line_end = std::numeric_limits<unsigned>::max();
+    //For now we emit whole query as string, because not needed
 }
 
+void wam::make_to_children(node& top_node, std::vector<node>& children){
+    top_node.children = std::make_unique<std::vector<node>>(children);
+}
 void wam::make_to_cons(std::string &name, node &node) {
     node.set_type(STORED_OBJECT_FLAG::CONSTANT);
     node.name = name;

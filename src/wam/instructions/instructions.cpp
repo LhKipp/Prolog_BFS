@@ -331,8 +331,8 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
     std::for_each(rules.begin(), rules.end(),
                   [&](wam::rule& rule) {
 #ifdef DEBUG
-        std::cout << "found rule at line: "
-        << term_codes[0].get_code_info().line
+        std::cout << "found rule at line_begin: "
+        << term_codes[0].get_code_info().line_begin
         << " "
         << term_codes[0].get_code_info().value
         << std::endl;

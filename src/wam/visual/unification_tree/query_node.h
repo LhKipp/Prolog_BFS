@@ -97,13 +97,13 @@ namespace wam {
 
         /**
          *
-         * @return the query code line (0 based), if this query is from a rule (program code).
+         * @return the query code line_begin (0 based), if this query is from a rule (program code).
          * Otherwise it throws an error.
-         * Note: If the query stretches over multiple lines, the first line is returned
+         * Note: If the query stretches over multiple lines, the first line_begin is returned
          */
         size_t get_query_code_line()const{
             assert(!is_from_orig_query());
-            return query->get_code_info().line;
+            return query->get_code_info().line_begin;
         }
 
     };

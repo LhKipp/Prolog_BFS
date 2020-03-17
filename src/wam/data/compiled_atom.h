@@ -13,6 +13,7 @@
 
 namespace wam {
     struct executor;
+    struct rule;
 
     struct compiled_atom {
     private:
@@ -26,6 +27,7 @@ namespace wam {
 
         bool is_from_orig_query;
         source_code_info code_info;
+        rule* belongs_to;
     public:
         int expected_register_count;
         std::vector<std::function<void(wam::executor &)>> instructions;
@@ -33,7 +35,7 @@ namespace wam {
         compiled_atom(int expectedRegisterCount,
                       std::vector<std::function<void(executor &)>> instructions,
                       std::vector<var_reg_substitution> substitutions,
-                      source_code_info&& codeInfo,
+                      const source_code_info& codeInfo,
                       bool is_from_original_query = false)
                 : expected_register_count(expectedRegisterCount),
                   instructions(std::move(instructions)),
@@ -44,6 +46,10 @@ namespace wam {
 
         compiled_atom() = default;
 
+
+        void set_parent_rule(rule* parent_rule){
+            belongs_to = parent_rule;
+        }
         inline bool is_from_original_query() const {
             return is_from_orig_query;
         }

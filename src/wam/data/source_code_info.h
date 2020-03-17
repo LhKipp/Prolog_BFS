@@ -10,7 +10,8 @@
 namespace wam{
 
     struct source_code_info {
-        unsigned line;
+        unsigned line_begin;
+        unsigned line_end;
         //See util.cpp add_code_info for more info
 //        unsigned column;
         std::string value;

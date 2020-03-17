@@ -111,8 +111,8 @@ wam::parser_error wam::bfs_organizer::validate_program(const std::string_view co
 wam::parser_error wam::bfs_organizer::validate_query(const std::string_view code) {
 //TODO the code uses the parser code, a simple syntax checker would be good enough here
     try{
-        std::vector<node> query_nodes; //= compiler result
-        parse_query(code, query_nodes);
+        wam::_query_grammar::result_t query; //= parser result
+        parse_query(code, query);
         return parser_error{};
     }catch(const parser_error& e){
         return e;

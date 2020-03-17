@@ -163,11 +163,11 @@ class var_binding_node {
 
     /**
      *
-     * @return the called facts code line number (0 based).
-     * Note: If the fact stretches over multiple lines, the first line is returned.
+     * @return the called facts code line_begin number (0 based).
+     * Note: If the fact stretches over multiple lines, the first line_begin is returned.
      */
     size_t get_fact_code_line()const{
-        return called_functor->get_code_info().line;
+        return called_functor->get_code_info().line_begin;
     }
 
 
