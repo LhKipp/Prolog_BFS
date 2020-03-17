@@ -50,8 +50,8 @@ class Result {
                 + ' <button type="button" class="close" aria-label="Close" onclick="instances[' + this.instanceid + '].kill()"> \
                                <span aria-hidden="true">&times;</span> \
                            </button> \
-                           <button type="button" class="btn btn-light btn-sm" onclick="instances[' + this.instanceid + '].showAnswer()">Next</button> \
-                           <button type="button" class="btn btn-light btn-sm" onclick="instances[' + this.instanceid + '].showUnificationTree()">Show tree view</button> \
+                           <button type="button" class="btn btn-light btn-sm" onclick="instances[' + this.instanceid + '].onNextClicked()">Next</button> \
+                           <button type="button" class="btn btn-light btn-sm" onclick="instances[' + this.instanceid + '].onShowTreeViewClicked()">Show tree view</button> \
                        </div>';
         this.isInitialized = true;
     }

@@ -58,33 +58,42 @@ class InterpreterHandler {
         }
         
         // create a result box with the answer in it.
-        this.showAnswer();
+        this.resultDiv.initialize(this.queryCode);
+        this.resultDiv.addAnswer(this.getAnswer());
         
         return true;
     }
     
     /**
-     * Get the next answer from the interpreter and display it.
-     * This creates a new result box if none was created yet.
-     * If there is a result box for this instance already, we append
-     * the answer to it.
+     * Get the next answer from the interpreter and return it.
+     * @returns {string} answer
      */
-    showAnswer() {
+    getAnswer() {
         try {
             var result = this.interpreter.getAnswer();
-            if (!this.resultDiv.isInitialized) {
-                this.resultDiv.initialize(this.queryCode);
-            }
-            this.resultDiv.addAnswer(result);
-            
-            scrollResultsToBottom();
+            return result;
         } catch (err) {
             alert.show("Error getting result. Probably ran out of memory (infinite loop).");
             console.log(err);
         }
     }
     
-    showUnificationTree() {
+    /**
+     * @returns prolog bfs query_node
+     */
+    getUnificationTree() {
+        return this.interpreter.getUnificationTree();
+    }
+    
+    onNextClicked() {
+        var result = this.getAnswer();
+        
+        this.resultDiv.addAnswer(result);
+
+        scrollResultsToBottom();
+    }
+    
+    onShowTreeViewClicked() {
         $('#modal_tree_result').modal('show');
         
         this.treeView.draw(this.interpreter.getUnificationTree());

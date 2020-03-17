@@ -8,23 +8,18 @@ class TreeView {
      */
     instanceid;
     
+    /*
+     * ID of the node that represents the "next"/"continue search" button.
+     * This is a member variable so that we know which ID to listen for
+     * during on-click events.
+     */
+    to_be_continued_node_id;
+    
     constructor(instanceid) {
         this.instanceid = instanceid;
     }
     
     draw(tree) {
-        console.log("draw tree");
-        // create an array with nodes
-        var nodes = new vis.DataSet([
-            {id: 1, label: 'Node 1'}
-        ]);
-
-        // create an array with edges
-        var edges = new vis.DataSet([
-            // {from: 1, to: 3, label: "top", font: { align: "horizontal" } },
-        ]);
-
-        // create a network
         var container = document.getElementById('modal_tree_result_body');
 
         // provide the data in the vis format
@@ -33,14 +28,31 @@ class TreeView {
         var options = {
             layout: {
                 hierarchical: {
-                    direction: "UD",
-                    parentCentralization: true
+                    direction: "UD", // draw up to down
+                    sortMethod: "directed" // arrow direction defines order
                 }
+            },
+            physics: {
+                enabled: false
+            },
+            interaction: {
+                hover: true
             }
         };
 
         // initialize your network!
         var network = new vis.Network(container, data, options);
+        
+        network.on("click", (properties) => {
+            var clicked_node_id = properties["nodes"][0];
+            
+            switch (clicked_node_id) {
+                case this.to_be_continued_node_id:
+                    instances[this.instanceid].onNextClicked();
+                    this.draw(instances[this.instanceid].getUnificationTree());
+                    break;
+            }
+        });
     }
     
     /*
@@ -84,6 +96,7 @@ class TreeView {
                 edges.push( {
                     from: current_query_node_id,
                     to: failed_node_id,
+                    arrows: "to",
                     label: "",
                     font: { align: "horizontal" }
                 });
@@ -105,7 +118,8 @@ class TreeView {
                     edges.push( {
                         from: current_query_node_id, 
                         to: var_binding_nodes.get(i).getContinuingQuery().getNodeID(),
-                        label: "Line " + var_binding_nodes.get(i).getFactCodeLine() + ", "
+                        arrows: "to",
+                        title: "Line " + var_binding_nodes.get(i).getFactCodeLine() + ", "
                             + var_binding_nodes.get(i).getVarBindingsAsString(),
                         font: { align: "horizontal" }
                     });
@@ -120,7 +134,8 @@ class TreeView {
                     edges.push( {
                         from: current_query_node_id,
                         to: failed_node_id,
-                        label: "Line " + var_binding_nodes.get(i).getFactCodeLine(),
+                        arrows: "to",
+                        title: "Line " + var_binding_nodes.get(i).getFactCodeLine(),
                         font: { align: "horizontal" }
                     } );
                 }
@@ -131,8 +146,9 @@ class TreeView {
                     edges.push( {
                         from: current_query_node_id,
                         to: succeeded_node_id,
+                        arrows: "to",
                         //The edge still shows the immediate var_bindings and with which rule unific. happend
-                        label: "Line " + var_binding_nodes.get(i).getFactCodeLine() + ", "
+                        title: "Line " + var_binding_nodes.get(i).getFactCodeLine() + ", "
                             + var_binding_nodes.get(i).getVarBindingsAsString(),
                         font: { align: "horizontal" }
                     } );
@@ -140,11 +156,20 @@ class TreeView {
                 // to be continued
                 else {
                     /** @todo */
-                    var to_be_continued_node = additional_node_counter--;
-                    nodes.push({ id: to_be_continued_node, label: "Query not yet executed. Answer found earlier." /*Click here to execute :)"*/ });
+                    this.to_be_continued_node_id = additional_node_counter--;
+                    nodes.push( { id: this.to_be_continued_node_id,
+                        label: "*continue search*",
+                        color: { 
+                            hover: {
+                                background: "lightgreen",
+                                border: "green"
+                            }
+                        }
+                    });
                     edges.push( {
                         from: current_query_node_id,
-                        to: to_be_continued_node
+                        to: this.to_be_continued_node_id,
+                        arrows: "to"
                     });
                 }
             }
