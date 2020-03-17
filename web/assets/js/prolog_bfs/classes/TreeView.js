@@ -44,13 +44,13 @@ class TreeView {
     }
     
     /*
+     * Reads the tree structure from the interpreter and convert it to
+     * a network compatible with the vis.js library.
+     * 
      * var_binding_node = edge
      * query_node = node
      * 
-     * @todo was ist, wenn der baum leer ist
-     *   Die oberste query_node ist die vom benutzer eingegebene.
-     * Der Benutzer kann keine leere Eingabe machen, daher ist der Baum niemals leer.
-     * @todo erste node 
+     * Interpreter's tree is read in breadth-first-search as well.
      */
     convertToVisNetwork(tree) {
         var nodes = [];
@@ -59,12 +59,21 @@ class TreeView {
         var queue = new Queue(); // queue of query_nodes
         queue.enqueue(tree);
         
+        /**
+         * This is used to generate nodes for nodes that do not come
+         * directly from the interpreter (query_nodes), which already have
+         * IDs start at 0 and are incremented. In order not to collide with
+         * those IDs, we use the negative number range, starting at -1 and
+         * decrement the counter to retrieve IDs.
+         * "Additional nodes" are nodes like "failed" or "not yet executed,
+         * click here to continue"
+         * @type int
+         */
         var additional_node_counter = -1;
 
         while (!queue.isEmpty()) {
             var current_query_node = queue.dequeue();
             var current_query_node_id = current_query_node.getNodeID();
-
 
             // add current query_node as node to vis network
             nodes.push({ id: current_query_node_id, label: current_query_node.getQueryAsString() });
@@ -76,13 +85,12 @@ class TreeView {
                     from: current_query_node_id,
                     to: failed_node_id,
                     label: "",
-                    font: { align: "LeEtCoDeFOnt" }
+                    font: { align: "horizontal" }
                 });
                 //This query_node failed, and has no children, continue with next
                 continue;
             }
-
-
+            
             var var_binding_nodes = current_query_node.getChildren();
             
             // add children to the queue
@@ -93,13 +101,11 @@ class TreeView {
                     // because only they are the actual tree nodes
                     queue.enqueue(var_binding_nodes.get(i).getContinuingQuery());
                     
-                    // add the edge to the new node. We already know which ID
-                    // it will get.
+                    // add the edge to the new node
                     edges.push( {
                         from: current_query_node_id, 
                         to: var_binding_nodes.get(i).getContinuingQuery().getNodeID(),
-                        //line 11: "bindings...", siehe fassbender baum (R2)
-                        label: var_binding_nodes.get(i).get_fact_code_line()
+                        label: "Line " + var_binding_nodes.get(i).getFactCodeLine() + ", "
                             + var_binding_nodes.get(i).getVarBindingsAsString(),
                         font: { align: "horizontal" }
                     });
@@ -114,19 +120,19 @@ class TreeView {
                     edges.push( {
                         from: current_query_node_id,
                         to: failed_node_id,
-                        label: var_binding_nodes.get(i).get_fact_code_line(),
+                        label: "Line " + var_binding_nodes.get(i).getFactCodeLine(),
                         font: { align: "horizontal" }
                     } );
                 }
                 // reached end: display that this path lead to success
                 else if (var_binding_nodes.get(i).succeeded()){
                     var succeeded_node_id = additional_node_counter--;
-                    nodes.push({ id: succeeded_node_id, label: var_binding_nodes.getFinalVarBindingsAsStr() });
+                    nodes.push({ id: succeeded_node_id, label: var_binding_nodes.get(i).getFinalVarBindingsAsString() });
                     edges.push( {
                         from: current_query_node_id,
                         to: succeeded_node_id,
                         //The edge still shows the immediate var_bindings and with which rule unific. happend
-                        label: var_binding_nodes.get(i).get_fact_code_line()
+                        label: "Line " + var_binding_nodes.get(i).getFactCodeLine() + ", "
                             + var_binding_nodes.get(i).getVarBindingsAsString(),
                         font: { align: "horizontal" }
                     } );
@@ -143,9 +149,6 @@ class TreeView {
                 }
             }
         }
-        
-        console.log(nodes);
-        console.log(edges);
         
         // provide the data in the vis format
         return {
