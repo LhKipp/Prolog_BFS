@@ -29,14 +29,23 @@ class TreeView {
             layout: {
                 hierarchical: {
                     direction: "UD", // draw up to down
-                    sortMethod: "directed" // arrow direction defines order
+                    sortMethod: "directed", // arrow direction defines order
+                    shakeTowards: "roots" // pull nodes as close to the root as possible
                 }
             },
             physics: {
-                enabled: false
+                enabled: false // nodes/edges do not act like springs when moving them around
             },
             interaction: {
-                hover: true
+                hover: true, // enable hover effects
+                hoverConnectedEdges: false // don't highlight connecting edges when hovering over node
+            },
+            edges: {
+                arrows: "to",
+                font: {align: "horizontal"}
+            },
+            nodes: {
+                
             }
         };
 
@@ -96,9 +105,7 @@ class TreeView {
                 edges.push( {
                     from: current_query_node_id,
                     to: failed_node_id,
-                    arrows: "to",
-                    label: "",
-                    font: { align: "horizontal" }
+                    label: ""
                 });
                 //This query_node failed, and has no children, continue with next
                 continue;
@@ -106,10 +113,12 @@ class TreeView {
             
             var var_binding_nodes = current_query_node.getChildren();
             
-            // add children to the queue
+            // Add children to the queue
+            // Differentiate 4 states a var_binding_node can have
             for (var i = 0; i < var_binding_nodes.size(); i++) { 
-                // only go deeper in the tree if a new query follows
+                // CONTINUES
                 if (var_binding_nodes.get(i).continues()) {
+                    // only go deeper in the tree if a new query follows.
                     // don't add the var_binding node. add its following query
                     // because only they are the actual tree nodes
                     queue.enqueue(var_binding_nodes.get(i).getContinuingQuery());
@@ -118,44 +127,57 @@ class TreeView {
                     edges.push( {
                         from: current_query_node_id, 
                         to: var_binding_nodes.get(i).getContinuingQuery().getNodeID(),
-                        arrows: "to",
                         title: "Line " + var_binding_nodes.get(i).getFactCodeLine() + ", "
-                            + var_binding_nodes.get(i).getVarBindingsAsString(),
-                        font: { align: "horizontal" }
+                            + var_binding_nodes.get(i).getVarBindingsAsString()
                     });
                     
                 }
-                // reached end: display that this has failed
+                // reached end: display that this has FAILED
                 else if (var_binding_nodes.get(i).failed()) {
                     /** @todo */
                         //Der Fassbender baum lässt manche failed nodes weg... Deshalb hier an jeder edge die rule line
                     var failed_node_id = additional_node_counter--;
-                    nodes.push({ id: failed_node_id, label: "failed" });
+                    nodes.push( { 
+                        id: failed_node_id, 
+                        label: "failed",
+                        color: {
+                            background: "lightgray",
+                            border: "gray"
+                        }
+                    } );
                     edges.push( {
                         from: current_query_node_id,
                         to: failed_node_id,
-                        arrows: "to",
                         title: "Line " + var_binding_nodes.get(i).getFactCodeLine(),
-                        font: { align: "horizontal" }
+                        color: {
+                            color: "gray"
+                        }
                     } );
                 }
-                // reached end: display that this path lead to success
+                // reached end: display that this path lead to SUCCESS
                 else if (var_binding_nodes.get(i).succeeded()){
                     var succeeded_node_id = additional_node_counter--;
-                    nodes.push({ id: succeeded_node_id, label: var_binding_nodes.get(i).getFinalVarBindingsAsString() });
+                    nodes.push( {
+                        id: succeeded_node_id,
+                        label: var_binding_nodes.get(i).getFinalVarBindingsAsString(),
+                        color: {
+                            background: "lightgreen",
+                            border: "green"
+                        }
+                    } );
                     edges.push( {
                         from: current_query_node_id,
                         to: succeeded_node_id,
-                        arrows: "to",
                         //The edge still shows the immediate var_bindings and with which rule unific. happend
                         title: "Line " + var_binding_nodes.get(i).getFactCodeLine() + ", "
                             + var_binding_nodes.get(i).getVarBindingsAsString(),
-                        font: { align: "horizontal" }
+                        color: {
+                            color: "green"
+                        }
                     } );
                 }
-                // to be continued
+                // TO BE CONTINUED
                 else {
-                    /** @todo */
                     this.to_be_continued_node_id = additional_node_counter--;
                     nodes.push( { id: this.to_be_continued_node_id,
                         label: "*continue search*",
@@ -168,8 +190,7 @@ class TreeView {
                     });
                     edges.push( {
                         from: current_query_node_id,
-                        to: this.to_be_continued_node_id,
-                        arrows: "to"
+                        to: this.to_be_continued_node_id
                     });
                 }
             }
