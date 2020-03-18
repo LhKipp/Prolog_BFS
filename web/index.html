@@ -17,13 +17,6 @@
         <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
         <script type="text/javascript" src="http://code.iamkate.com/javascript/queues/Queue.js"></script>
         
-        <style type="text/css">
-        #modal_tree_result_body {
-            width: 70em;
-            height: 40em;
-            border: 1px solid lightgray;
-        }
-    </style>
     </head>
     <body>
         
@@ -79,8 +72,31 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body" id="modal_tree_result_body">
-                        
+                    <div class="modal-body">
+                        <div id="modal_tree_result_body">
+                            <!-- placeholder for tree view canvas -->
+                        </div>
+                        <p>
+                            <button class="btn btn-primary btn-sm" type="button" data-toggle="collapse" data-target="#modal_tree_result_help" aria-expanded="false" aria-controls="collapseExample">
+                                Show/hide help
+                            </button>
+                        </p>
+                        <div class="collapse" id="modal_tree_result_help">
+                            <div class="card card-body">
+                                <h5>What is this?</h5>
+                                <p>This is a tree of proof, also called search tree. It helps understanding how solutions are found for your
+                                    querys. You can read more about it <a href="http://www.learnprolognow.org/lpnpage.php?pagetype=html&pageid=lpn-htmlse6" target="_blank">here</a>.</p>
+                                
+                                <h5>What about variable bindings / most general unifiers?</h5>
+                                <p>These can been viewed for each step by hovering the mouse over an edge for a few seconds.</p>
+                                
+                                <h5>The tree is not shown completely / too small / too large.</h5>
+                                <p>Zoom: mouse wheel; Moving around: drag nodes or drag on free space</p>
+                                
+                                <h5>Can I export the tree / image without screenshotting it?</h5>
+                                <p>You may try and right click on the tree. Firefox and Chrome both offer an option to save it as an image file.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

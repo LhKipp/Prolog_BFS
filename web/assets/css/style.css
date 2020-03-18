@@ -62,3 +62,10 @@ html, body {
     /* Usual case: background for the affected character */
     background-color: red;
 }
+
+#modal_tree_result_body {
+    width: 70em;
+    height: 40em;
+    border: 1px solid lightgray;
+    margin-bottom: 1em;
+}
