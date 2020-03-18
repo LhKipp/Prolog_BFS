@@ -54,12 +54,13 @@ class TreeView {
         
         network.on("click", (properties) => {
             var clicked_node_id = properties["nodes"][0];
-            
-            switch (clicked_node_id) {
-                case this.to_be_continued_node_id:
-                    instances[this.instanceid].onNextClicked();
-                    this.draw(instances[this.instanceid].getUnificationTree());
-                    break;
+            if (clicked_node_id !== undefined) {
+                switch (clicked_node_id) {
+                    case this.to_be_continued_node_id:
+                        instances[this.instanceid].onNextClicked();
+                        this.draw(instances[this.instanceid].getUnificationTree());
+                        break;
+                }
             }
         });
     }
