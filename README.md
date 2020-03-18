@@ -14,9 +14,9 @@ Install Instructions
 --------------------
 # Prerequisites
 Boost.Program_options, Boost.Spirit, Boost.Phoenix
-Cmake version 3.10 or higher
+Cmake version 3.13 or higher
 Compiler for C++ 17 or higher 
-Optional: Emsdk for building wasm files.
+Optional: Emsdk for building wasm files, version 1.39.10 or higher.
 
 ```shell
 #Boost libraries
