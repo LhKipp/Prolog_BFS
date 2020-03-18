@@ -30,7 +30,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="modal" data-target="#modal_limitations" href="#"><strong>Limitations</strong></a>
+                        <a class="nav-link" data-toggle="modal" data-target="#modal_limitations" href="#">Limitations / About</a>
                     </li>
 
                     <li class="nav-item">
@@ -104,15 +104,16 @@
         
         <!-- infobox -->
         <div class="modal fade" id="modal_limitations" tabindex="-1" role="dialog" aria-labelledby="Usage" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Known limitations</h5>
+                        <h5 class="modal-title">About Prolog BFS</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
+                        <h4>Known limitations</h4>
                         <p>This is a very limited subset of Prolog! Don't get fooled by the syntax highlighting; it might provide highlighting
                         for features that are not actually supported, because we didn't write the editor specifically for this
                         interpreter.</p>
@@ -133,6 +134,27 @@
                                 the offline version on Github. You may free some memory by closing results.
                             </li>
                         </ul>
+                        
+                        <h4>What's special about it? Isn't it just another Prolog interpreter?</h4>
+                        <p>It is one of the few, if not the only Prolog interpreters that does a <em>breadth-first-search</em>
+                            as its <a href="https://en.wikipedia.org/wiki/SLD_resolution#SLD_resolution_strategies">SLD resolution strategy</a>.
+                            This strategy/algorithm is semidecidable as opposed to the more common (and more efficient) depth-first-search,
+                            which is neither decidable nor semidecidable.</p>
+                        <p>In simpler words: you are less likely to run into infinte loops. Consider this example:</p>
+                        <pre>
+    a(X) :- a(X).
+    a(a).
+    ?- a(Z).
+                        </pre>
+                        <p>That program and query will run infinitely on a normal Prolog interpreter while this one will give you all solutions.</p>
+                        
+                        <h4>Who created it?</h4>
+                        <p>The project was started in summer 2019 by Leonhard Kipp who coded the actual interpreter backend. Martin Weber
+                        joined the project later to create this web front end. Both are students of computer science at FH Aachen University of Applied Sciences
+                        in Aachen, Germany.</p>
+                        
+                        <h4>Is the source code available?</h4>
+                        <p>Yes. The project is hosted on <a href="https://github.com/LhKipp/Prolog_BFS">Github</a>.</p>
                     </div>
                 </div>
             </div>
