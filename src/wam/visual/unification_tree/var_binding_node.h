@@ -14,44 +14,35 @@
 #include "../../../util/vector_util.h"
 #include "../../data/var_binding.h"
 #include "../../data/compiled_atom.h"
-#include "../../executor/util/exec_state.h"
+#include "../../executor/executor.h"
 
 namespace wam {
     class query_node;
 
 class var_binding_node {
 
-    private:
-        EXEC_STATE state;
-        const compiled_atom *called_functor;
-        std::vector<wam::var_binding> var_bindings;
+private:
+    const executor *exec;
 
-        std::variant<std::vector<wam::var_binding>, std::unique_ptr<query_node>> child;
+    //[query_bindings... , fact_bindings...]
+    std::vector<wam::var_binding> var_bindings;
+    int first_fact_binding;
 
-        int _id;
+    std::variant<std::vector<wam::var_binding>, std::unique_ptr<query_node>> child;
 
-    public:
+    int _id;
+
+public:
     var_binding_node(){
-        state = EXEC_STATE ::NO_STATE;
-        called_functor = nullptr;
     }
     var_binding_node(const var_binding_node& other);
     var_binding_node& operator=(const var_binding_node& other);
 
-    var_binding_node(const compiled_atom *calledFunctor,EXEC_STATE state, int id):
+
+    var_binding_node(const executor *exec,
+                     int id):
             _id(id),
-            called_functor(calledFunctor),
-            state{state}{}
-
-    var_binding_node(const compiled_atom *calledFunctor,
-                     std::vector<wam::var_binding> varBindings,
-                     std::vector<wam::var_binding> final_orig_var_bindings,
-                     int id);
-
-    var_binding_node(const compiled_atom *calledFunctor,
-                     std::vector<wam::var_binding> varBindings,
-                     query_node following_query,
-                     int id);
+            exec(exec) {}
 
     /**
      * Returns the intermediate var_bindings from the parent query and this fact unification, only
@@ -71,8 +62,8 @@ class var_binding_node {
     std::string get_var_bindings_as_str()const{
         std::stringstream result;
         std::copy(var_bindings.begin(),
-                var_bindings.end(),
-                std::ostream_iterator<wam::var_binding>(result, " "));
+                  var_bindings.end(),
+                  std::ostream_iterator<wam::var_binding>(result, " "));
 
         return result.str();
     }
@@ -82,7 +73,7 @@ class var_binding_node {
      * @return true if the unification process failed, false otherwise.
      */
     bool failed()const{
-        return state == EXEC_STATE ::FAIL;
+        return exec->failed();
     }
 
     /**
@@ -90,7 +81,7 @@ class var_binding_node {
      * @return true if the unification process ended in success, false otherwise.
      */
     bool succeeded()const{
-        return state == EXEC_STATE ::SUCCESS;
+        return exec->succeeded();
     }
 
     /**
@@ -99,7 +90,7 @@ class var_binding_node {
      * @return true if this node is to be continued, false otherwise.
      */
     bool is_to_be_continued()const{
-        return state == EXEC_STATE ::RUNNING;
+        return exec->is_running();
     }
 
     /**
@@ -112,6 +103,9 @@ class var_binding_node {
         return std::holds_alternative<std::unique_ptr<query_node>>(child);
     }
 
+    void set_final_var_bindings(std::vector<var_binding> bindings){
+        child = std::move(bindings);
+    }
     /**
      *
      * @return the final var_bindings if the unification process succeeded.
@@ -137,6 +131,7 @@ class var_binding_node {
         return result.str();
     }
 
+    void set_continuing_query(query_node q_node);
     /**
      *
      * @return the following query_node if the unification process continues.
@@ -145,7 +140,7 @@ class var_binding_node {
     query_node& get_continuing_query();
 
     const query_node& get_continuing_query()const;
-    
+
     /*
      * emscripten isn't able to compile with the two above overloaded functions
      * and select_overload also doesn't work because of const overloads seem to
@@ -158,7 +153,7 @@ class var_binding_node {
      * @return the called fact as a string
      */
     const std::string& get_fact_as_str() const{
-        return called_functor->get_code_info().value;
+        return get_atom().get_code_info().value;
     }
 
     /**
@@ -167,11 +162,40 @@ class var_binding_node {
      * Note: If the fact stretches over multiple lines, the first line_begin is returned.
      */
     size_t get_fact_code_line()const{
-        return called_functor->get_code_info().line_begin;
+        return get_atom().get_code_info().line_begin;
     }
 
 
-    var_binding_node(compiled_atom *term_code, std::vector<var_binding> intermediate_bindings, int id);
+    const compiled_atom& get_atom()const{
+        return *exec->get_cur_or_solved_term_code();
+    }
+
+    const rule& get_belonging_rule()const{
+        return *get_atom().get_belonging_rule();
+    }
+
+    std::tuple<
+        std::vector<var_binding>::iterator,
+            std::vector<var_binding>::iterator
+            > get_fact_bindings(){
+        return std::make_tuple(var_bindings.begin() + first_fact_binding, var_bindings.end());
+    }
+
+    std::tuple<
+            std::vector<var_binding>::iterator,
+            std::vector<var_binding>::iterator
+    > get_query_bindings(){
+        return std::make_tuple(var_bindings.begin(), var_bindings.begin() + first_fact_binding);
+    }
+
+    const executor& get_exec()const{
+        return *exec;
+    }
+
+    int& get_first_fact_binding_index(){
+        return first_fact_binding;
+    }
+
 };
 }
 

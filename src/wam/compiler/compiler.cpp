@@ -12,6 +12,7 @@
 
 #include "parser/parser.h"
 #include "../data/rule.h"
+#include "../bfs_organizer/data/storage.h"
 
 /*
  * Assigns register to an functor (constant is also viable)
@@ -209,8 +210,10 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term, cons
 
 template<typename OutputIter>
 void
-wam::to_program_instructions(const std::vector<const node *> &flattened_term, OutputIter out,
-                             std::unordered_map<wam::helper::seen_register, bool> &seen_registers) {
+wam::to_program_instructions(const std::vector<const node *> &flattened_term,
+                             OutputIter out,
+                             std::unordered_map<wam::helper::seen_register, bool> &seen_registers,
+                             wam::storage& storage) {
     using namespace std::placeholders;
     using namespace wam::helper;
     //TODO isnt a set enough?
@@ -298,7 +301,7 @@ void remove_x_a_regs(std::unordered_map<wam::helper::seen_register, bool> &seen_
     }
 }
 
-wam::rule wam::compile_query(const std::string_view query_code) {
+wam::rule wam::compile_query(const std::string_view query_code, wam::storage& storage) {
     using namespace std::placeholders;
     using wam::helper::seen_register;
 
@@ -360,7 +363,7 @@ void wam::compile_query_atom(node &atom,
 }
 
 std::unordered_map<wam::functor_view, std::vector<wam::rule>>
-wam::compile_program(const std::string_view program_code){
+wam::compile_program(const std::string_view program_code, wam::storage& storage){
     using namespace std::placeholders;
     namespace qi = boost::spirit::qi;
 
@@ -375,7 +378,7 @@ wam::compile_program(const std::string_view program_code){
         if(!rule){//If rule is a comment
             continue;
         }
-        auto[head_functor, code] = wam::compile_program_term(*rule->children);
+        auto[head_functor, code] = wam::compile_program_term(*rule->children, storage);
         code.set_code_info(rule->code_info);
 
         auto inserted_func = result.find(head_functor);
@@ -391,7 +394,7 @@ wam::compile_program(const std::string_view program_code){
     return result;
 }
 
-std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<node>& atoms) {
+std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<node>& atoms, wam::storage& storage) {
     using namespace std::placeholders;
 
     const auto permanent_count = assign_permanent_registers(atoms, true);
@@ -414,7 +417,7 @@ std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<no
     }
 
     std::unordered_map<wam::helper::seen_register, bool> seen_registers;
-    to_program_instructions(flattened_form, std::back_inserter(instructions), seen_registers);
+    to_program_instructions(flattened_form, std::back_inserter(instructions), seen_registers, storage);
 
     //Build the head
     rule.add_atom(

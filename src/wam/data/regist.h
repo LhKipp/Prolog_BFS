@@ -11,8 +11,9 @@
 
 namespace wam {
     struct regist {
+        int index;
+        short var_index;
         heap_tag type;
-        size_t index;
 
         regist()= default;
         regist(heap_tag type, size_t index): type{type}, index{index}{}

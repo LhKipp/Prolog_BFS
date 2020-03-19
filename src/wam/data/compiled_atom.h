@@ -71,6 +71,16 @@ namespace wam {
         const source_code_info& get_code_info()const {
             return code_info;
         }
+
+        inline rule* get_belonging_rule(){
+            return belongs_to;
+        }
+
+        inline const rule* get_belonging_rule()const {
+            return belongs_to;
+        }
+
+        bool is_last_atom_in_rule()const;
     };
 }
 #endif //PROLOG_BFS_PROGRAM_TERM_CODE_H

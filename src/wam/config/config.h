@@ -7,5 +7,6 @@
 
 namespace wam::config{
     const char* const UNBOUND_VAR_PREFIX = "G_";
+    const int UNBOUND_VAR_PREFIX_SIZE = 2;
 }
 #endif //PROLOG_BFS_CONFIG_H

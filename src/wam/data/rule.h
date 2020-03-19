@@ -6,7 +6,6 @@
 #define PROLOG_BFS_RULE_H
 
 #include <vector>
-#include "compiled_atom.h"
 
 namespace wam{
     struct rule{
@@ -18,6 +17,14 @@ namespace wam{
 
         inline bool is_query(){
             return _code_info.line_begin == std::numeric_limits<unsigned>::max();
+        }
+
+        inline bool has_body()const{
+            return _atoms.size() >= 2;
+        }
+
+        inline bool is_fact() const{
+            return _atoms.size() == 1;
         }
 
         std::vector<compiled_atom>& atoms(){
@@ -42,5 +49,6 @@ namespace wam{
             _code_info = code_info;
         }
     };
+
 }
 #endif //PROLOG_BFS_RULE_H

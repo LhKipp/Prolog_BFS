@@ -8,6 +8,7 @@
 #include "../executor/executor.h"
 #include "../data/functor_view.h"
 #include "../data/var_binding.h"
+#include "../bfs_organizer/data/storage.h"
 #include <string>
 
 namespace wam {
@@ -15,7 +16,11 @@ namespace wam {
     string_representation_of(const executor &executor, size_t index, const std::vector<functor_view> &functors,
             bool is_contigous_list = false);
 
-    std::vector<var_heap_substitution> point_var_reg_substs_to_heap(const executor &executor);
+    std::vector<var_heap_substitution>
+    point_var_reg_substs_to_heap(const executor &executor, const std::vector<wam::var_reg_substitution>& var_reg_substs);
+
+    std::vector<var_heap_substitution>
+    point_var_reg_substs_to_heap(const executor &executor);
 
     /**
      * Finds all substitutions for variables from original user entered query atoms in the give executor
@@ -24,19 +29,19 @@ namespace wam {
      */
     std::vector<var_binding> find_substitutions_from_orig_query(
             const executor& executor,
-            const std::vector<functor_view>& functors);
+            const wam::storage& functors);
 
-    /**
-     * Finds all var substitutions in the given executor for all var_heap_substs...
-     * @param executor - the executor in whose heap to search
-     * @param functors - the belonging functor table
-     * @param var_heap_substs - all var_heap_substs to solve
-     * @return
-     */
-    std::vector<var_binding> find_substitutions(
+    std::tuple<
+            std::vector<var_binding>,
+            int
+            >
+    find_substitutions(
             const executor& executor,
             const std::vector<functor_view>& functors,
             const std::vector<var_heap_substitution>& var_heap_substs_query,
             const std::vector<var_heap_substitution>& var_heap_subst_func);
+
+    void bind_fact_vars_to_query_vars(std::vector<var_binding>& vector, int& fact_begin);
+
 };
 #endif //PROLOG_BFS_SUBSTITUTION_UTIL_H

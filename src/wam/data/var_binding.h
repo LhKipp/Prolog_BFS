@@ -23,6 +23,10 @@ namespace wam{
 
         bool operator!=(const var_binding &rhs) const;
 
+        bool inline binds_to_var()const{
+            return std::isupper(binding.at(0));
+        }
+
     };
 
     std::ostream &operator<<(std::ostream &os, const var_binding &substitution);

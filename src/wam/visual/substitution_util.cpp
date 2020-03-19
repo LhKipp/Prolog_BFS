@@ -5,6 +5,7 @@
 #include "../config/config.h"
 
 #include "substitution_util.h"
+#include "../bfs_organizer/data/storage.h"
 
 //TODO recursive function, could be optimized through use of stack
 std::string
@@ -83,13 +84,18 @@ wam::string_representation_of(const executor &executor,
     return result + string_representation_of(executor, index + functor.arity, functors) + ")";
 }
 
-std::vector<wam::var_heap_substitution> wam::point_var_reg_substs_to_heap(const wam::executor &executor){
+std::vector<wam::var_heap_substitution>
+wam::point_var_reg_substs_to_heap(const executor &executor ) {
+    return point_var_reg_substs_to_heap(
+            executor,
+            executor.get_cur_or_solved_term_code()->get_substitutions());
+
+}
+std::vector<wam::var_heap_substitution> wam::point_var_reg_substs_to_heap(const wam::executor &executor, const std::vector<wam::var_reg_substitution>& var_reg_substs){
 #ifdef DEBUG_UNIFICATION_TREE
     std::cout << "point_var_reg_substs_to_heap" << std::endl;
 #endif
-    auto const& var_reg_substs = executor.get_cur_or_solved_term_code()->get_substitutions();
     std::vector<wam::var_heap_substitution> result{var_reg_substs.size()};
-
     std::transform(var_reg_substs.begin(),
                    var_reg_substs.end(),
                    result.begin(),
@@ -108,7 +114,7 @@ std::vector<wam::var_heap_substitution> wam::point_var_reg_substs_to_heap(const 
 }
 
 std::vector<wam::var_binding> wam::find_substitutions_from_orig_query(const wam::executor& executor,
-        const std::vector<functor_view>& functors) {
+        const wam::storage& storage) {
     std::vector<wam::var_binding> result;
     //normally user have 1 to 5 vars in their queries. so using vector should be more efficient than set
 
@@ -130,7 +136,7 @@ std::vector<wam::var_binding> wam::find_substitutions_from_orig_query(const wam:
 
                 result.emplace_back(
                         var_heap_sub.var_name,
-                        wam::string_representation_of(executor, var_heap_sub.heap_index, functors)
+                        wam::string_representation_of(executor, var_heap_sub.heap_index, storage.functors)
                 );
             }
         }
@@ -146,7 +152,10 @@ std::vector<wam::var_binding> wam::find_substitutions_from_orig_query(const wam:
     return result;
 }
 
-std::vector<wam::var_binding>
+std::tuple<
+        std::vector<wam::var_binding>,
+        int
+>
 wam::find_substitutions(
         const wam::executor &executor,
         const std::vector<functor_view> &functors,
@@ -167,9 +176,14 @@ wam::find_substitutions(
                 });
     };
 
+    int fact_begin = var_heap_subst_query.size();
     transformation(var_heap_subst_query, result.begin());
-    transformation(var_heap_subst_func, result.begin() + var_heap_subst_query.size());
+    transformation(var_heap_subst_func, result.begin() + fact_begin);
 
-    return result;
+//    bind_fact_vars_to_query_vars(result, fact_begin);
+
+    return std::make_tuple(result, fact_begin);
 }
 
+void wam::bind_fact_vars_to_query_vars(std::vector<wam::var_binding>& bindings, int& fact_begin) {
+}
