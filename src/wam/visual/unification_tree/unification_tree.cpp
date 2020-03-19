@@ -64,6 +64,7 @@ void wam::resolve_parent(wam::query_node &parent, wam::var_binding_node& binding
     using namespace wam;
 
     assert(!bindings.empty());
+    assert(!(parent.is_to_be_continued() || parent.failed()));
     auto& q_binding_info = bindings.top();
     rule_bindings f_binding_info;
 
@@ -129,6 +130,7 @@ void wam::resolve_parent(wam::query_node &parent, wam::var_binding_node& binding
             f_binding_info
             );
 
+    assert(fact_bindings_begin <= all_bindings.size());
     binding_node.get_var_bindings() = all_bindings;
     binding_node.get_first_fact_binding_index() = fact_bindings_begin;
 
@@ -148,6 +150,7 @@ void wam::resolve_parent(wam::query_node &parent, wam::var_binding_node& binding
 //    }
 
     if(parent.get_atom().is_last_atom_in_rule()){
+        assert(!bindings.empty());
         bindings.pop();
     }
 
@@ -165,7 +168,7 @@ void wam::resolve_parent(wam::query_node &parent, wam::var_binding_node& binding
     }
 
     query_node& following_query = binding_node.get_continuing_query();
-    if(following_query.failed()){
+    if(following_query.failed() || following_query.is_to_be_continued()){
         //The tree wont progress downwards, so only resolve failing query name
         resolve(following_query, bindings.top());
     }else{
@@ -227,8 +230,10 @@ std::vector<std::string> wam::find_vars_in(const std::string &query) {
     return result;
 }
 
-void wam::erase_substitutions(std::vector<var_binding> &all_var_bindings, int &fact_bindings_begin,
-                              wam::rule_bindings &q_bindings_info, wam::rule_bindings &f_bindings_info) {
+void wam::erase_substitutions(std::vector<var_binding> &all_var_bindings,
+                              int &fact_bindings_begin,
+                              wam::rule_bindings &q_bindings_info,
+                              wam::rule_bindings &f_bindings_info) {
 
 
     //Special cases: Q / G_1, F / G_1 --> Q / F, F / Q
@@ -261,8 +266,10 @@ void wam::erase_substitutions(std::vector<var_binding> &all_var_bindings, int &f
         });
         while(found != query_end){
             found_queries.push_back(found);
-            f_bindings_info.heap_substs.emplace_back
-            (found->var_name, std::stoi(found->binding.substr(config::UNBOUND_VAR_PREFIX_SIZE)));
+            std::string number = found->binding.substr(config::UNBOUND_VAR_PREFIX_SIZE);
+            f_bindings_info.heap_substs.push_back(
+                    var_heap_substitution{found->var_name, static_cast<size_t>(std::stoi(number))}
+                    );
 
             found = std::find(found + 1, query_end, fact_binding);
         }

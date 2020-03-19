@@ -23,6 +23,12 @@ void wam::bfs_organizer::load_program(const std::string_view code) {
 void wam::bfs_organizer::load_term_lines(const std::string_view code) {
     program_code = wam::compile_program(code, storage);
 
+    for(auto& entry : program_code) {
+        for (auto &rule : entry.second) {
+            rule.set_atoms_par();
+        }
+    }
+
     storage.functor_index_map.reserve(program_code.size());
     storage.functors.reserve(program_code.size());
 
@@ -120,5 +126,6 @@ wam::parser_error wam::bfs_organizer::validate_query(const std::string_view code
 }
 
 wam::query_node wam::bfs_organizer::get_unification_tree() const{
+
     return wam::make_tree(init_executor, storage);
 }

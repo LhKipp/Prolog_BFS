@@ -16,7 +16,7 @@ namespace wam {
         heap_tag type;
 
         regist()= default;
-        regist(heap_tag type, size_t index): type{type}, index{index}{}
+        regist(heap_tag type, int index): type{type}, index{index}{}
 
         inline bool is_REF()const {
             return type == heap_tag::REF;

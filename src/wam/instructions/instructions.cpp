@@ -80,7 +80,7 @@ void wam::get_structure(wam::executor &executor, const functor_view &functor, si
         executor.read_or_write = wam::mode::WRITE;
 
     } else if (reg.type == heap_tag::FUN) {
-        const functor_view &heap_reg = executor.functor_of(FUN_index{addr});
+        const functor_view &heap_reg = executor.functor_of(FUN_index{(int)addr});
         if (heap_reg == functor) {
             executor.S = addr + 1;
             executor.read_or_write = wam::mode::READ;

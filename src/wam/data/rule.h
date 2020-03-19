@@ -38,7 +38,6 @@ namespace wam{
         template<class... Args>
         void add_atom(Args&&... args){
             _atoms.emplace_back(args...);
-            _atoms.back().set_parent_rule(this);
         }
 
         const source_code_info &code_info() const {
@@ -47,6 +46,12 @@ namespace wam{
 
         void set_code_info(const source_code_info& code_info){
             _code_info = code_info;
+        }
+
+        void set_atoms_par(){
+            for(auto& atom : _atoms){
+                atom.set_parent_rule(this);
+            }
         }
     };
 

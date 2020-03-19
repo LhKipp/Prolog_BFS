@@ -22,7 +22,7 @@ namespace wam {
 class var_binding_node {
 
 private:
-    const executor *exec;
+    const executor *exec = nullptr;
 
     //[query_bindings... , fact_bindings...]
     std::vector<wam::var_binding> var_bindings;
@@ -167,6 +167,7 @@ public:
 
 
     const compiled_atom& get_atom()const{
+        assert(exec != nullptr);
         return *exec->get_cur_or_solved_term_code();
     }
 
