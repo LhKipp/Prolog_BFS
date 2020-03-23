@@ -7,43 +7,54 @@
 
 #include "var_reg_substitution.h"
 #include "source_code_info.h"
+#include "../compiler/util/node.h"
 #include <functional>
 #include <vector>
 
 
 namespace wam {
     struct executor;
+    struct rule;
 
-    struct term_code {
+    struct compiled_atom {
     private:
         //For building a nice tree representation, we need to save a visual representation
-        //of what this term_code is solving
+        //of what this compiled_atom is solving
         //node solves_node?
 
         //We need to keep track which var_reg_substs is from an original user entered query
-        //we store it in term_code to save some heap space
+        //we store it in compiled_atom to save some heap space
         std::vector<var_reg_substitution> substitutions;
+        node parsed_atom;
 
         bool is_from_orig_query;
         source_code_info code_info;
+        rule* belongs_to;
     public:
         int expected_register_count;
         std::vector<std::function<void(wam::executor &)>> instructions;
 
-        term_code(int expectedRegisterCount,
-                  std::vector<std::function<void(executor &)>> instructions,
-                  std::vector<var_reg_substitution> substitutions,
-                  source_code_info&& codeInfo,
-                  bool is_from_original_query = false)
+        compiled_atom(int expectedRegisterCount,
+                      std::vector<std::function<void(executor &)>> instructions,
+                      std::vector<var_reg_substitution> substitutions,
+                      const source_code_info& codeInfo,
+                      node parsed_node,
+                      bool is_from_original_query = false)
                 : expected_register_count(expectedRegisterCount),
                   instructions(std::move(instructions)),
                   substitutions(std::move(substitutions)),
                   is_from_orig_query(is_from_original_query),
-                  code_info(std::move(codeInfo)){
+                  code_info(std::move(codeInfo)),
+                  parsed_atom{std::move(parsed_node)}
+                  {
         }
 
-        term_code() = default;
+        compiled_atom() = default;
 
+
+        void set_parent_rule(rule* parent_rule){
+            belongs_to = parent_rule;
+        }
         inline bool is_from_original_query() const {
             return is_from_orig_query;
         }
@@ -64,6 +75,20 @@ namespace wam {
 
         const source_code_info& get_code_info()const {
             return code_info;
+        }
+
+        inline rule* get_belonging_rule(){
+            return belongs_to;
+        }
+
+        inline const rule* get_belonging_rule()const {
+            return belongs_to;
+        }
+
+        bool is_last_atom_in_rule()const;
+
+        const node& get_parsed_atom()const{
+            return parsed_atom;
         }
     };
 }

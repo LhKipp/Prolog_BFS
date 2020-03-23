@@ -7,11 +7,10 @@
 
 
 #include <string>
+#include <algorithm>
 #include <vector>
 #include <memory>
-#include <variant>
 #include <cassert>
-#include <optional>
 #include <ostream>
 #include "data_enums.h"
 #include "../../data/regist.h"
@@ -68,6 +67,7 @@ public:
     inline bool is_permanent() const{
         return y_reg != std::numeric_limits<size_t>::max();
     }
+
     inline size_t get_y_reg() const {
         assert(is_permanent() && y_reg != std::numeric_limits<size_t>::max());
         return y_reg;
@@ -111,6 +111,32 @@ public:
         return type == STORED_OBJECT_FLAG ::NONE;
     }
 
+    //TODO this is an abuse of the struct. The whole struct should be picked in parts
+    //and every utility function should be templatized
+    inline bool points_to_heap()const{
+        return y_reg == std::numeric_limits<size_t>::max() -1;
+    }
+    inline void set_heap_index(size_t heap_index){
+        x_reg = heap_index;
+    }
+    inline size_t get_heap_index()const{
+        return x_reg;
+    }
+
+    inline bool contains_var()const{
+        if(this->is_variable())return true;
+        if(this->is_constant()) return false;
+
+        if(this->is_functor()){
+            //std::any_of is not a member of std????TODO fix bug
+            std::any_of(children->begin(), children->end(), [&](const node& child){
+                return child.contains_var();
+            });
+        }
+        //functor had no child
+        return false;
+    }
+
     inline wam::functor_view to_functor_view() const {
         if (is_constant()) {
             return wam::functor_view{name, 0};
@@ -133,7 +159,11 @@ public:
 
     node(node &&other) = default;
 
-    node(const node &other) : type{other.type}, name{other.name}, a_reg{other.a_reg}, x_reg{other.x_reg},
+    node(const node &other) : type{other.type},
+                              name{other.name},
+                              a_reg{other.a_reg},
+                              x_reg{other.x_reg},
+                              y_reg{other.y_reg},
                               code_info{other.code_info}{
         if (other.children) {
             children = std::make_unique<std::vector<node>>(*other.children);
@@ -145,6 +175,7 @@ public:
         this->type = other.type;
         this->x_reg = other.x_reg;
         this->a_reg = other.a_reg;
+        this->y_reg = other.y_reg;
         if (other.children) {
             children = std::make_unique<std::vector<node>>(*other.children);
         }
@@ -159,7 +190,9 @@ public:
         return os;
     }
 
+    std::string to_string()const;
 };
+
 
 
 #endif //PROLOG_BFS_NODE_H

@@ -27,7 +27,7 @@ TEST_CASE("p5-1 test") {
 
         vector<string> solutions;
         solutions.push_back("nil");
-//        solutions.push_back("list(nix,nil)");
+        solutions.push_back("list(nix,nil)");
         solutions.push_back("list(a,list(b,nil))");
         solutions.push_back("list(a,list(b,list(nix,nil)))");
         solutions.push_back("list(a,list(b,nil))");
@@ -55,11 +55,8 @@ TEST_CASE("p5-1 test") {
 
         org.load_query("lVonM(Z).");
 
-        auto answer = org.get_answer();
-        REQUIRE(answer.has_value());
-
-        for (int i = 0; i < 25; i++) {
-            answer = org.get_answer();
+        for (int i = 0; i < 26; i++) {
+            auto answer = org.get_answer();
             REQUIRE(answer.has_value());
             for (auto &elem : *answer) {
 //                std::cout << elem<< endl;

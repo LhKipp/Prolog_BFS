@@ -33,7 +33,7 @@ namespace wam{
         qi::rule<Iterator, std::string(), Skipper> variable_name;
         qi::rule<Iterator, void(), Skipper> comment;
         qi::rule<Iterator, node(), Skipper> prolog_element;
-        qi::rule<Iterator, node, Skipper> atom;
+        qi::rule<Iterator, node(), Skipper> atom;
 
         base_grammar(qi::rule<Iterator, Base_Value, Skipper> &start) : base_grammar::base_type(start) {
             namespace phoenix = boost::phoenix;
@@ -87,10 +87,7 @@ namespace wam{
             prolog_element %= functor | constant | variable | list;
 
             using boost::spirit::repository::qi::iter_pos;
-            //TODO the second iter_pos points before the next non skipped char.
-            //So that the range [it1, it2[ may include blanks.
-            //Clean the code up somehow, so that the sec iter_pos points to end of func/cons
-            atom = (iter_pos >> (functor | constant) >> iter_pos)
+            atom = (iter_pos >> (functor | constant) >> qi::no_skip[iter_pos])
             [phoenix::bind(&add_source_code_info<Iterator>, phoenix::ref(qi::_2), qi::_1, qi::_3),
              qi::_val = qi::_2];
 

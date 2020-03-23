@@ -12,16 +12,23 @@
 #include "base_grammar.h"
 
 namespace wam{
-    using boost::spirit::repository::qi::iter_pos;
+
+    namespace _query_grammar{
+        using result_t = node;
+    }
+
     namespace qi = boost::spirit::qi;
+
     template<typename Iterator, typename Skipper>
-    struct query_grammar : public base_grammar<Iterator, std::vector<node>(), Skipper> {
-        qi::rule<Iterator, std::vector<node>(), Skipper> query;
+    struct query_grammar : public base_grammar<Iterator, node(), Skipper> {
+        qi::rule<Iterator, wam::_query_grammar::result_t(), Skipper> query;
 
+        using base = base_grammar<Iterator, _query_grammar::result_t(), Skipper>;
         query_grammar() : query_grammar::base_grammar(query) {
-            using base = base_grammar<Iterator, std::vector<node>(), Skipper>;
+            namespace phoenix = boost::phoenix;
 
-            query %= qi::eps > base::atom % ',' > qi::lit('.');
+            query = (qi::eps > base::atom % ',' > qi::lit('.'))
+                   [phoenix::bind(&make_to_query, phoenix::ref(qi::_val), qi::_1)];
 
             query.name("query");
 

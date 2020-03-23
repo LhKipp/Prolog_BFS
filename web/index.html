@@ -14,7 +14,16 @@
         <script src="https://pagecdn.io/lib/ace/1.4.8/ace.js" type="text/javascript" charset="utf-8"></script> <!-- editor -->
         <script src="/assets/js/hotkeys.min.js"></script>
         
+        <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+        <script type="text/javascript" src="http://code.iamkate.com/javascript/queues/Queue.js"></script>
         
+        <style type="text/css">
+        #modal_tree_result_body {
+            width: 70em;
+            height: 40em;
+            border: 1px solid lightgray;
+        }
+    </style>
     </head>
     <body>
         
@@ -60,12 +69,29 @@
             <span id="alert-text"></span>
         </div>
         
+        <!-- Tree result display -->
+        <div class="modal" id="modal_tree_result" tabindex="-1" role="dialog" aria-labelledby="Tree result" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Result tree view</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="modal_tree_result_body">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <!-- infobox -->
         <div class="modal fade" id="modal_limitations" tabindex="-1" role="dialog" aria-labelledby="Usage" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Known limitations</h5>
+                        <h5 class="modal-title">Known limitations</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -100,6 +126,7 @@
         <script src="/assets/js/prolog_bfs/classes/Alert.js"></script>
         <script src="/assets/js/prolog_bfs/classes/SyntaxError.js"></script>
         <script src="/assets/js/prolog_bfs/classes/Result.js"></script>
+        <script src="/assets/js/prolog_bfs/classes/TreeView.js"></script>
         <script src="/assets/js/prolog_bfs/classes/InterpreterHandler.js"></script>
         <script src="/assets/js/prolog_bfs/main.js"></script>
         <script src="/assets/js/prolog_bfs/ace_editor_setup.js"></script>

@@ -6,6 +6,7 @@
 #include "instructions.h"
 #include "util/instructions_util.h"
 #include "../bfs_organizer/bfs_organizer.h"
+#include "../data/rule.h"
 
 //#define DEBUG
 #ifdef DEBUG
@@ -25,19 +26,19 @@ void wam::put_structure(wam::executor &executor, const functor_view &functor, si
 //    executor.registers.at(regist_index] = regist{heap_tag ::LIS, executor.heap.size()};
 //}
 
-void wam::set_variable(wam::executor &executor, size_t x_reg) {
+void wam::set_variable(wam::executor &executor, size_t x_reg, short var_index) {
 #ifdef DEBUG
     std::cout << "set_variable" << std::endl;
 #endif
-    executor.push_back_unbound_REF();
+    executor.push_back_unbound_REF(var_index);
     executor.registers.at(x_reg) = executor.heap_back();
 }
 
-void wam::set_permanent_variable(wam::executor &executor, size_t y_reg) {
+void wam::set_permanent_variable(wam::executor &executor, size_t y_reg, short var_index) {
 #ifdef DEBUG
     std::cout << "set_permanent_variable" << std::endl;
 #endif
-    executor.push_back_unbound_REF();
+    executor.push_back_unbound_REF(var_index);
     executor.cur_permanent_registers().at(y_reg) = executor.heap_back();
 
 }
@@ -79,7 +80,7 @@ void wam::get_structure(wam::executor &executor, const functor_view &functor, si
         executor.read_or_write = wam::mode::WRITE;
 
     } else if (reg.type == heap_tag::FUN) {
-        const functor_view &heap_reg = executor.functor_of(FUN_index{addr});
+        const functor_view &heap_reg = executor.functor_of(FUN_index{(int)addr});
         if (heap_reg == functor) {
             executor.S = addr + 1;
             executor.read_or_write = wam::mode::READ;
@@ -111,7 +112,7 @@ void wam::bind(executor &exec, size_t address_a, size_t address_b) {
 }
 
 
-void wam::unify_variable(wam::executor &executor, size_t x_reg) {
+void wam::unify_variable(wam::executor &executor, size_t x_reg, short var_index) {
 #ifdef DEBUG
     std::cout << "unify_variable" << std::endl;
 #endif
@@ -121,7 +122,7 @@ void wam::unify_variable(wam::executor &executor, size_t x_reg) {
             break;
         }
         case mode::WRITE: {
-            executor.push_back_unbound_REF();
+            executor.push_back_unbound_REF(var_index);
             executor.registers.at(x_reg) = executor.heap_back();
             break;
         }
@@ -130,7 +131,7 @@ void wam::unify_variable(wam::executor &executor, size_t x_reg) {
     ++executor.S;
 }
 
-void wam::unify_permanent_variable(wam::executor &executor, size_t y_reg) {
+void wam::unify_permanent_variable(wam::executor &executor, size_t y_reg, short var_index) {
 #ifdef DEBUG
     std::cout << "unify_permanent_variable" << std::endl;
 #endif
@@ -140,7 +141,7 @@ void wam::unify_permanent_variable(wam::executor &executor, size_t y_reg) {
             break;
         }
         case mode::WRITE: {
-            executor.push_back_unbound_REF();
+            executor.push_back_unbound_REF(var_index);
             executor.cur_permanent_registers().at(y_reg) = executor.heap_back();
             break;
         }
@@ -247,21 +248,20 @@ void wam::unify(executor &executor, size_t addr_a, size_t addr_b) {
     }
 }
 
-void wam::put_variable(wam::executor &executor, size_t x_reg, size_t a_reg) {
+void wam::put_variable(wam::executor &executor, size_t x_reg, size_t a_reg, short var_index) {
 #ifdef DEBUG
     std::cout << "put_variable" << std::endl;
 #endif
-    executor.push_back_unbound_REF();
+    executor.push_back_unbound_REF(var_index);
     executor.registers.at(x_reg) = executor.heap_back();
     executor.registers.at(a_reg) = executor.heap_back();
 }
 
-void wam::put_permanent_variable(wam::executor &executor, size_t y_reg, size_t a_reg) {
+void wam::put_permanent_variable(wam::executor &executor, size_t y_reg, size_t a_reg, short var_index) {
 #ifdef DEBUG
     std::cout << "put_permanent_variable" << std::endl;
 #endif
-    //Is this instruction needed?
-    executor.push_back_unbound_REF();
+    executor.push_back_unbound_REF(var_index);
 
     executor.cur_permanent_registers().at(y_reg) = executor.heap_back();
     executor.registers.at(a_reg) = executor.heap_back();
@@ -300,7 +300,7 @@ void wam::get_value(wam::executor &executor, size_t x_reg, size_t a_reg) {
 #ifdef DEBUG
     std::cout << "get_value" << std::endl;
 #endif
-    //feature/parser TODO should be swapped
+    //feature/parser TODO should be swapped ???
     unify(executor, executor.registers.at(x_reg).index, executor.registers.at(a_reg).index);
 }
 
@@ -314,7 +314,6 @@ void wam::get_permanent_value(wam::executor &executor, size_t y_reg, size_t a_re
 
 void wam::call(wam::executor &old_executor, const functor_view &functor) {
 #ifdef DEBUG
-    std::cout << "call" << std::endl;
     std::cout << "call to: " << functor.name << std::endl;
 #endif
     bfs_organizer *organizer = old_executor.get_organizer();
@@ -327,18 +326,25 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
         return;
     }
 
-    auto& rule_term_codes = organizer->program_code[functor];
-    std::for_each(rule_term_codes.begin(), rule_term_codes.end(),
-                  [&](auto &term_codes) {
-                      executor new_executor{old_executor.term_codes.size() - 1 + term_codes.size()};
+    auto& rules = organizer->program_code[functor];
+    std::for_each(rules.begin(), rules.end(),
+                  [&](wam::rule& rule) {
+#ifdef DEBUG
+        std::cout << "found rule at line_begin: "
+        << rule.atoms()[0].get_code_info().line_begin
+        << " "
+        << rule.atoms()[0].get_code_info().value
+        << std::endl;
+#endif
+                      executor new_executor{old_executor.term_codes.size() - 1 + rule.atoms().size()};
 //                      Copy the term_codes
                       auto parent_codes_end = std::copy(old_executor.term_codes.begin(),
                               old_executor.term_codes.end() -1,
                               new_executor.term_codes.begin());
-                      std::transform(term_codes.rbegin(),
-                                     term_codes.rend(),
+                      std::transform(rule.atoms().rbegin(),
+                                     rule.atoms().rend(),
                                      parent_codes_end,
-                                     [](wam::term_code& term_code){return &term_code;});
+                                     [](wam::compiled_atom& term_code){return &term_code;});
                       new_executor.set_parent(old_executor);
 
 
@@ -389,7 +395,7 @@ void wam::deallocate(wam::executor &executor) {
     assert(!executor.environments.empty());
     executor.environments.pop_back();
 
-    //This executor finished his term_code. But storing executors only doing deallocates is
+    //This executor finished his compiled_atom. But storing executors only doing deallocates is
     //unecessary, so we give him a new task, through term_codes.pop_back and inserting him in
     //executors list
     executor.term_codes.pop_back();
