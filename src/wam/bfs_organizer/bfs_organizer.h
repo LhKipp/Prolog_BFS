@@ -19,6 +19,7 @@
 #include "../compiler/parser/parser_error.h"
 #include "../visual/unification_tree/query_node.h"
 #include "../data/rule.h"
+#include "data/storage.h"
 
 
 namespace wam {
@@ -35,9 +36,7 @@ namespace wam {
         //Queue of executors, to execute
         std::list<executor*> executors;
 
-        //Global storage for all executors
-        std::unordered_map<functor_view, size_t> functor_index_map;
-        std::vector<functor_view> functors;
+        wam::storage storage;
         //functor to multiple term_codes
         std::unordered_map<functor_view, std::vector<rule>> program_code;
         wam::rule current_query_code;

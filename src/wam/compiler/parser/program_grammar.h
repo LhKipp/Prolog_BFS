@@ -15,16 +15,17 @@
 namespace wam {
 
     namespace _program_grammar{
-        using result_t = std::vector<boost::optional<std::vector<node>>>;
+        using result_t = std::vector<boost::optional<node>>;
     }
     namespace qi = boost::spirit::qi;
 
     template<typename Iterator, typename Skipper>
-    struct program_grammar : public base_grammar<Iterator, std::vector<boost::optional<std::vector<node>>>(), Skipper> {
+    struct program_grammar : public base_grammar<Iterator, std::vector<boost::optional<node>>(), Skipper> {
 
         using base = base_grammar<Iterator, _program_grammar::result_t(), Skipper>;
 
         qi::rule<Iterator, _program_grammar::result_t(), Skipper> program;
+        qi::rule<Iterator, node(), Skipper> rule;
         qi::rule<Iterator, std::vector<node>(), Skipper> clause;
 
         program_grammar() : program_grammar::base_grammar(program) {
@@ -37,13 +38,19 @@ namespace wam {
             using qi::on_error;
             using qi::fail;
 
-            program %= qi::eps > *(base::comment | clause) > qi::eoi ;
+            program %= qi::eps > *(base::comment | rule) > qi::eoi ;
+
+            using boost::spirit::repository::qi::iter_pos;
+            rule = (iter_pos >> clause >> qi::no_skip[iter_pos] > -base::comment)
+            [phoenix::bind(&add_source_code_info<Iterator>, phoenix::ref(qi::_val), qi::_1, qi::_3),
+             phoenix::bind(&make_to_children, phoenix::ref(qi::_val), qi::_2)];
 
             //clause = head :- body1, body2... whereas head and body are only allowed to be cons or func
             clause = base::atom
-                     > -(":-" >> base::atom % ',') > '.' > -base::comment;
+                     > -(":-" >> base::atom % ',') > '.';
 
             clause.name("clause");
+            rule.name("rule");
             program.name("program");
 
             base::activate_error_handler(program);

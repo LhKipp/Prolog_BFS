@@ -33,8 +33,8 @@ namespace wam {
     };
     struct FUN_Parameter {
     };
-    using FUN_index = NamedType<size_t, FUN_Parameter>;
-    using STR_index = NamedType<size_t, STR_Parameter>;
+    using FUN_index = NamedType<int, FUN_Parameter>;
+    using STR_index = NamedType<int, STR_Parameter>;
 
     struct executor {
 
@@ -119,13 +119,13 @@ namespace wam {
             heap.push_back(regist);
         }
         inline void push_back_STR(){
-            heap.emplace_back(heap_tag::STR,  heap_size() + 1);
+            heap.emplace_back(heap_tag::STR,(int)  heap_size() + 1);
         }
         inline void push_back_FUN(const functor_view & functor){
-            heap.emplace_back(heap_tag::FUN, index_of(functor));
+            heap.emplace_back(heap_tag::FUN, (int) index_of(functor));
         }
-        inline void push_back_unbound_REF() {
-            heap.emplace_back(heap_tag::REF,heap_size());
+        inline void push_back_unbound_REF(short var_index) {
+            heap.emplace_back((int) heap_size(), var_index);
         }
         inline size_t heap_size()const{
             return heap_start_index + heap.size();
@@ -219,6 +219,7 @@ namespace wam {
         }
 
         compiled_atom* get_cur_or_solved_term_code()const{
+            assert(!term_codes.empty());
             return term_codes.back();
         }
 

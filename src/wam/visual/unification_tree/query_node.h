@@ -6,39 +6,45 @@
 #define PROLOG_BFS_QUERY_NODE_H
 
 #include "var_binding_node.h"
+#include "../../executor/executor.h"
 #include "../../data/compiled_atom.h"
 #include <memory>
 
 namespace wam {
     class query_node{
     private:
-        const compiled_atom *query;
+        const executor *exec;
+
         std::unique_ptr<std::vector<var_binding_node>> children;
         
         int _id;
 
-    public:
-        query_node() {
-        }
+        node query_name;
+        std::string resolved_query_name;
 
-        query_node(const compiled_atom *query,
+    public:
+        query_node() = default;
+
+        query_node(const executor *query,
                 const size_t children_count,
                 const int node_id) :
                 _id(node_id),
-                query(query),
+                exec(query),
                 children(std::make_unique<std::vector<var_binding_node>>(children_count)) {
         }
 
         query_node(const query_node& other) {
+            resolved_query_name = other.resolved_query_name;
             _id = other._id;
-            query = other.query;
+            exec = other.exec;
             if(other.children){
                 children = std::make_unique<std::vector<var_binding_node>>(*other.children);
             }
         }
         query_node& operator=(const query_node& other) {
+            resolved_query_name = other.resolved_query_name;
             _id = other._id;
-            query = other.query;
+            exec = other.exec;
             if (other.children) {
                 children = std::make_unique<std::vector<var_binding_node>>(*other.children);
             }
@@ -54,7 +60,11 @@ namespace wam {
          * and therefore the unification process failed.
          */
         bool failed()const{
-            return children->empty();
+            return exec->failed();
+        }
+
+        bool is_to_be_continued()const{
+            return exec->is_running();
         }
 
         /**
@@ -83,29 +93,35 @@ namespace wam {
          * @return the query as string
          */
         const std::string& get_query_as_str() const{
-            return query->get_code_info().value;
+            return resolved_query_name;
         }
 
         /**
          *
-         * @return true if the query is from a user entered query.
-         * False if this query is from a rule.
-         */
-        bool is_from_orig_query()const{
-            return query->is_from_original_query();
-        }
-
-        /**
-         *
-         * @return the query code line (0 based), if this query is from a rule (program code).
+         * @return the query code line_begin (0 based), if this query is from a rule (program code).
          * Otherwise it throws an error.
-         * Note: If the query stretches over multiple lines, the first line is returned
+         * Note: If the query stretches over multiple lines, the first line_begin is returned
          */
         size_t get_query_code_line()const{
-            assert(!is_from_orig_query());
-            return query->get_code_info().line;
+            assert(!exec->is_from_user_entered_query());
+            return get_atom().get_code_info().line_begin;
         }
 
+        const compiled_atom& get_atom()const{
+            return *exec->get_cur_or_solved_term_code();
+        }
+
+        const executor& get_exec()const{
+            return *exec;
+        }
+
+        void set_name(node name){
+            query_name = std::move(name);
+            resolved_query_name = query_name.to_string();
+        }
+        const node& get_name()const{
+            return query_name;
+        }
     };
 }
 

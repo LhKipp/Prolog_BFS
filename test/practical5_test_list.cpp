@@ -126,7 +126,6 @@ auto setup_org = [&](string query) {
         while (answer) {
             for (auto &subst : *answer) {
                 actual_substs[subst.binding]++;
-                cout << subst << endl;
             }
             answer = org.get_answer();
         }
@@ -139,7 +138,6 @@ auto setup_org = [&](string query) {
         REQUIRE(answer.has_value());
         while (answer) {
             for (auto &elem : *answer) {
-                cout << elem << endl;
             }
 //            answer = org.get_answer();
             break;

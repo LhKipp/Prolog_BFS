@@ -3,7 +3,6 @@
 //
 #include "../../catch.hpp"
 #include "../../src/wam/bfs_organizer/bfs_organizer.h"
-#include <map>
 #include <string>
 #include <iostream>
 
@@ -20,9 +19,8 @@ TEST_CASE("Tree mult") {
     auto ans = org.get_answer();
     query_node t = org.get_unification_tree();
 
-    REQUIRE(t.get_query_as_str() == "mult(s(o),s(s(s(o))),Z)");
+    REQUIRE(t.get_query_as_str() == "mult(s(o), s(s(s(o))), Z)");
     REQUIRE(!t.failed());
-    REQUIRE(t.is_from_orig_query());
 
     std::vector<var_binding_node>& facts = t.get_children();
     assert(facts.size() == 2);
@@ -37,9 +35,8 @@ TEST_CASE("Tree mult") {
     auto& bindings = continuation.get_var_bindings();
 
     vector<var_binding> solutions;
-    solutions.emplace_back("Z","G_16" );
     solutions.emplace_back("B","s(s(s(o)))");
-    solutions.emplace_back("C","G_16");
+    solutions.emplace_back("C","Z");
     solutions.emplace_back("A","o");
     for (auto &elem : bindings) {
 //        std::cout << elem<< endl;
@@ -53,33 +50,119 @@ TEST_CASE("Tree mult") {
 
     const auto& q2 = continuation.get_continuing_query();
     REQUIRE(!q2.failed());
-    REQUIRE(q2.get_query_as_str() == "mult(A, B, D)");
-    REQUIRE(!q2.is_from_orig_query());
+    REQUIRE(q2.get_query_as_str() == "mult(o, s(s(s(o))), D)");
     REQUIRE(q2.get_children().size() == 2);
+
+    auto& failed_2 = q2.get_children()[1];
+    REQUIRE(failed_2.failed());
+    REQUIRE(failed_2.get_fact_as_str() == "mult(s(A), B, C)");
 
     auto& mult_fact = q2.get_children()[0];
     REQUIRE(mult_fact.get_fact_as_str() == "mult(o, X, o)");
     REQUIRE(mult_fact.continues());
-    REQUIRE(mult_fact.continues());
+    REQUIRE(mult_fact.get_atom().get_belonging_rule()->atoms().size() == 1);
 
     const auto& bindings2 = mult_fact.get_var_bindings();
     solutions.emplace_back("D","o" );
-    solutions.emplace_back("A","o" );
     solutions.emplace_back("X","s(s(s(o)))");
-    solutions.emplace_back("B","s(s(s(o)))");
     for (const auto &elem : bindings2) {
-//        std::cout << elem<< endl;
         auto found = std::find(solutions.begin(), solutions.end(), elem);
         bool has_found = found != solutions.end();
         REQUIRE(has_found);
         solutions.erase(found);
     }
+    REQUIRE(solutions.empty());
 
+    auto & addQuery = mult_fact.get_continuing_query();
+    REQUIRE(!addQuery.failed());
+    REQUIRE(addQuery.get_children().size() == 2);
 
+    auto& addRuleFail = addQuery.get_children()[1];
+    REQUIRE(addRuleFail.is_to_be_continued());
+    REQUIRE(addRuleFail.get_fact_as_str() == "add(s(A), B, C)");
 
+    auto& succeededAddFact = addQuery.get_children()[0];
+    REQUIRE(succeededAddFact.succeeded());
 
+    const auto& bindings3 = succeededAddFact.get_var_bindings();
+    solutions.emplace_back("A","s(s(s(o)))" );
+    solutions.emplace_back("Z","s(s(s(o)))");
+    for (const auto &elem : bindings3) {
+        auto found = std::find(solutions.begin(), solutions.end(), elem);
+        bool has_found = found != solutions.end();
+        REQUIRE(has_found);
+        solutions.erase(found);
+    }
+    REQUIRE(solutions.empty());
+
+    auto& finalBindings = succeededAddFact.get_final_var_bindings();
+    REQUIRE(finalBindings.size() == 1);
+    solutions.emplace_back("Z","s(s(s(o)))");
+    auto found = std::find(solutions.begin(), solutions.end(), finalBindings[0]);
+    bool has_found = found != solutions.end();
+    REQUIRE(has_found);
 }
 
+
+
+TEST_CASE("Tree additional var"){
+    bfs_organizer org;
+    std::string code =
+            "p(X) :- addVar(X), unifyVar(X)."
+            "addVar(s(Y))."
+            "unifyVar(s(s(o))).";
+    org.load_program(code);
+    org.load_query("p(Y).");
+    auto ans = org.get_answer();
+    REQUIRE(ans.has_value());
+
+    var_binding expected{"Y", "s(s(o))"};
+    REQUIRE((*ans)[0] == expected);
+    query_node t = org.get_unification_tree();
+    auto& childr = t.get_children();
+    var_binding_node& pXChild = childr.at(0);
+    expected = {"X", "Y"};
+    REQUIRE(pXChild.get_var_bindings().at(0) == expected);
+    query_node& addVarX = pXChild.get_continuing_query();
+    REQUIRE(addVarX.get_query_as_str() == "addVar(Y)");
+    var_binding_node& addVarSY = addVarX.get_children().at(0);
+    REQUIRE(addVarSY.get_var_bindings()[0] == var_binding{"Y", "s(Y)"});
+    REQUIRE(addVarSY.get_var_bindings().size() == 1);
+    query_node& unifyVar = addVarSY.get_continuing_query();
+    REQUIRE(unifyVar.get_query_as_str() == "unifyVar(s(Y))");
+    var_binding_node& unifyVarSSO = unifyVar.get_children()[0];
+    REQUIRE(unifyVarSSO.get_var_bindings()[0] == var_binding{"Y", "s(o)"});
+}
+
+TEST_CASE("Tree to be continued node"){
+    bfs_organizer org;
+    std::string code =
+            "p(X) :- p(X)."
+            "p(a).";
+    org.load_program(code);
+    org.load_query("p(Z).");
+    auto ans = org.get_answer();
+    REQUIRE(ans.has_value());
+    query_node t = org.get_unification_tree();
+
+    REQUIRE(!t.failed());
+    auto& childr = t.get_children();
+    auto& pXChild = childr[0];
+    REQUIRE(pXChild.continues());
+    std::vector<var_binding> substitutions;
+    substitutions.emplace_back("X", "Z");
+    REQUIRE(pXChild.get_var_bindings()[0] == substitutions[0]);
+    auto & toBeCont = pXChild.get_continuing_query();
+    REQUIRE(toBeCont.get_query_as_str() == "p(Z)");
+    REQUIRE(toBeCont.is_to_be_continued());//But it should be to_be_continued... not yet implemented
+
+    auto& finalChild = childr[1];
+    substitutions.clear();
+    substitutions.emplace_back("Z", "a");
+    REQUIRE(finalChild.succeeded());
+    REQUIRE(finalChild.get_final_var_bindings()[0] == substitutions[0]);
+
+}
 
 TEST_CASE("Tree fuzzing"){
     bfs_organizer org;
@@ -90,4 +173,18 @@ TEST_CASE("Tree fuzzing"){
         org.get_answer();
         org.get_unification_tree();
     }
+
+    org.load_program_from_file("test_src/p4-0.pl");
+    org.load_query("lVonN(Z).");
+    org.get_answer();
+    org.get_unification_tree();
+    org.get_answer();
+    org.get_unification_tree();
+    org.get_answer();
+    org.get_unification_tree();
+    org.get_answer();
+    org.get_unification_tree();
+    //require not failed
+
+
 }

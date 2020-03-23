@@ -21,20 +21,26 @@ void wam::bfs_organizer::load_program(const std::string_view code) {
 }
 
 void wam::bfs_organizer::load_term_lines(const std::string_view code) {
-    program_code = wam::compile_program(code);
+    program_code = wam::compile_program(code, storage);
 
-    functor_index_map.reserve(program_code.size());
-    functors.reserve(program_code.size());
+    for(auto& entry : program_code) {
+        for (auto &rule : entry.second) {
+            rule.set_atoms_par();
+        }
+    }
+
+    storage.functor_index_map.reserve(program_code.size());
+    storage.functors.reserve(program_code.size());
 
     std::for_each(program_code.cbegin(), program_code.cend(),[&](const auto& it){
         //it->first is the head_functor
 
         //if the head_functor is already added simply return
-        if(functor_index_map.find(it.first) != functor_index_map.cend()){
+        if(storage.functor_index_map.find(it.first) != storage.functor_index_map.cend()){
            return;
         }
-        functor_index_map[it.first] = functors.size();
-        functors.push_back(it.first);
+        storage.functor_index_map[it.first] = storage.functors.size();
+        storage.functors.push_back(it.first);
     });
 }
 
@@ -63,7 +69,7 @@ std::optional<std::vector<wam::var_binding>> wam::bfs_organizer::get_answer() {
         }
 
         if(next_exec->succeeded()){
-            return find_substitutions_from_orig_query(*next_exec, functors);
+            return find_substitutions_from_orig_query(*next_exec, storage);
         }
     }
 
@@ -76,7 +82,7 @@ void wam::bfs_organizer::load_query(const std::string &query_line) {
     //Clear the old executors
     executors.clear();
     //parse the query and save the results
-    current_query_code = compile_query(query_line);
+    current_query_code = compile_query(query_line, storage);
 
     init_executor = executor{current_query_code.atoms().size()};
     //Copy references to query instructions into the executor instructions
@@ -91,8 +97,8 @@ void wam::bfs_organizer::load_query(const std::string &query_line) {
 
 void wam::bfs_organizer::clear(){
     executors.clear();
-    functor_index_map.clear();
-    functors.clear();
+    storage.functor_index_map.clear();
+    storage.functors.clear();
     program_code.clear();
     current_query_code.atoms().clear();
 }
@@ -111,8 +117,8 @@ wam::parser_error wam::bfs_organizer::validate_program(const std::string_view co
 wam::parser_error wam::bfs_organizer::validate_query(const std::string_view code) {
 //TODO the code uses the parser code, a simple syntax checker would be good enough here
     try{
-        std::vector<node> query_nodes; //= compiler result
-        parse_query(code, query_nodes);
+        wam::_query_grammar::result_t query; //= parser result
+        parse_query(code, query);
         return parser_error{};
     }catch(const parser_error& e){
         return e;
@@ -120,5 +126,6 @@ wam::parser_error wam::bfs_organizer::validate_query(const std::string_view code
 }
 
 wam::query_node wam::bfs_organizer::get_unification_tree() const{
-    return wam::make_tree(init_executor, functors);
+
+    return wam::make_tree(init_executor, storage);
 }
