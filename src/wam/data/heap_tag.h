@@ -8,7 +8,7 @@
 #include "../compiler/util/node.h"
 
 namespace wam {
-    enum class heap_tag : u_int8_t{
+    enum class heap_tag : uint8_t{
         STR,
         REF,
         FUN
