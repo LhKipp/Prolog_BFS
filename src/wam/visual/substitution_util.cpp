@@ -2,10 +2,64 @@
 // Created by leonhard on 29.07.19.
 //
 #include "../instructions/util/instructions_util.h"
-#include "../config/config.h"
 
 #include "substitution_util.h"
 #include "../bfs_organizer/data/storage.h"
+#include "wam/visual/unification_tree/util/node_binding.h"
+
+
+node wam::node_representation_of(const wam::executor &exec, size_t index, const wam::storage &storage) {
+    using namespace wam;
+    regist reg = exec.heap_at((index));
+    if(reg.is_REF()){
+        index = wam::deref(exec, reg);
+    }
+
+    reg = exec.heap_at((index));
+    if(reg.is_REF()){
+        //Unbound ref cell
+        node var_node{STORED_OBJECT_FLAG ::VARIABLE, storage.variables[reg.var_index].name};
+        var_node.set_heap_index(index);
+        return var_node;
+    }
+
+    if (reg.is_STR()) {
+        index = reg.index;
+    }
+
+    //At this point the register will be an FUN cell
+    reg = exec.heap_at(index);
+    const functor_view &functor = storage.functors[reg.index];
+
+    if(functor.is_constant()){
+        return node{STORED_OBJECT_FLAG ::CONSTANT, functor.name};
+    }
+    //If the functor is the empty list, we return only "[]" if it is not end-marker for another list.
+    // e.g. [a|[]] should be outputed as [a]
+    if (functor.is_empty_list()) {
+        return node{STORED_OBJECT_FLAG ::FUNCTOR, "["};
+    }
+
+    if (functor.is_append_functor()) {
+        node append_func{STORED_OBJECT_FLAG ::FUNCTOR, "|"};
+        append_func.children->emplace_back(node_representation_of(exec, index + 1, storage));
+    }
+
+    //If the functor is a list
+    if (functor.is_list()) {
+        node list{STORED_OBJECT_FLAG ::FUNCTOR, "["};
+        list.children->emplace_back(node_representation_of(exec, index + 1, storage));
+        list.children->emplace_back(node_representation_of(exec, index + 2, storage));
+        return list;
+    }
+
+    //The functor is a normal functor
+    node func_node{STORED_OBJECT_FLAG ::FUNCTOR, functor.name};
+    for (int i = 1; i <= functor.arity ; ++i) {
+        func_node.children->emplace_back(node_representation_of(exec, index + i, storage));
+    }
+    return func_node;
+}
 
 //TODO recursive function, could be optimized through use of stack
 std::string
@@ -153,37 +207,34 @@ std::vector<wam::var_binding> wam::find_substitutions_from_orig_query(const wam:
 }
 
 std::tuple<
-        std::vector<wam::var_binding>,
+        std::vector<wam::node_binding>,
         int
 >
 wam::find_substitutions(
         const wam::executor &executor,
-        const std::vector<functor_view> &functors,
-        const std::vector<var_heap_substitution> &var_heap_subst_query,
-        const std::vector<var_heap_substitution> &var_heap_subst_func) {
+        const storage& storage,
+        const std::vector<node> &var_heap_subst_query,
+        const std::vector<node> &var_heap_subst_func) {
     using namespace wam;
-    std::vector<var_binding> result{var_heap_subst_func.size() + var_heap_subst_query.size()};
     auto transformation = [&](const auto& var_heap_substs, const auto result_begin){
         std::transform(
                 var_heap_substs.begin(),
                 var_heap_substs.end(),
                 result_begin,
-                [&](const auto& var_heap_sub){
-                    return var_binding{
-                        var_heap_sub.var_name,
-                                wam::string_representation_of(executor, var_heap_sub.heap_index, functors)
-                    };
+                [&](const node& var_heap_node){
+                    return node_binding(
+                            var_heap_node,
+                            node_representation_of(executor, var_heap_node.get_heap_index(), storage));
                 });
     };
+
+    std::vector<node_binding>
+    result{var_heap_subst_func.size() + var_heap_subst_query.size()};
 
     int fact_begin = var_heap_subst_query.size();
     transformation(var_heap_subst_query, result.begin());
     transformation(var_heap_subst_func, result.begin() + fact_begin);
 
-//    bind_fact_vars_to_query_vars(result, fact_begin);
-
     return std::make_tuple(result, fact_begin);
 }
 
-void wam::bind_fact_vars_to_query_vars(std::vector<wam::var_binding>& bindings, int& fact_begin) {
-}

@@ -19,6 +19,7 @@ namespace wam {
         
         int _id;
 
+        node query_name;
         std::string resolved_query_name;
 
     public:
@@ -95,10 +96,6 @@ namespace wam {
             return resolved_query_name;
         }
 
-        void set_resolved_name(std::string name){
-            resolved_query_name = std::move(name);
-        }
-
         /**
          *
          * @return the query code line_begin (0 based), if this query is from a rule (program code).
@@ -112,6 +109,18 @@ namespace wam {
 
         const compiled_atom& get_atom()const{
             return *exec->get_cur_or_solved_term_code();
+        }
+
+        const executor& get_exec()const{
+            return *exec;
+        }
+
+        void set_name(node name){
+            query_name = std::move(name);
+            resolved_query_name = query_name.to_string();
+        }
+        const node& get_name()const{
+            return query_name;
         }
     };
 }

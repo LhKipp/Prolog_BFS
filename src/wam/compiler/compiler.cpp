@@ -484,7 +484,7 @@ std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<no
                 instructions,
                 std::vector<var_reg_substitution>{},
                 source_code_info{},
-                node{});
+                node{STORED_OBJECT_FLAG::CONSTANT, "DEALLOCATE"});
     }
 
 

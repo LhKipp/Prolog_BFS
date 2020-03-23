@@ -6,8 +6,9 @@
 #include "../../data/rule.h"
 #include "../substitution_util.h"
 #include "../../bfs_organizer/data/storage.h"
-#include <iterator>
-#include "../../config/config.h"
+
+#include <wam/compiler/util/node_iteration.h>
+#include <wam/compiler/util/node_util.h>
 
 wam::query_node wam::make_tree(const wam::executor &top_exec, const wam::storage& storage) {
     int node_id_counter = 0;
@@ -46,113 +47,80 @@ wam::query_node wam::make_tree(const wam::executor &top_exec, const wam::storage
     return result;
 }
 
+void wam::resolve_query_node_name(wam::query_node& query_node, const wam::storage& storage){
+    node query_name = query_node.get_atom().get_parsed_atom();
+    //atom outer is always functor
+
+    std::vector<node*> vars = find_vars_in(query_name);
+    for(node* var : vars){
+        point_node_to_heap(*var , query_node.get_exec());
+        *var = node_representation_of(query_node.get_exec(), var->get_heap_index(), storage);
+    }
+
+    query_node.set_name(query_name);
+};
+
 void wam::resolve_query_atoms_name(wam::query_node &top_query_node, const wam::storage& storage) {
     using namespace wam;
-    if(top_query_node.failed()){
-        top_query_node.set_resolved_name(top_query_node.get_atom().get_code_info().value);
+
+    //The top query node name doesnt change
+    resolve_query_node_name(top_query_node, storage);
+
+    if(top_query_node.failed() || top_query_node.is_to_be_continued()){
         return;
     }
 
-    std::stack<rule_bindings> bindings;
-    bindings.push({});
     for(var_binding_node& binding_node : top_query_node.get_children()){
-        resolve_parent(top_query_node, binding_node, bindings, storage);
+        if(binding_node.failed() || binding_node.is_to_be_continued()){
+            continue;
+        }
+        resolve_parent(top_query_node, binding_node,  storage);
     }
 }
 
-void wam::resolve_parent(wam::query_node &parent, wam::var_binding_node& binding_node, std::stack<rule_bindings> bindings, const wam::storage& storage) {
+void wam::resolve_parent(wam::query_node &parent, wam::var_binding_node& binding_node, const wam::storage& storage) {
     using namespace wam;
 
-    assert(!bindings.empty());
     assert(!(parent.is_to_be_continued() || parent.failed()));
-    auto& q_binding_info = bindings.top();
-    rule_bindings f_binding_info;
+    assert(!(binding_node.failed() || binding_node.is_to_be_continued()));
 
-    parent.set_resolved_name(resolve(parent, q_binding_info));
+    std::vector<const node*> f_vars = find_vars_in(binding_node.get_atom().get_parsed_atom());
+    std::vector<const node*> q_vars = find_vars_in(parent.get_name());
 
-    if(binding_node.failed() || binding_node.is_to_be_continued()){
-        return;
-    }
-
-    //find all vars in parent
-    //get for every var a var_binding
-    //find all vars in fact
-    //get for every fact var a var_binding
-    //Special cases: Q / G_1, F / G_1 --> Q / F, F / Q
-    //                    --> query_backtrack_request for Q / F
-    //               Q / s(G_1), F / G_1 --> Q / s(F),
-    //                    --> query_backtrack_request for Q / s(F)
-    //               Q / G_1, F / s(G_1) --> F / s(Q),
-    //                 Q gets further executed
-    //                e.G. q(s(Q)).?     q(F).
-    //                    --> query_backtrack_request for Q (/ G_1)
-    // Possible answers:
-    //               Q / fact --> only substitute in further query
-    //               Q / Var  --> substitute and add var_heap_subst that is to be resolved
-    //
-    std::vector<std::string> query_vars = find_vars_in(parent.get_query_as_str());
-    const auto& all_var_regs = parent.get_atom().get_substitutions();
-    std::vector<var_reg_substitution> important_substs;
-    important_substs.reserve(all_var_regs.size());
-    std::copy_if(all_var_regs.begin(), all_var_regs.end(), std::back_inserter(important_substs),
-            [&](const auto& var_reg){
-        auto it = std::find(query_vars.begin(), query_vars.end(), var_reg.var_name);
-        if(it != query_vars.end()){
-            query_vars.erase(it);
-            return true;
-        }else{
-            return false;
-        }
+    std::vector<node> f_heap_vars{f_vars.size()};
+    std::transform(f_vars.begin(), f_vars.end(),
+            f_heap_vars.begin(),
+            [&](const node* n){
+        return point_node_to_heap(*n, binding_node.get_exec());
     });
-    //The rest of the query_vars will be in q_binding_info.q_heap_substs
-    std::vector<var_heap_substitution> q_heap_substs = point_var_reg_substs_to_heap(binding_node.get_exec(), important_substs);
-    std::copy_if(q_binding_info.heap_substs.begin(), q_binding_info.heap_substs.end(),
-                 std::back_inserter(q_heap_substs),
-                 [&](const auto& heap_sub){
-        return std::find(query_vars.begin(), query_vars.end(), heap_sub.var_name) != query_vars.end();
-    });
-//    q_binding_info.heap_substs.insert(q_binding_info.heap_substs.end(),
-//                                      q_heap_substs.begin(), q_heap_substs.end());
 
-    std::vector<var_heap_substitution> f_heap_substs = point_var_reg_substs_to_heap(binding_node.get_exec());
-//    f_binding_info.heap_substs.insert(f_binding_info.heap_substs.end(),
-//            f_heap_substs.begin(), f_heap_substs.end());
+    std::vector<node> q_heap_vars{q_vars.size()};
+    std::transform(q_vars.begin(), q_vars.end(),
+                   q_heap_vars.begin(),
+                   [&](const node* n){
+                       return *n;
+                   });
 
     auto[all_bindings, fact_bindings_begin] = find_substitutions(
             binding_node.get_exec(),
-            storage.functors,
-            q_heap_substs,
-            f_heap_substs);
+            storage,
+            q_heap_vars,
+            f_heap_vars);
     erase_substitutions(
             all_bindings,
-            fact_bindings_begin,
-            q_binding_info,
-            f_binding_info
-            );
+            fact_bindings_begin
+    );
 
     assert(fact_bindings_begin <= all_bindings.size());
-    binding_node.get_var_bindings() = all_bindings;
+
+    std::vector<var_binding> bindgs_as_var_bindgs{all_bindings.size()};
+    std::transform(all_bindings.begin(), all_bindings.end(),
+                   bindgs_as_var_bindgs.begin(),
+                   [](const node_binding& binding){
+        return var_binding{binding.var_name.to_string(), binding.binding.to_string()};
+    });
+    binding_node.get_var_bindings() = std::move(bindgs_as_var_bindgs);
     binding_node.get_first_fact_binding_index() = fact_bindings_begin;
-
-    q_binding_info.bindings.insert(q_binding_info.bindings.end(),
-            all_bindings.begin() , all_bindings.begin() + fact_bindings_begin);
-    f_binding_info.bindings.insert(f_binding_info.bindings.end(),
-            all_bindings.begin() + fact_bindings_begin, all_bindings.end());
-
-
-
-    //Check whether there are more found all_bindings for this query
-//    if(binding_node.succeeded() || binding_node.continues()){
-//        auto[query_bindings_begin, query_bindings_end] = binding_node.get_query_bindings();
-//        auto v = std::distance(query_bindings_begin, query_bindings_end);
-//        q_binding_info.reserve(q_binding_info.size() + v * 2);
-//        std::copy(query_bindings_begin, query_bindings_end, std::back_inserter(q_binding_info));
-//    }
-
-    if(parent.get_atom().is_last_atom_in_rule()){
-        assert(!bindings.empty());
-        bindings.pop();
-    }
 
     //Look whether we continue downwards
     if(binding_node.failed() || binding_node.is_to_be_continued() || binding_node.succeeded()){
@@ -161,146 +129,59 @@ void wam::resolve_parent(wam::query_node &parent, wam::var_binding_node& binding
     }
 
     //binding node continues
-
-    if(binding_node.get_atom().get_belonging_rule()->has_body()){
-        //This var_binding_node starts a new rule. So insert a new binding vector
-        bindings.push(f_binding_info);
-    }
-
     query_node& following_query = binding_node.get_continuing_query();
+    resolve_query_node_name(following_query, storage);
+
     if(following_query.failed() || following_query.is_to_be_continued()){
-        //The tree wont progress downwards, so only resolve failing query name
-        resolve(following_query, bindings.top());
-    }else{
-        for(auto& child : following_query.get_children()){
-            resolve_parent(following_query, child, bindings, storage);
+        return;
+    }
+
+    for(auto& child : following_query.get_children()){
+        if(child.failed() || child.is_to_be_continued()){
+            continue;
         }
+        resolve_parent(following_query, child, storage);
     }
 }
 
-const char* const var_terminators = " ,|)]";
-std::string wam::resolve(const wam::query_node &query, const wam::rule_bindings &rule_bindings) {
-    const auto& bindings = rule_bindings.bindings;
-    const auto& query_name = query.get_atom().get_code_info().value;
-    std::string result;
-    result.reserve(query_name.size() * 2);
 
-    auto iter = query_name.begin();
-    while(iter != query_name.end()){
-        if(std::isupper(*iter)){
-            //find end of var
-            auto var_end = std::find_first_of(iter, query_name.end(),
-                                              var_terminators, var_terminators + 5);
-            std::string var_name{iter, var_end};
-            auto found = std::find_if(bindings.begin(), bindings.end(),[&](const wam::var_binding& var_binding){
-                return var_binding.var_name == var_name;
-            });
-            if(found != bindings.end()){//if there is a substitution
-                result += found->binding;
-            }else{ //else insert the variable
-                result.insert(result.end(), iter, var_end);
-            }
-            iter = var_end;
-        }else{//its not a varname, so just copy
-            result += *iter;
-            ++iter;
-        }
-    }
-    return result;
-}
-
-void wam::remove_repeating_bindings(wam::query_node &node) {
-
-}
-
-std::vector<std::string> wam::find_vars_in(const std::string &query) {
-    std::vector<std::string> result;
-    auto it = query.begin();
-    const auto end = query.end();
-    while(it != end){
-        if(std::isupper(*it)){
-            auto var_end = std::find_first_of(it, end,
-                                              var_terminators, var_terminators + 5);
-            result.emplace_back(it, var_end);
-            it = var_end;
-        }else{
-            ++it;
-        }
-    }
-    return result;
-}
-
-void wam::erase_substitutions(std::vector<var_binding> &all_var_bindings,
-                              int &fact_bindings_begin,
-                              wam::rule_bindings &q_bindings_info,
-                              wam::rule_bindings &f_bindings_info) {
-
-
-    //Special cases: Q / G_1, F / G_1 --> Q / F, F / Q
-    //                    --> query_backtrack_request for Q / F
-    //               Q / s(G_1), F / G_1 --> Q / s(F),
-    //                    --> query_backtrack_request for Q / s(F)
-    //               Q / G_1, F / s(G_1) --> F / s(Q),
-    //                 Q gets further executed
-    //                e.G. q(s(Q)).?     q(F).
-    //                    --> query_backtrack_request for Q (/ G_1)
+void wam::erase_substitutions(std::vector<wam::node_binding> &all_var_bindings,
+                              int &fact_bindings_begin){
     using namespace wam;
-    //Input size are normaly small, so simple O(n2) algorithm should be performant enough
-    //Otherwise alternative algorithm: insert all query_bindings in multi_set
-    //Then look for each fact_binding if substitute is in tree, if so rebind fact to one of the query_vars, and make Qvar1/Qvar2
 
-    std::vector<std::vector<var_binding>::iterator> queries_to_erase;
     const auto query_begin = all_var_bindings.begin();
     const auto query_end = all_var_bindings.begin() + fact_bindings_begin;
     const auto fact_begin = all_var_bindings.begin() + fact_bindings_begin;
     const auto fact_end = all_var_bindings.end();
 
-    //For each fact
-    std::for_each(fact_begin, fact_end,
-            [&](var_binding& fact_binding){
+    erase_similar(all_var_bindings,
+                  fact_bindings_begin);
 
-        std::vector<std::vector<var_binding>::iterator> found_queries;
-        //Sadly there is no transform_if.
-        auto found = std::find_if(query_begin, query_end, [&](auto& q_binding){
-            return q_binding.binding == fact_binding.binding && q_binding.binds_to_var();
-        });
-        while(found != query_end){
-            found_queries.push_back(found);
-            std::string number = found->binding.substr(config::UNBOUND_VAR_PREFIX_SIZE);
-            f_bindings_info.heap_substs.push_back(
-                    var_heap_substitution{found->var_name, static_cast<size_t>(std::stoi(number))}
-                    );
+}
 
-            found = std::find(found + 1, query_end, fact_binding);
-        }
+void
+wam::erase_similar(std::vector<node_binding> &all_var_bindings,
+                   int &fact_bindings_begin){
 
-        //First if should be common case, second if is unusual.
-        //The second if case also handles first if case, but has overhead for common case.
-        if(found_queries.size() == 1) {
-            //Bind fact_var to first query_binding, and delete query_binding
-            fact_binding.binding = found_queries[0]->var_name;
-            queries_to_erase.push_back(found_queries[0]);
-            //A query_binding is erased, so the facts start earlier
-        }else if(found_queries.size() > 1){
-            fact_binding.binding = found_queries[0]->var_name;
-            //std::transform doesnt guarantee order, so simple implementation here...
-            auto bind_queries = [](var_binding& from, const var_binding& to){
-                from.binding = to.var_name;
-            };
-            auto end = found_queries.rend() - 1;//No need to process found_queries[0] as it gets deleted later
-            auto first = found_queries.rbegin();
-            while(first != end){
-                bind_queries(**first, **(++first));
-            }
+    const auto query_begin = all_var_bindings.begin();
+    const auto query_end = all_var_bindings.begin() + fact_bindings_begin;
 
-            queries_to_erase.push_back(found_queries[0]);
-            //A query_binding is erased, so the facts start earlier
-        }
+    //Remove all query vars pointing to themselves
+    auto q_end_new = std::remove_if(query_begin, query_end, [&](const auto& bindg){
+        return bindg.var_name.is_variable() && bindg.binding.is_variable() &&
+                node_var_equality{}(bindg.var_name, bindg.binding);
     });
 
-    for(auto to_erase : queries_to_erase){
-        all_var_bindings.erase(to_erase);
-    }
-    fact_bindings_begin -= queries_to_erase.size();
+    //remove node_bindings from vec
+    fact_bindings_begin = std::distance(query_begin, q_end_new);
+    all_var_bindings.erase(q_end_new, query_end);
 
+
+    const auto fact_begin = all_var_bindings.begin() + fact_bindings_begin;
+    const auto fact_end = all_var_bindings.end();
+    auto f_end_new = std::remove_if(fact_begin, fact_end, [&](const auto& bindg){
+        return bindg.var_name.is_variable() && bindg.binding.is_variable() &&
+               node_var_equality{}(bindg.var_name, bindg.binding);
+    });
+    all_var_bindings.erase(f_end_new, all_var_bindings.end());
 }

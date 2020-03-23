@@ -9,6 +9,7 @@
 
 std::string node::to_string() const {
     if(is_variable() || is_constant()) return name;
+    if(is_empty_list()) return "[]";
     if(is_functor()){
         std::string start;
         start.reserve(name.size() + name.size() * children->size());
@@ -19,8 +20,7 @@ std::string node::to_string() const {
         });
         start += children->back().to_string() + ")";
         return start;
-    }else{//its a list
-        if(is_empty_list()) return "[]";
+    }else if(is_list()){//its a list
         if(children->size() == 1){
             return "[" + children->operator[](0).to_string() + "]";
         }
@@ -40,5 +40,8 @@ std::string node::to_string() const {
         }
 
         return start;
+    }else{
+        return "";
     }
 }
+

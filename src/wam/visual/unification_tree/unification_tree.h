@@ -5,6 +5,7 @@
 #ifndef PROLOG_BFS_UNIFICATION_TREE_H
 #define PROLOG_BFS_UNIFICATION_TREE_H
 
+#include <wam/visual/unification_tree/util/node_binding.h>
 #include "../../executor/executor.h"
 #include "query_node.h"
 #include "rule_bindings.h"
@@ -17,19 +18,17 @@ namespace wam{
     query_node make_tree(const executor& top_exec, const wam::storage& storage, int& id_start);
 
     void resolve_query_atoms_name(query_node& top_query_node, const wam::storage& storage);
+    void resolve_query_node_name(wam::query_node& query_node, const wam::storage& storage);
 
-    void resolve_parent(query_node &parent, var_binding_node &binding_node, std::stack<wam::rule_bindings> bindings, const wam::storage& storage);
+    void resolve_parent(query_node &parent, var_binding_node &binding_node, const wam::storage& storage);
 
-    std::string resolve(const query_node &query,const wam::rule_bindings &bindings);
+    void erase_substitutions(std::vector<wam::node_binding>& all_var_bindings,
+                             int& fact_bindings_begin);
 
-    void remove_repeating_bindings(query_node &node);
+    void erase_similar(std::vector<node_binding> &all_var_bindings, int &fact_begin);
 
-    std::vector<std::string> find_vars_in(const std::string &query);
-
-    void erase_substitutions(std::vector<var_binding>& all_var_bindings, int& fact_bindings_begin,
-                        rule_bindings &q_bindings_info,
-                        rule_bindings &f_bindings_info);
-
+    void
+    erase_var_in_var(std::vector<var_binding> &vector, int &begin, rule_bindings &bindings, rule_bindings &bindings1);
 }
 
 #endif //PROLOG_BFS_UNIFICATION_TREE_H

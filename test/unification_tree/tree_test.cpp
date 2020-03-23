@@ -19,7 +19,7 @@ TEST_CASE("Tree mult") {
     auto ans = org.get_answer();
     query_node t = org.get_unification_tree();
 
-    REQUIRE(t.get_query_as_str() == "mult(s(o),s(s(s(o))),Z)");
+    REQUIRE(t.get_query_as_str() == "mult(s(o), s(s(s(o))), Z)");
     REQUIRE(!t.failed());
 
     std::vector<var_binding_node>& facts = t.get_children();
@@ -101,8 +101,6 @@ TEST_CASE("Tree mult") {
     auto found = std::find(solutions.begin(), solutions.end(), finalBindings[0]);
     bool has_found = found != solutions.end();
     REQUIRE(has_found);
-
-    std::cout << sizeof(regist);
 }
 
 
@@ -128,7 +126,7 @@ TEST_CASE("Tree additional var"){
     query_node& addVarX = pXChild.get_continuing_query();
     REQUIRE(addVarX.get_query_as_str() == "addVar(Y)");
     var_binding_node& addVarSY = addVarX.get_children().at(0);
-    REQUIRE(addVarSY.get_var_bindings()[0] == var_binding{"X", "s(Y)"});
+    REQUIRE(addVarSY.get_var_bindings()[0] == var_binding{"Y", "s(Y)"});
     REQUIRE(addVarSY.get_var_bindings().size() == 1);
     query_node& unifyVar = addVarSY.get_continuing_query();
     REQUIRE(unifyVar.get_query_as_str() == "unifyVar(s(Y))");
@@ -175,4 +173,18 @@ TEST_CASE("Tree fuzzing"){
         org.get_answer();
         org.get_unification_tree();
     }
+
+    org.load_program_from_file("test_src/p4-0.pl");
+    org.load_query("lVonN(Z).");
+    org.get_answer();
+    org.get_unification_tree();
+    org.get_answer();
+    org.get_unification_tree();
+    org.get_answer();
+    org.get_unification_tree();
+    org.get_answer();
+    org.get_unification_tree();
+    //require not failed
+
+
 }

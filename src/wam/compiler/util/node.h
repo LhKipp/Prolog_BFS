@@ -159,7 +159,11 @@ public:
 
     node(node &&other) = default;
 
-    node(const node &other) : type{other.type}, name{other.name}, a_reg{other.a_reg}, x_reg{other.x_reg},
+    node(const node &other) : type{other.type},
+                              name{other.name},
+                              a_reg{other.a_reg},
+                              x_reg{other.x_reg},
+                              y_reg{other.y_reg},
                               code_info{other.code_info}{
         if (other.children) {
             children = std::make_unique<std::vector<node>>(*other.children);
@@ -171,6 +175,7 @@ public:
         this->type = other.type;
         this->x_reg = other.x_reg;
         this->a_reg = other.a_reg;
+        this->y_reg = other.y_reg;
         if (other.children) {
             children = std::make_unique<std::vector<node>>(*other.children);
         }
@@ -186,7 +191,6 @@ public:
     }
 
     std::string to_string()const;
-
 };
 
 

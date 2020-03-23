@@ -7,12 +7,19 @@
 
 #include <vector>
 #include "../../data/var_binding.h"
-#include "../../data/var_heap_substitution.h"
+#include "wam/compiler/util/node.h"
+#include "wam/visual/unification_tree/util/node_var_util.h"
+#include <unordered_map>
 
 namespace wam{
+
+
     struct rule_bindings{
-        std::vector<wam::var_binding> bindings;
-        std::vector<wam::var_heap_substitution> heap_substs;
+        std::unordered_map<node, node, node_var_hasher, node_var_equality> found_subs;
+
+        std::vector<node> vars_to_be_resolved;
     };
+
+
 }
 #endif //PROLOG_BFS_RULE_BINDINGS_H
