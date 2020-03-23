@@ -12,6 +12,8 @@
 namespace wam{
     struct var{
         std::string name;
+
+        var(std::string name):name(std::move(name)){}
     };
 
     struct storage{
@@ -21,6 +23,11 @@ namespace wam{
         std::vector<functor_view> functors;
 
         std::vector<var> variables;
+
+        short inline push_back_var(std::string name){
+            variables.emplace_back(var{name});
+            return static_cast<short>(variables.size() - 1);
+        }
     };
 }
 #endif //PROLOG_BFS_STORAGE_H

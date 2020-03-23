@@ -39,12 +39,12 @@ void wam::add_source_code_info(node &node, Iter begin, Iter end) {
     auto& code_info = node.code_info;
     code_info.line_begin = get_line(begin) - 1;
     code_info.line_end = get_line(end) - 1;
+    code_info.value = std::string{begin, end};
     //To implement get_column a lower_bound would be needed, that is
     //At least at the line_begin start or before. if lower_bound (as e.G. begin)
     //would be on the same line_begin, it will give wrong results
     //So for now we let it be
     //code_info.column = get_column(lower_bound, begin) -1;
-    code_info.value = std::string(begin, end);
 }
 
 #endif //PROLOG_BFS_UTIL_H

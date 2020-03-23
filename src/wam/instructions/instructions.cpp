@@ -26,19 +26,19 @@ void wam::put_structure(wam::executor &executor, const functor_view &functor, si
 //    executor.registers.at(regist_index] = regist{heap_tag ::LIS, executor.heap.size()};
 //}
 
-void wam::set_variable(wam::executor &executor, size_t x_reg) {
+void wam::set_variable(wam::executor &executor, size_t x_reg, short var_index) {
 #ifdef DEBUG
     std::cout << "set_variable" << std::endl;
 #endif
-    executor.push_back_unbound_REF();
+    executor.push_back_unbound_REF(var_index);
     executor.registers.at(x_reg) = executor.heap_back();
 }
 
-void wam::set_permanent_variable(wam::executor &executor, size_t y_reg) {
+void wam::set_permanent_variable(wam::executor &executor, size_t y_reg, short var_index) {
 #ifdef DEBUG
     std::cout << "set_permanent_variable" << std::endl;
 #endif
-    executor.push_back_unbound_REF();
+    executor.push_back_unbound_REF(var_index);
     executor.cur_permanent_registers().at(y_reg) = executor.heap_back();
 
 }
@@ -112,7 +112,7 @@ void wam::bind(executor &exec, size_t address_a, size_t address_b) {
 }
 
 
-void wam::unify_variable(wam::executor &executor, size_t x_reg) {
+void wam::unify_variable(wam::executor &executor, size_t x_reg, short var_index) {
 #ifdef DEBUG
     std::cout << "unify_variable" << std::endl;
 #endif
@@ -122,7 +122,7 @@ void wam::unify_variable(wam::executor &executor, size_t x_reg) {
             break;
         }
         case mode::WRITE: {
-            executor.push_back_unbound_REF();
+            executor.push_back_unbound_REF(var_index);
             executor.registers.at(x_reg) = executor.heap_back();
             break;
         }
@@ -131,7 +131,7 @@ void wam::unify_variable(wam::executor &executor, size_t x_reg) {
     ++executor.S;
 }
 
-void wam::unify_permanent_variable(wam::executor &executor, size_t y_reg) {
+void wam::unify_permanent_variable(wam::executor &executor, size_t y_reg, short var_index) {
 #ifdef DEBUG
     std::cout << "unify_permanent_variable" << std::endl;
 #endif
@@ -141,7 +141,7 @@ void wam::unify_permanent_variable(wam::executor &executor, size_t y_reg) {
             break;
         }
         case mode::WRITE: {
-            executor.push_back_unbound_REF();
+            executor.push_back_unbound_REF(var_index);
             executor.cur_permanent_registers().at(y_reg) = executor.heap_back();
             break;
         }
@@ -248,21 +248,20 @@ void wam::unify(executor &executor, size_t addr_a, size_t addr_b) {
     }
 }
 
-void wam::put_variable(wam::executor &executor, size_t x_reg, size_t a_reg) {
+void wam::put_variable(wam::executor &executor, size_t x_reg, size_t a_reg, short var_index) {
 #ifdef DEBUG
     std::cout << "put_variable" << std::endl;
 #endif
-    executor.push_back_unbound_REF();
+    executor.push_back_unbound_REF(var_index);
     executor.registers.at(x_reg) = executor.heap_back();
     executor.registers.at(a_reg) = executor.heap_back();
 }
 
-void wam::put_permanent_variable(wam::executor &executor, size_t y_reg, size_t a_reg) {
+void wam::put_permanent_variable(wam::executor &executor, size_t y_reg, size_t a_reg, short var_index) {
 #ifdef DEBUG
     std::cout << "put_permanent_variable" << std::endl;
 #endif
-    //Is this instruction needed?
-    executor.push_back_unbound_REF();
+    executor.push_back_unbound_REF(var_index);
 
     executor.cur_permanent_registers().at(y_reg) = executor.heap_back();
     executor.registers.at(a_reg) = executor.heap_back();
@@ -301,7 +300,7 @@ void wam::get_value(wam::executor &executor, size_t x_reg, size_t a_reg) {
 #ifdef DEBUG
     std::cout << "get_value" << std::endl;
 #endif
-    //feature/parser TODO should be swapped
+    //feature/parser TODO should be swapped ???
     unify(executor, executor.registers.at(x_reg).index, executor.registers.at(a_reg).index);
 }
 
@@ -332,9 +331,9 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
                   [&](wam::rule& rule) {
 #ifdef DEBUG
         std::cout << "found rule at line_begin: "
-        << term_codes[0].get_code_info().line_begin
+        << rule.atoms()[0].get_code_info().line_begin
         << " "
-        << term_codes[0].get_code_info().value
+        << rule.atoms()[0].get_code_info().value
         << std::endl;
 #endif
                       executor new_executor{old_executor.term_codes.size() - 1 + rule.atoms().size()};

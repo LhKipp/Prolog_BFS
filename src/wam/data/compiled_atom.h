@@ -7,6 +7,7 @@
 
 #include "var_reg_substitution.h"
 #include "source_code_info.h"
+#include "../compiler/util/node.h"
 #include <functional>
 #include <vector>
 
@@ -24,6 +25,7 @@ namespace wam {
         //We need to keep track which var_reg_substs is from an original user entered query
         //we store it in compiled_atom to save some heap space
         std::vector<var_reg_substitution> substitutions;
+        node parsed_atom;
 
         bool is_from_orig_query;
         source_code_info code_info;
@@ -36,12 +38,15 @@ namespace wam {
                       std::vector<std::function<void(executor &)>> instructions,
                       std::vector<var_reg_substitution> substitutions,
                       const source_code_info& codeInfo,
+                      node parsed_node,
                       bool is_from_original_query = false)
                 : expected_register_count(expectedRegisterCount),
                   instructions(std::move(instructions)),
                   substitutions(std::move(substitutions)),
                   is_from_orig_query(is_from_original_query),
-                  code_info(std::move(codeInfo)){
+                  code_info(std::move(codeInfo)),
+                  parsed_atom{std::move(parsed_node)}
+                  {
         }
 
         compiled_atom() = default;
@@ -81,6 +86,10 @@ namespace wam {
         }
 
         bool is_last_atom_in_rule()const;
+
+        const node& get_parsed_atom()const{
+            return parsed_atom;
+        }
     };
 }
 #endif //PROLOG_BFS_PROGRAM_TERM_CODE_H

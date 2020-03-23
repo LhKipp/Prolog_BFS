@@ -124,8 +124,8 @@ namespace wam {
         inline void push_back_FUN(const functor_view & functor){
             heap.emplace_back(heap_tag::FUN, (int) index_of(functor));
         }
-        inline void push_back_unbound_REF() {
-            heap.emplace_back(heap_tag::REF,(int) heap_size());
+        inline void push_back_unbound_REF(short var_index) {
+            heap.emplace_back((int) heap_size(), var_index);
         }
         inline size_t heap_size()const{
             return heap_start_index + heap.size();

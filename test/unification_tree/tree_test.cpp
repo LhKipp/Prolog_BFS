@@ -3,7 +3,6 @@
 //
 #include "../../catch.hpp"
 #include "../../src/wam/bfs_organizer/bfs_organizer.h"
-#include <map>
 #include <string>
 #include <iostream>
 
