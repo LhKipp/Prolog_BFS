@@ -135,10 +135,10 @@ TEST_CASE("Tree additional var"){
 }
 
 TEST_CASE("Tree to be continued node"){
-    bfs_organizer org;
     std::string code =
             "p(X) :- p(X)."
             "p(a).";
+    bfs_organizer org;
     org.load_program(code);
     org.load_query("p(Z).");
     auto ans = org.get_answer();
@@ -185,6 +185,33 @@ TEST_CASE("Tree fuzzing"){
     org.get_answer();
     org.get_unification_tree();
     //require not failed
+}
 
+TEST_CASE("Tree with list unifications"){
+    std::string code = "r([a, b, c]) :- g(X), h(Y), c(Z), f(Single)."
+                       "g([[a,b], [a,Y] | X])."
+                       "h([])."
+                       "c([X, Y])."
+                       "f([a]).";
 
+    bfs_organizer org;
+    org.load_program(code);
+    org.load_query("r(Z).");
+    auto ans = org.get_answer();
+    REQUIRE(ans.has_value());
+    query_node t = org.get_unification_tree();
+    var_binding_node& r = t.get_children()[0];
+    REQUIRE(r.get_var_bindings()[0] == var_binding{"Z", "[a, b, c]"});
+    query_node& gX = r.get_continuing_query();
+    var_binding_node& g = gX.get_children()[0];
+    REQUIRE(g.get_var_bindings()[0] == var_binding{"X", "[[a, b], [a, Y], X]"});
+    query_node& hY = g.get_continuing_query();
+    var_binding_node& h = hY.get_children()[0];
+    REQUIRE(h.get_var_bindings()[0] == var_binding{"Y", "[]"});
+    query_node& cZ = h.get_continuing_query();
+    var_binding_node& c = cZ.get_children()[0];
+    REQUIRE(c.get_var_bindings()[0] == var_binding{"Z", "[X, Y]"});
+    query_node& single = c.get_continuing_query();
+    var_binding_node& fSingle = single.get_children()[0];
+    REQUIRE(fSingle.get_var_bindings()[0] == var_binding{"Single", "[a]"});
 }
