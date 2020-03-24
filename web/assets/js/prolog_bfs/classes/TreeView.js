@@ -100,7 +100,25 @@ class TreeView {
             // add current query_node as node to vis network
             nodes.push({ id: current_query_node_id, label: current_query_node.getQueryAsString() });
 
-            if(current_query_node.failed()){
+            // query_node TO BE CONTINUED, we don't know its children yet
+            if (current_query_node.isToBeContinued()) {
+                this.to_be_continued_node_id = additional_node_counter--;
+                nodes.push({id: this.to_be_continued_node_id,
+                    label: "*continue search*",
+                    color: {
+                        hover: {
+                            background: "lightgreen",
+                            border: "green"
+                        }
+                    }
+                });
+                edges.push({
+                    from: current_query_node_id,
+                    to: this.to_be_continued_node_id
+                });
+            }
+            // query_node FAILED, has no children
+            else if (current_query_node.failed()) {
                 var failed_node_id = additional_node_counter--;
                 nodes.push({ id: failed_node_id, label: "failed! (No such rule)" });
                 edges.push( {
@@ -108,91 +126,91 @@ class TreeView {
                     to: failed_node_id,
                     label: ""
                 });
-                //This query_node failed, and has no children, continue with next
-                continue;
-            }
-            
-            var var_binding_nodes = current_query_node.getChildren();
-            
-            // Add children to the queue
-            // Differentiate 4 states a var_binding_node can have
-            for (var i = 0; i < var_binding_nodes.size(); i++) { 
-                // CONTINUES
-                if (var_binding_nodes.get(i).continues()) {
-                    // only go deeper in the tree if a new query follows.
-                    // don't add the var_binding node. add its following query
-                    // because only they are the actual tree nodes
-                    queue.enqueue(var_binding_nodes.get(i).getContinuingQuery());
-                    
-                    // add the edge to the new node
-                    edges.push( {
-                        from: current_query_node_id, 
-                        to: var_binding_nodes.get(i).getContinuingQuery().getNodeID(),
-                        title: "Line " + var_binding_nodes.get(i).getFactCodeLine() + ", "
-                            + var_binding_nodes.get(i).getVarBindingsAsString()
-                    });
-                    
-                }
-                // reached end: display that this has FAILED
-                else if (var_binding_nodes.get(i).failed()) {
-                    /** @todo */
-                        //Der Fassbender baum lässt manche failed nodes weg... Deshalb hier an jeder edge die rule line
-                    var failed_node_id = additional_node_counter--;
-                    nodes.push( { 
-                        id: failed_node_id, 
-                        label: "failed",
-                        color: {
-                            background: "lightgray",
-                            border: "gray"
-                        }
-                    } );
-                    edges.push( {
-                        from: current_query_node_id,
-                        to: failed_node_id,
-                        title: "Line " + var_binding_nodes.get(i).getFactCodeLine(),
-                        color: {
-                            color: "gray"
-                        }
-                    } );
-                }
-                // reached end: display that this path lead to SUCCESS
-                else if (var_binding_nodes.get(i).succeeded()){
-                    var succeeded_node_id = additional_node_counter--;
-                    nodes.push( {
-                        id: succeeded_node_id,
-                        label: var_binding_nodes.get(i).getFinalVarBindingsAsString(),
-                        color: {
-                            background: "lightgreen",
-                            border: "green"
-                        }
-                    } );
-                    edges.push( {
-                        from: current_query_node_id,
-                        to: succeeded_node_id,
-                        //The edge still shows the immediate var_bindings and with which rule unific. happend
-                        title: "Line " + var_binding_nodes.get(i).getFactCodeLine() + ", "
-                            + var_binding_nodes.get(i).getVarBindingsAsString(),
-                        color: {
-                            color: "green"
-                        }
-                    } );
-                }
-                // TO BE CONTINUED
-                else {
-                    this.to_be_continued_node_id = additional_node_counter--;
-                    nodes.push( { id: this.to_be_continued_node_id,
-                        label: "*continue search*",
-                        color: { 
-                            hover: {
+            } 
+            // query_node has children
+            else {
+                var var_binding_nodes = current_query_node.getChildren();
+
+                // Add children to the queue
+                // Differentiate 4 states a var_binding_node can have
+                for (var i = 0; i < var_binding_nodes.size(); i++) { 
+                    // var_binding_node CONTINUES
+                    if (var_binding_nodes.get(i).continues()) {
+                        // only go deeper in the tree if a new query follows.
+                        // don't add the var_binding node. add its following query
+                        // because only they are the actual tree nodes
+                        queue.enqueue(var_binding_nodes.get(i).getContinuingQuery());
+
+                        // add the edge to the new node
+                        edges.push( {
+                            from: current_query_node_id, 
+                            to: var_binding_nodes.get(i).getContinuingQuery().getNodeID(),
+                            title: "Line " + var_binding_nodes.get(i).getFactCodeLine() + ", "
+                                + var_binding_nodes.get(i).getVarBindingsAsString()
+                        });
+
+                    }
+                    // var_binding_node FAILED, reached end
+                    else if (var_binding_nodes.get(i).failed()) {
+                        /** @todo */
+                            //Der Fassbender baum lässt manche failed nodes weg... Deshalb hier an jeder edge die rule line
+                        var failed_node_id = additional_node_counter--;
+                        nodes.push( { 
+                            id: failed_node_id, 
+                            label: "failed",
+                            color: {
+                                background: "lightgray",
+                                border: "gray"
+                            }
+                        } );
+                        edges.push( {
+                            from: current_query_node_id,
+                            to: failed_node_id,
+                            title: "Line " + var_binding_nodes.get(i).getFactCodeLine(),
+                            color: {
+                                color: "gray"
+                            }
+                        } );
+                    }
+                    // var_binding_node SUCCESS, reached end
+                    else if (var_binding_nodes.get(i).succeeded()){
+                        var succeeded_node_id = additional_node_counter--;
+                        nodes.push( {
+                            id: succeeded_node_id,
+                            label: var_binding_nodes.get(i).getFinalVarBindingsAsString(),
+                            color: {
                                 background: "lightgreen",
                                 border: "green"
                             }
-                        }
-                    });
-                    edges.push( {
-                        from: current_query_node_id,
-                        to: this.to_be_continued_node_id
-                    });
+                        } );
+                        edges.push( {
+                            from: current_query_node_id,
+                            to: succeeded_node_id,
+                            //The edge still shows the immediate var_bindings and with which rule unific. happend
+                            title: "Line " + var_binding_nodes.get(i).getFactCodeLine() + ", "
+                                + var_binding_nodes.get(i).getVarBindingsAsString(),
+                            color: {
+                                color: "green"
+                            }
+                        } );
+                    }
+                    // var_binding_node TO BE CONTINUED, we don't know its children yet
+                    else {
+                        this.to_be_continued_node_id = additional_node_counter--;
+                        nodes.push( { id: this.to_be_continued_node_id,
+                            label: "*continue search*",
+                            color: { 
+                                hover: {
+                                    background: "lightgreen",
+                                    border: "green"
+                                }
+                            }
+                        });
+                        edges.push( {
+                            from: current_query_node_id,
+                            to: this.to_be_continued_node_id
+                        });
+                    }
                 }
             }
         }
