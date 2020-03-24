@@ -98,7 +98,7 @@ namespace wam {
 
         /**
          *
-         * @return the query code line_begin (0 based), if this query is from a rule (program code).
+         * @return the query code line_begin, if this query is from a rule (program code).
          * Otherwise it throws an error.
          * Note: If the query stretches over multiple lines, the first line_begin is returned
          */
@@ -119,6 +119,7 @@ namespace wam {
             query_name = std::move(name);
             resolved_query_name = query_name.to_string();
         }
+
         const node& get_name()const{
             return query_name;
         }

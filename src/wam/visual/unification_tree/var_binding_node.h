@@ -158,7 +158,7 @@ public:
 
     /**
      *
-     * @return the called facts code line_begin number (0 based).
+     * @return the called facts code line_begin number.
      * Note: If the fact stretches over multiple lines, the first line_begin is returned.
      */
     size_t get_fact_code_line()const{

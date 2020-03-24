@@ -37,8 +37,8 @@ void wam::add_source_code_info(node &node, Iter begin, Iter end) {
     //For lower_bound info see boost spirit funcs
     using namespace boost::spirit;
     auto& code_info = node.code_info;
-    code_info.line_begin = get_line(begin) - 1;
-    code_info.line_end = get_line(end) - 1;
+    code_info.line_begin = get_line(begin);
+    code_info.line_end = get_line(end);
     code_info.value = std::string{begin, end};
     //To implement get_column a lower_bound would be needed, that is
     //At least at the line_begin start or before. if lower_bound (as e.G. begin)
