@@ -6,12 +6,14 @@
 #include <numeric>
 #include "compiler.h"
 #include "util/node_iteration.h"
+#include "util/node_util.h"
 
 #include "../instructions/instructions.h"
 #include "util/seen_register.h"
 
 #include "parser/parser.h"
 #include "../data/rule.h"
+#include "../bfs_organizer/data/storage.h"
 
 /*
  * Assigns register to an functor (constant is also viable)
@@ -126,8 +128,11 @@ std::vector<const node *> wam::flatten_program(const node &outer_functor) {
 
 template<typename OutputIter>
 void
-wam::to_query_instructions(const std::vector<const node *> &flattened_term, const node &outer_functor, OutputIter out,
-                           std::unordered_map<wam::helper::seen_register, bool> &seen_registers) {
+wam::to_query_instructions(const std::vector<const node *> &flattened_term,
+                           const node &outer_functor,
+                           OutputIter out,
+                           std::unordered_map<wam::helper::seen_register, bool> &seen_registers,
+                           storage& storage) {
     using namespace std::placeholders;
     using namespace wam::helper;
 
@@ -147,7 +152,8 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term, cons
                     //Shouldnt be needed
 //                    seen_registers[vars_reg] = true;
 
-                    *out = std::bind(wam::put_permanent_variable, _1, node->get_y_reg(), node->get_a_reg());
+                    short var_index = storage.push_back_var(node->name);
+                    *out = std::bind(wam::put_permanent_variable, _1, node->get_y_reg(), node->get_a_reg(), var_index);
                     ++out;
                 }
             } else {//node is not a perm variable
@@ -156,7 +162,9 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term, cons
                     ++out;
                 } else {
                     seen_registers[vars_reg] = true;
-                    *out = std::bind(wam::put_variable, _1, node->get_x_reg(), node->get_a_reg());
+
+                    short var_index = storage.push_back_var(node->name);
+                    *out = std::bind(wam::put_variable, _1, node->get_x_reg(), node->get_a_reg(), var_index);
                     ++out;
                 }
             }
@@ -187,7 +195,9 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term, cons
                     seen_registers[child_perm_reg] = true;
                     //Shouldnt be needed
 //                    seen_registers[child_reg]=true;
-                    *out = std::bind(wam::set_permanent_variable, _1, childs.get_y_reg());
+
+                    short var_index = storage.push_back_var(childs.name);
+                    *out = std::bind(wam::set_permanent_variable, _1, childs.get_y_reg(), var_index);
                     ++out;
                 }
             } else {
@@ -196,7 +206,8 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term, cons
                     ++out;
                 } else {
                     seen_registers[child_reg] = true;
-                    *out = std::bind(wam::set_variable, _1, childs.get_x_reg());
+                    short var_index = storage.push_back_var(childs.name);
+                    *out = std::bind(wam::set_variable, _1, childs.get_x_reg(), var_index);
                     ++out;
                 }
             }
@@ -209,8 +220,10 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term, cons
 
 template<typename OutputIter>
 void
-wam::to_program_instructions(const std::vector<const node *> &flattened_term, OutputIter out,
-                             std::unordered_map<wam::helper::seen_register, bool> &seen_registers) {
+wam::to_program_instructions(const std::vector<const node *> &flattened_term,
+                             OutputIter out,
+                             std::unordered_map<wam::helper::seen_register, bool> &seen_registers,
+                             wam::storage& storage) {
     using namespace std::placeholders;
     using namespace wam::helper;
     //TODO isnt a set enough?
@@ -272,13 +285,15 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term, Ou
                 }
             } else {//if not encountered yet
                 seen_registers[child_reg] = true;
+
+                short var_index = storage.push_back_var(childs.name);
                 if (childs.is_permanent()) {
                     const seen_register child_perm_reg{register_type::Y_REG, childs.get_y_reg()};
                     seen_registers[child_perm_reg] = true;
-                    *out = std::bind(wam::unify_permanent_variable, _1, childs.get_y_reg());
+                    *out = std::bind(wam::unify_permanent_variable, _1, childs.get_y_reg(), var_index);
                     ++out;
                 } else {
-                    *out = std::bind(wam::unify_variable, _1, childs.get_x_reg());
+                    *out = std::bind(wam::unify_variable, _1, childs.get_x_reg(), var_index);
                     ++out;
                 }
             }
@@ -298,14 +313,14 @@ void remove_x_a_regs(std::unordered_map<wam::helper::seen_register, bool> &seen_
     }
 }
 
-wam::rule wam::compile_query(const std::string_view query_code) {
+wam::rule wam::compile_query(const std::string_view query_code, wam::storage& storage) {
     using namespace std::placeholders;
     using wam::helper::seen_register;
 
-    std::vector<node> query_nodes; //= compiler result
+    node query_nodes; //= parser result
     wam::parse_query(query_code, query_nodes);
 
-    const auto permanent_count = assign_permanent_registers(query_nodes, false);
+    const auto permanent_count = assign_permanent_registers(*query_nodes.children, false);
 
     std::unordered_map<seen_register, bool> seen_registers;
     //Generate the Instructions
@@ -318,8 +333,8 @@ wam::rule wam::compile_query(const std::string_view query_code) {
     }
 
     wam::rule query;
-    for (auto & atom : query_nodes) {
-        compile_query_atom(atom, seen_registers, instructions, query, true);
+    for (auto & atom : *query_nodes.children) {
+        compile_query_atom(std::move(atom), seen_registers, instructions, query, true, storage);
     }
 
     //LOL Real brogrammes dont free bro :-)
@@ -334,11 +349,11 @@ wam::rule wam::compile_query(const std::string_view query_code) {
     return query;
 }
 
-void wam::compile_query_atom(node &atom,
-                             std::unordered_map<wam::helper::seen_register, bool> &seen_registers,
+void wam::compile_query_atom(node &&atom, std::unordered_map<wam::helper::seen_register, bool> &seen_registers,
                              std::vector<std::function<void(wam::executor &)>> &instructions,
                              wam::rule &rule,
-                             bool from_original_query) {
+                             bool from_original_query,
+                             storage& storage) {
     const int x_a_reg_counts = assign_registers(atom);
 
     const std::vector<const node *> flattened_form = flatten_query(atom);
@@ -346,12 +361,14 @@ void wam::compile_query_atom(node &atom,
     to_query_instructions(flattened_form,
             atom,
             std::back_inserter(instructions),
-            seen_registers);
+            seen_registers,
+            storage);
 
-    rule.atoms().emplace_back(x_a_reg_counts,
+    rule.add_atom(x_a_reg_counts,
                             instructions,
                             find_var_reg_substitutions(atom),
-                            std::move(atom.code_info),
+                            atom.code_info,
+                            std::move(atom),
                             from_original_query);
 
     //Clear the instructions generated so far
@@ -360,7 +377,7 @@ void wam::compile_query_atom(node &atom,
 }
 
 std::unordered_map<wam::functor_view, std::vector<wam::rule>>
-wam::compile_program(const std::string_view program_code){
+wam::compile_program(const std::string_view program_code, wam::storage& storage){
     using namespace std::placeholders;
     namespace qi = boost::spirit::qi;
 
@@ -371,11 +388,12 @@ wam::compile_program(const std::string_view program_code){
     std::unordered_map<wam::functor_view, std::vector<wam::rule>> result;
     result.reserve(program_code.size());
 
-    for(auto& program_line : parser_result){
-        if(!program_line){//If program_line is a comment
+    for(auto& rule : parser_result){
+        if(!rule){//If rule is a comment
             continue;
         }
-        const auto[head_functor, code] = wam::compile_program_term(*program_line);
+        auto[head_functor, code] = wam::compile_program_term(*rule->children, storage);
+        code.set_code_info(rule->code_info);
 
         auto inserted_func = result.find(head_functor);
         if(inserted_func == result.end()){
@@ -384,13 +402,13 @@ wam::compile_program(const std::string_view program_code){
             func_rules.emplace_back(code);
             result.emplace(std::make_pair(head_functor, func_rules));
         }else{
-            inserted_func->second.push_back(code);
+            inserted_func->second.emplace_back(code);
         }
     }
     return result;
 }
 
-std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<node>& atoms) {
+std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<node>& atoms, wam::storage& storage) {
     using namespace std::placeholders;
 
     const auto permanent_count = assign_permanent_registers(atoms, true);
@@ -402,6 +420,7 @@ std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<no
 
     //Assign the registers for head + first body combined
     node &head_atom = atoms.at(0);
+    const wam::functor_view head_atom_functor = head_atom.to_functor_view();
     node *first_body_atom = atoms.size() > 1 ? &atoms[1] : nullptr;
     const int x_a_reg_count = assign_registers(head_atom, first_body_atom);
 
@@ -413,15 +432,16 @@ std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<no
     }
 
     std::unordered_map<wam::helper::seen_register, bool> seen_registers;
-    to_program_instructions(flattened_form, std::back_inserter(instructions), seen_registers);
+    to_program_instructions(flattened_form, std::back_inserter(instructions), seen_registers, storage);
 
     //Build the head
-    rule.atoms().emplace_back(
+    rule.add_atom(
             x_a_reg_count,
             std::move(instructions),
             //Also find the substitutions in the head atom (for more info see generate_program_instructions at the bottom)
             find_var_reg_substitutions(head_atom),
-            std::move(head_atom.code_info));
+            head_atom.code_info,
+            std::move(head_atom));
 
     //Clear the generated instructions
     instructions.clear();
@@ -430,12 +450,14 @@ std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<no
     if (first_body_atom) {
         const std::vector<const node *> first_body_flattened_form = flatten_query(*first_body_atom);
         to_query_instructions(first_body_flattened_form, *first_body_atom, std::back_inserter(instructions),
-                              seen_registers );
+                              seen_registers,
+                              storage);
 
-        rule.atoms().emplace_back(x_a_reg_count,
+        rule.add_atom(x_a_reg_count,
                                 std::move(instructions),
                                 find_var_reg_substitutions(*first_body_atom),
-                                std::move(first_body_atom->code_info));
+                                std::move(first_body_atom->code_info),
+                                std::move(*first_body_atom));
         //Clear the generated instructions
         instructions.clear();
     }
@@ -445,55 +467,30 @@ std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<no
         //remove x/a regs from before
         remove_x_a_regs(seen_registers);
         for_each(atoms.begin() + 2, atoms.end(), [&](node &atom) {
-            compile_query_atom(atom,
+            compile_query_atom(std::move(atom),
                     seen_registers,
                     instructions,
                     rule,
-                    false);
+                    false,
+                    storage);
         });
     }
 
     //All body atoms have been built append a optional deallocate instruction
     if (permanent_count) {
         instructions.emplace_back(std::bind(wam::deallocate, _1));
-        rule.atoms().emplace_back(
+        rule.add_atom(
                 0,
                 instructions,
                 std::vector<var_reg_substitution>{},
-                source_code_info{});
+                source_code_info{},
+                node{STORED_OBJECT_FLAG::CONSTANT, "DEALLOCATE"});
     }
 
-    return std::make_pair(head_atom.to_functor_view(), rule);
+
+    return std::make_pair(head_atom_functor, rule);
 }
 
-/*
- * Finds and lists the variable name to register substitutions
- */
-std::vector<wam::var_reg_substitution>
-wam::find_var_reg_substitutions(const node &atom) {
-    std::vector<wam::var_reg_substitution> result;
-    if(atom.is_constant()){
-        return result;
-    }
-
-    std::set<std::string> handled_vars;
-    bfs_order(atom, true, [&](const node *cur_node) {
-        if (cur_node->is_variable()) {
-            const std::string& name = cur_node->name;
-            //if var has been added dont add again
-            if(handled_vars.find(name) != handled_vars.end()){
-                return;
-            }
-            handled_vars.insert(name);
-            if (cur_node->is_permanent()) {
-                result.emplace_back(name, cur_node->get_y_reg(), true);
-            } else {
-                result.emplace_back(name, cur_node->get_x_reg(), false);
-            }
-        }
-    });
-    return result;
-}
 
 std::vector<const node *> wam::flatten_query(const node &outer_functor) {
     std::vector<const node *> flattened_term = flatten_program(outer_functor);

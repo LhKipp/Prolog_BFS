@@ -11,11 +11,13 @@
 
 namespace wam {
     struct regist {
+        int index;
+        short var_index;
         heap_tag type;
-        size_t index;
 
         regist()= default;
-        regist(heap_tag type, size_t index): type{type}, index{index}{}
+        regist(heap_tag type, int index): type{type}, index{index}{}
+        regist(int index, short var_index): type{heap_tag::REF}, index{index}, var_index{var_index}{}
 
         inline bool is_REF()const {
             return type == heap_tag::REF;

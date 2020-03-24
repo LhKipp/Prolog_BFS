@@ -22,7 +22,7 @@ namespace wam {
         }
 
         bool operator==(const var_heap_substitution &rhs) const {
-            return var_name == rhs.var_name;
+            return var_name == rhs.var_name && heap_index == rhs.heap_index;
         }
 
         bool operator!=(const var_heap_substitution &rhs) const {

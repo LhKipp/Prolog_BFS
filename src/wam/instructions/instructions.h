@@ -12,16 +12,16 @@ namespace wam {
 
 //    void put_list(executor& executor, const size_t regist_index);
 
-    void set_variable(executor& executor , size_t x_reg);
-    void set_permanent_variable(executor& executor , size_t y_reg);
+    void set_variable(executor& executor , size_t x_reg, short var_index);
+    void set_permanent_variable(executor& executor , size_t y_reg, short var_index);
 
     void set_value(executor& executor,size_t x_reg);
     void set_permanent_value(executor& executor, size_t y_reg);
 
     void get_structure(executor& executor,const functor_view& functor, size_t x_reg);
 
-    void unify_variable(executor& executor,  size_t x_reg);
-    void unify_permanent_variable(executor& executor, size_t y_reg);
+    void unify_variable(executor& executor,  size_t x_reg, short var_index);
+    void unify_permanent_variable(executor& executor, size_t y_reg, short var_index);
 
     void unify_value(executor& executor, size_t x_reg);
     void unify_permanent_value(executor& executor, size_t y_reg);
@@ -30,8 +30,8 @@ namespace wam {
 
     void unify(executor& executor, size_t addr_a, size_t addr_b);
 
-    void put_variable(executor& executor, size_t x_reg, size_t a_reg);
-    void put_permanent_variable(executor& executor, size_t y_reg, size_t a_reg);
+    void put_variable(executor& executor, size_t x_reg, size_t a_reg, short var_index);
+    void put_permanent_variable(executor& executor, size_t y_reg, size_t a_reg, short var_index);
 
     void put_value(executor& executor, size_t x_reg, size_t a_reg);
     void put_permanent_value(executor& executor, size_t y_reg, size_t a_reg);
