@@ -14,7 +14,7 @@
 
 namespace wam {
     std::string
-    string_representation_of(const executor &executor, size_t index, const std::vector<functor_view> &functors,
+    string_representation_of(const executor &executor, size_t index, const storage& storage,
             bool is_contigous_list = false);
 
     node node_representation_of(const executor& exec, size_t index, const storage& storage);

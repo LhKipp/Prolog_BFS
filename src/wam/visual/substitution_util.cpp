@@ -65,26 +65,30 @@ node wam::node_representation_of(const wam::executor &exec, size_t index, const 
 std::string
 wam::string_representation_of(const executor &executor,
                               size_t index,
-                              const std::vector<functor_view> &functors,
+                              const wam::storage& storage,
         //TODO Better Naming: is_contigous_list should be is_list_start
         //Need to negate part of the logic
                               bool is_contigous_list) {
+    using namespace wam;
     //If register is an Ref cell we try to dereference it
-    if (executor.heap_at(index).is_REF()) {
-        index = wam::deref(executor, executor.heap_at(index));
+    regist reg = executor.heap_at(index);
+    if (reg.is_REF()) {
+        index = wam::deref(executor, reg);
     }
+
+    reg = executor.heap_at(index);
 
     //If the register is still a ref it is an unbound ref cell
-    if (executor.heap_at(index).is_REF()) {
-        return std::string{wam::config::UNBOUND_VAR_PREFIX} + std::to_string(index);
+    if (reg.is_REF()) {
+        return storage.variables[reg.var_index].name;
     }
 
-    if (executor.heap_at(index).is_STR()) {
-        index = executor.heap_at(index).index;
+    if (reg.is_STR()) {
+        index = reg.index;
     }
 
     //At this point the register will be an FUN cell
-    const functor_view &functor = functors[executor.heap_at(index).index];
+    const functor_view &functor = storage.functors[executor.heap_at(index).index];
 
     //If the functor is the empty list, we return only "[]" if it is not end-marker for another list.
     // e.g. [a|[]] should be outputed as [a]
@@ -102,7 +106,8 @@ wam::string_representation_of(const executor &executor,
     }
 
     if (functor.is_append_functor()) {
-        std::string appended_elem = string_representation_of(executor, index + 1, functors, false);
+        assert(false); //There is no append functor on the heap
+        std::string appended_elem = string_representation_of(executor, index + 1, storage, false);
         if (appended_elem == "[]") {
             //If it only appended the empty list, no need to output it too
             return "]";
@@ -119,8 +124,8 @@ wam::string_representation_of(const executor &executor,
         if (!is_contigous_list) {
             result = "[";
         }
-        result += string_representation_of(executor, index + 1, functors, false) + ",";
-        result += string_representation_of(executor, index + 2, functors, true);
+        result += string_representation_of(executor, index + 1, storage, false) + ",";
+        result += string_representation_of(executor, index + 2, storage, true);
 
         //If the list has been completly built, replace the last "," with an "]"
         if (!is_contigous_list) {
@@ -133,9 +138,9 @@ wam::string_representation_of(const executor &executor,
     result += functor.name + '(';
     //-1 for correct formatting of the ,
     for (int i = 1; i <= functor.arity - 1; ++i) {
-        result += string_representation_of(executor, index + i, functors) + ',';
+        result += string_representation_of(executor, index + i, storage) + ',';
     }
-    return result + string_representation_of(executor, index + functor.arity, functors) + ")";
+    return result + string_representation_of(executor, index + functor.arity, storage) + ")";
 }
 
 std::vector<wam::var_heap_substitution>
@@ -190,7 +195,7 @@ std::vector<wam::var_binding> wam::find_substitutions_from_orig_query(const wam:
 
                 result.emplace_back(
                         var_heap_sub.var_name,
-                        wam::string_representation_of(executor, var_heap_sub.heap_index, storage.functors)
+                        wam::string_representation_of(executor, var_heap_sub.heap_index, storage)
                 );
             }
         }
