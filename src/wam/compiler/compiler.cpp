@@ -177,7 +177,7 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term,
         seen_registers[func_reg] = true;
 
         const functor_view functor_view = node->to_functor_view();
-        *out = std::bind(wam::put_structure, _1, functor_view, node->get_x_reg());
+        *out = std::bind(wam::put_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());
         ++out;
 
         if (node->is_constant()) {//No need to process any children
@@ -263,7 +263,7 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term,
 //        seen_registers[func_reg] = true;
 
         const functor_view functor_view = node->to_functor_view();
-        *out = std::bind(wam::get_structure, _1, functor_view, node->get_x_reg());
+        *out = std::bind(wam::get_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());
         ++out;
 
         if (node->is_constant()) {//no need to process children if node is constant

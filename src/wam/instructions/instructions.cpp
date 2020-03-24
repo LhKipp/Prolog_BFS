@@ -13,13 +13,13 @@
 #include <iostream>
 #endif
 
-void wam::put_structure(wam::executor &executor, const functor_view &functor, size_t regist_index) {
+void wam::put_structure(wam::executor &executor, int functor_index, size_t regist_index) {
 #ifdef DEBUG
     std::cout << "put_structure" << std::endl;
 #endif
     executor.push_back_STR();
     executor.registers.at(regist_index) = executor.heap_back();
-    executor.push_back_FUN(functor);
+    executor.push_back_FUN(functor_index);
 }
 
 //void wam::put_list(wam::executor &executor, const size_t regist_index) {
@@ -57,7 +57,7 @@ void wam::set_permanent_value(wam::executor &executor, size_t y_reg) {
     executor.push_back(executor.cur_permanent_registers().at(y_reg));
 }
 
-void wam::get_structure(wam::executor &executor, const functor_view &functor, size_t x_reg) {
+void wam::get_structure(wam::executor &executor, int functor_index, size_t x_reg) {
 #ifdef DEBUG
     std::cout << "get_structure" << std::endl;
 #endif
@@ -73,7 +73,7 @@ void wam::get_structure(wam::executor &executor, const functor_view &functor, si
     if (reg.type == heap_tag::REF) {
         //We bind a var from the query to a functor
         executor.push_back_STR();
-        executor.push_back_FUN(functor);
+        executor.push_back_FUN(functor_index);
 
         //exe.heap.size - 2 == H. The newly created ref cell will be bound
         wam::bind(executor, addr, executor.heap_size() - 2);
@@ -81,6 +81,7 @@ void wam::get_structure(wam::executor &executor, const functor_view &functor, si
 
     } else if (reg.type == heap_tag::FUN) {
         const functor_view &heap_reg = executor.functor_of(FUN_index{(int)addr});
+        const functor_view functor = executor.functor_of(Storage_FUN_index{functor_index});
         if (heap_reg == functor) {
             executor.S = addr + 1;
             executor.read_or_write = wam::mode::READ;

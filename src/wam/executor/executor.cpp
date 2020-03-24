@@ -12,9 +12,10 @@ const wam::functor_view &wam::executor::functor_of(FUN_index FUN_index) const {
     return organizer->storage.functors.operator[](heap_at(FUN_index.get()).index);
 }
 
-size_t wam::executor::index_of(const functor_view &functor) const{
+size_t wam::executor::storage_index_of(const functor_view &functor) const{
     return organizer->storage.functor_index_of(functor);
 }
+
 
 wam::regist wam::executor::heap_back() const {
     assert(heap_size() > 0);
@@ -66,4 +67,8 @@ wam::regist wam::executor::heap_at(size_t index) const {
             //return regist{heap_tag::REF, 0};
         }
     }
+}
+
+wam::functor_view &wam::executor::functor_of(Storage_FUN_index indx) {
+    return organizer->storage.functors[indx.get()];
 }
