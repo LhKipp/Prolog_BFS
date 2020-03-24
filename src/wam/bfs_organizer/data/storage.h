@@ -24,8 +24,20 @@ namespace wam{
 
         std::vector<var> variables;
 
+        short inline functor_index_of(const functor_view& func){
+            auto search = functor_index_map.find(func);
+            //If we have seen this functor already
+            if (search != functor_index_map.end()) {
+                return search->second;
+            } else {
+                const auto index = functors.size();
+                functors.push_back(func);
+                functor_index_map.insert({func, index});
+                return index;
+            }
+        }
         short inline push_back_var(std::string name){
-            variables.emplace_back(var{name});
+            variables.emplace_back(name);
             return static_cast<short>(variables.size() - 1);
         }
     };

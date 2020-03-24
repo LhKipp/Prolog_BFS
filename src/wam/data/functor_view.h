@@ -32,9 +32,9 @@ namespace wam {
     };
 
     inline bool operator==(const functor_view &a, const functor_view &b) {
-        return( a.arity == b.arity && a.name == b.name) ||
-                (a.name == "[" && b.name == "|" && a.arity == b.arity) ||
-                (b.name == "[" && a.name == "|" && a.arity == b.arity);
+        return( a.arity == b.arity && a.name == b.name);
+//                (a.name == "[" && b.name == "|" && a.arity == b.arity) ||
+//                (b.name == "[" && a.name == "|" && a.arity == b.arity);
     }
 
 
