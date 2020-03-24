@@ -179,4 +179,70 @@ auto setup_org = [&](string query) {
             REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
+
+    SECTION("Var to list1") {
+        std::string code = "r([a, b, c]).";
+        bfs_organizer org;
+        org.load_program(code);
+        org.load_query("r(Z).");
+        auto found_answer = org.get_answer();
+        REQUIRE(found_answer.has_value());
+    }
+
+    SECTION("Var to list2") {
+        std::string code = "g([[a,b], [a,Y] | X]).";
+        bfs_organizer org;
+        org.load_program(code);
+        org.load_query("g(Z).");
+        auto found_answer = org.get_answer();
+        REQUIRE(found_answer.has_value());
+    }
+    SECTION("Var to list3") {
+        std::string code = "r(f(a)) :- g(H)."
+                           "g(d).";
+        bfs_organizer org;
+        org.load_program(code);
+        org.load_query("r(Z).");
+        auto found_answer = org.get_answer();
+        REQUIRE(found_answer.has_value());
+    }
+
+    SECTION("Var to list3") {
+        std::string code = "r([a, b, c]) :- g(H)."
+//                           ", h(Y), c(Z)."
+                           "g([[d,e], [f, Y ] | X]).";
+//                           "h([])."
+//                           "c([X, Y]).";
+
+        bfs_organizer org;
+        org.load_program(code);
+        org.load_query("r(Z).");
+        auto found_answer = org.get_answer();
+
+        map<std::string, std::string> actual_substs;
+        actual_substs["Z"] = "[a,b,c]";
+        REQUIRE(found_answer.has_value());
+        REQUIRE(found_answer->size() == 1);
+        for (auto &subst : *found_answer) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
+        }
+    }
+
+    SECTION("Var to list2") {
+        std::string code = "g([[a,Y]]).";
+
+        bfs_organizer org;
+        org.load_program(code);
+        org.load_query("g(Z).");
+        auto found_answer = org.get_answer();
+        REQUIRE(found_answer.has_value());
+
+        map<std::string, std::string> actual_substs;
+        actual_substs["Z"] = "[[a,G_15]]";
+        REQUIRE(found_answer->size() == 1);
+        for (auto &subst : *found_answer) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
+        }
+    }
 }
+

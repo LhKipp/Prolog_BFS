@@ -258,11 +258,9 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term,
             return;
         }
 
-        //The node is a functor or constant
-        //x and a reg will be the same
-        //Shouldnt be needed right :)?
-        const seen_register func_reg{register_type::X_REG, node->get_x_reg()};
-        seen_registers[func_reg] = true;
+        //Not needed because in a program term, an outer functor wont repeat as an inner functor again
+//        const seen_register func_reg{register_type::X_REG, node->get_x_reg()};
+//        seen_registers[func_reg] = true;
 
         const functor_view functor_view = node->to_functor_view();
         *out = std::bind(wam::get_structure, _1, functor_view, node->get_x_reg());
@@ -433,6 +431,20 @@ std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<no
 
     std::unordered_map<wam::helper::seen_register, bool> seen_registers;
     to_program_instructions(flattened_form, std::back_inserter(instructions), seen_registers, storage);
+
+    //This is not necessary because if the head is a constant, it has x_reg = 0, and only a var
+    //could have a x_reg of 0 if it would be of atom level --> not possible
+//    if(head_atom.is_constant()){
+//        seen_registers.erase({helper::register_type::X_REG, head_atom.get_x_reg()});
+//    }
+    //We need to erase seen functor regs, because those shall not interfere with var regs
+    if(!head_atom.is_constant()){
+        bfs_order(head_atom, true, [&](node* n){
+            if(n->is_functor() || n->is_constant()){
+                seen_registers.erase({helper::register_type::X_REG, n->get_x_reg()});
+            }
+        });
+    }
 
     //Build the head
     rule.add_atom(
