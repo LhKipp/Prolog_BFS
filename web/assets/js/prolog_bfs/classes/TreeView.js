@@ -167,7 +167,8 @@ class TreeView {
                         edges.push( {
                             from: current_query_node_id,
                             to: failed_node_id,
-                            title: "Line " + var_binding_nodes.get(i).getFactCodeLine(),
+                            title: "Line " + var_binding_nodes.get(i).getFactCodeLine()
+                                    + ": " + var_binding_nodes.get(i).getFactAsString(),
                             color: {
                                 color: "gray"
                             }
