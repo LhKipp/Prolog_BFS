@@ -15,11 +15,56 @@ class TreeView {
      */
     to_be_continued_node_id;
     
+    /*
+     * this.drawing_id and TreeView.newest_drawing_id are used for performance
+     * optimization. Namely: don't re-draw the tree if
+     * - no answer was added and no new query was executed
+     * - no other tree has been drawn in the meantime
+     * We use the DOM as a "cache" by just leaving the drawn tree there and
+     * overriding it when necessary.
+     * 
+     * Following variables are used:
+     * - newest_drawing_id is an indicator for which TreeView was
+     *      drawn last or is to be drawn, among all (it's static)
+     * - drawing_id indicates the drawing ID of this TreeView object
+     * 
+     * They are set in the following situations:
+     * - on new query execution or retrieval of a new answer ("next")
+     *      -> increment newest_drawing_id
+     *      to indicate that tree needs to be updated
+     * - on tree drawing: if newest_drawing_id == drawing_id:
+     *      * true: do nothing because the least recently drawn or displayed
+     *          tree is this one
+     *      * false: re-draw the tree, increment newest_drawing_id and set
+     *          drawing_id = newest_drawing_id.
+     * 
+     * @type int
+     */
+    drawing_id;
+    // static newest_drawing_id = 1; defined outside class definition (see end of file)
+    
+    /*
+     * Vis.js instance 
+     * @type vis.Network
+     */
+    network;
+    
     constructor(instanceid) {
         this.instanceid = instanceid;
+        this.drawing_id = 0;
     }
     
     draw(tree) {
+        // needs redrawing?
+        if (this.drawing_id === TreeView.newest_drawing_id) {
+            // no re-drawing needed, do nothing
+            console.log("no redrawing");
+            return;
+        }
+        // re-drawing needed
+        TreeView.newest_drawing_id++;
+        this.drawing_id = TreeView.newest_drawing_id;
+        
         var container = document.getElementById('modal_tree_result_body');
 
         // provide the data in the vis format
@@ -27,6 +72,7 @@ class TreeView {
         
         var options = {
             layout: {
+                improvedLayout: false, // makes performance a little bit better
                 hierarchical: {
                     direction: "UD", // draw up to down
                     sortMethod: "directed", // arrow direction defines order
@@ -38,7 +84,8 @@ class TreeView {
             },
             interaction: {
                 hover: true, // enable hover effects
-                hoverConnectedEdges: false // don't highlight connecting edges when hovering over node
+                hoverConnectedEdges: false, // don't highlight connecting edges when hovering over node
+                tooltipDelay: 100 // time it takes until hover over edges is displayed
             },
             edges: {
                 arrows: "to",
@@ -49,10 +96,10 @@ class TreeView {
             }
         };
 
-        // initialize your network!
-        var network = new vis.Network(container, data, options);
+        // initialize network
+        this.network = new vis.Network(container, data, options);
         
-        network.on("click", (properties) => {
+        this.network.on("click", (properties) => {
             var clicked_node_id = properties["nodes"][0];
             if (clicked_node_id !== undefined) {
                 switch (clicked_node_id) {
@@ -225,3 +272,5 @@ class TreeView {
         };
     }
 }
+
+TreeView.newest_drawing_id = 1;
