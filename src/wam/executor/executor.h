@@ -35,6 +35,7 @@ namespace wam {
     };
     using FUN_index = NamedType<int, FUN_Parameter>;
     using STR_index = NamedType<int, STR_Parameter>;
+    using Storage_FUN_index = NamedType<int, struct Storage_FUN_index_s>;
 
     struct executor {
 
@@ -101,6 +102,8 @@ namespace wam {
             return organizer;
         }
 
+        functor_view& functor_of(Storage_FUN_index storage_fun_index);
+
         inline functor_view &functor_of(STR_index STR_index) {
             return functor_of(FUN_index{heap_at(STR_index.get()).index});
         }
@@ -113,7 +116,7 @@ namespace wam {
 
         const functor_view &functor_of(FUN_index FUN_index) const;
 
-        size_t index_of(const functor_view &functor)const;
+        size_t storage_index_of(const functor_view &functor)const;
 
         inline void push_back(const regist& regist){
             heap.push_back(regist);
@@ -121,8 +124,8 @@ namespace wam {
         inline void push_back_STR(){
             heap.emplace_back(heap_tag::STR,(int)  heap_size() + 1);
         }
-        inline void push_back_FUN(const functor_view & functor){
-            heap.emplace_back(heap_tag::FUN, (int) index_of(functor));
+        inline void push_back_FUN(int functor_index){
+            heap.emplace_back(heap_tag::FUN, functor_index);
         }
         inline void push_back_unbound_REF(short var_index) {
             heap.emplace_back((int) heap_size(), var_index);

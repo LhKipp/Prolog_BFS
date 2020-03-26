@@ -66,6 +66,9 @@ function onRunClicked() {
 
     //load program to the interpreter and run it
     instances[instanceid].tryExecute(inputProgram, inputQuery);
+    
+    // make sure result is visible
+    scrollResultsToBottom();
 }
 
 /**

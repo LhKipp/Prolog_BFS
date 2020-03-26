@@ -238,7 +238,7 @@ auto setup_org = [&](string query) {
         REQUIRE(found_answer.has_value());
 
         map<std::string, std::string> actual_substs;
-        actual_substs["Z"] = "[[a,G_15]]";
+        actual_substs["Z"] = "[[a,Y]]";
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
             REQUIRE(actual_substs.at(subst.var_name) == subst.binding);

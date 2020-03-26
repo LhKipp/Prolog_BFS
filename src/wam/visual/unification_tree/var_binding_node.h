@@ -122,8 +122,11 @@ public:
     }
 
     std::string get_final_var_bindings_as_str()const{
-        std::stringstream result;
         auto& bindings = get_final_var_bindings();
+        if(bindings.empty()){
+            return "true";
+        }
+        std::stringstream result;
         std::copy(bindings.begin(),
                   bindings.end(),
                   std::ostream_iterator<wam::var_binding>(result, " "));

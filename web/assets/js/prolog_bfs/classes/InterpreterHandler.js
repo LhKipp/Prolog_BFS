@@ -61,6 +61,9 @@ class InterpreterHandler {
         this.resultDiv.initialize(this.queryCode);
         this.resultDiv.addAnswer(this.getAnswer());
         
+        // tell TreeViews they need an update
+        TreeView.newest_drawing_id++;
+        
         return true;
     }
     
@@ -91,12 +94,15 @@ class InterpreterHandler {
         this.resultDiv.addAnswer(result);
 
         scrollResultsToBottom();
+        
+        // tell TreeViews they need an update
+        TreeView.newest_drawing_id++;
     }
     
     onShowTreeViewClicked() {
         $('#modal_tree_result').modal('show');
         
-        this.treeView.draw(this.interpreter.getUnificationTree());
+        this.treeView.draw(this.getUnificationTree());
     }
     
     /**
