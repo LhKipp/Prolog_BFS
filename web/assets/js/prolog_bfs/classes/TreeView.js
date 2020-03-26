@@ -9,11 +9,14 @@ class TreeView {
     instanceid;
     
     /*
-     * ID of the node that represents the "next"/"continue search" button.
+     * IDs of the nodes that represent the "next"/"continue search" button.
      * This is a member variable so that we know which ID to listen for
      * during on-click events.
+     * There might be more than one *continue search* node but when
+     * clicking such a button, we still continue searching wherever we
+     * stopped. It's not like searching in a specific place.
      */
-    to_be_continued_node_id;
+    to_be_continued_node_ids = [];
     
     /*
      * this.drawing_id and TreeView.newest_drawing_id are used for performance
@@ -102,11 +105,9 @@ class TreeView {
         this.network.on("click", (properties) => {
             var clicked_node_id = properties["nodes"][0];
             if (clicked_node_id !== undefined) {
-                switch (clicked_node_id) {
-                    case this.to_be_continued_node_id:
-                        instances[this.instanceid].onNextClicked();
-                        this.draw(instances[this.instanceid].getUnificationTree());
-                        break;
+                if (this.to_be_continued_node_ids.includes(clicked_node_id)) {
+                    instances[this.instanceid].onNextClicked();
+                    this.draw(instances[this.instanceid].getUnificationTree());
                 }
             }
         });
@@ -122,6 +123,9 @@ class TreeView {
      * Interpreter's tree is read in breadth-first-search as well.
      */
     convertToVisNetwork(tree) {
+        // new network, new IDs
+        this.to_be_continued_node_ids = [];
+        
         var nodes = [];
         var edges = [];
         
@@ -149,8 +153,8 @@ class TreeView {
 
             // query_node TO BE CONTINUED, we don't know its children yet
             if (current_query_node.isToBeContinued()) {
-                this.to_be_continued_node_id = additional_node_counter--;
-                nodes.push({id: this.to_be_continued_node_id,
+                this.to_be_continued_node_ids.push(additional_node_counter);
+                nodes.push({id: additional_node_counter,
                     label: "*continue search*",
                     color: {
                         hover: {
@@ -161,18 +165,20 @@ class TreeView {
                 });
                 edges.push({
                     from: current_query_node_id,
-                    to: this.to_be_continued_node_id
+                    to: additional_node_counter
                 });
+                additional_node_counter--;
             }
             // query_node FAILED, has no children
             else if (current_query_node.failed()) {
-                var failed_node_id = additional_node_counter--;
+                additional_node_counter;
                 nodes.push({ id: failed_node_id, label: "failed! (No such rule)" });
                 edges.push( {
                     from: current_query_node_id,
-                    to: failed_node_id,
+                    to: additional_node_counter,
                     label: ""
                 });
+                additional_node_counter--;
             } 
             // query_node has children
             else {
@@ -180,7 +186,7 @@ class TreeView {
 
                 // Add children to the queue
                 // Differentiate 4 states a var_binding_node can have
-                for (var i = 0; i < var_binding_nodes.size(); i++) { 
+                for (var i = 0; i < var_binding_nodes.size(); i++) {
                     // var_binding_node CONTINUES
                     if (var_binding_nodes.get(i).continues()) {
                         // only go deeper in the tree if a new query follows.
@@ -202,9 +208,8 @@ class TreeView {
                     else if (var_binding_nodes.get(i).failed()) {
                         /** @todo */
                             //Der Fassbender baum lässt manche failed nodes weg... Deshalb hier an jeder edge die rule line
-                        var failed_node_id = additional_node_counter--;
                         nodes.push( { 
-                            id: failed_node_id, 
+                            id: additional_node_counter, 
                             label: "failed",
                             color: {
                                 background: "lightgray",
@@ -213,19 +218,19 @@ class TreeView {
                         } );
                         edges.push( {
                             from: current_query_node_id,
-                            to: failed_node_id,
+                            to: additional_node_counter,
                             title: "Line " + var_binding_nodes.get(i).getFactCodeLine()
                                     + ": " + var_binding_nodes.get(i).getFactAsString(),
                             color: {
                                 color: "gray"
                             }
                         } );
+                        additional_node_counter--;
                     }
                     // var_binding_node SUCCESS, reached end
                     else if (var_binding_nodes.get(i).succeeded()){
-                        var succeeded_node_id = additional_node_counter--;
                         nodes.push( {
-                            id: succeeded_node_id,
+                            id: additional_node_counter,
                             label: var_binding_nodes.get(i).getFinalVarBindingsAsString(),
                             color: {
                                 background: "lightgreen",
@@ -234,7 +239,7 @@ class TreeView {
                         } );
                         edges.push( {
                             from: current_query_node_id,
-                            to: succeeded_node_id,
+                            to: additional_node_counter,
                             //The edge still shows the immediate var_bindings and with which rule unific. happend
                             title: "Line " + var_binding_nodes.get(i).getFactCodeLine()
                                     + ": " + var_binding_nodes.get(i).getFactAsString() + "<br>"
@@ -243,11 +248,12 @@ class TreeView {
                                 color: "green"
                             }
                         } );
+                        additional_node_counter--;
                     }
                     // var_binding_node TO BE CONTINUED, we don't know its children yet
                     else {
-                        this.to_be_continued_node_id = additional_node_counter--;
-                        nodes.push( { id: this.to_be_continued_node_id,
+                        this.to_be_continued_node_ids.push(additional_node_counter);
+                        nodes.push( { id: additional_node_counter,
                             label: "*continue search*",
                             color: { 
                                 hover: {
@@ -258,8 +264,9 @@ class TreeView {
                         });
                         edges.push( {
                             from: current_query_node_id,
-                            to: this.to_be_continued_node_id
+                            to: additional_node_counter
                         });
+                        additional_node_counter--;
                     }
                 }
             }
