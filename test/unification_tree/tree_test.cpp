@@ -175,7 +175,7 @@ TEST_CASE("Tree fuzzing"){
     }
 
     org.load_program_from_file("test_src/p4-0.pl");
-    org.load_query("lVonN(Z).");
+    org.load_query("lvonN(Z).");
     org.get_answer();
     org.get_unification_tree();
     org.get_answer();
@@ -214,4 +214,17 @@ TEST_CASE("Tree with list unifications"){
     query_node& single = c.get_continuing_query();
     var_binding_node& fSingle = single.get_children()[0];
     REQUIRE(fSingle.get_var_bindings()[0] == var_binding{"Single", "[a]"});
+}
+
+TEST_CASE("Tree add not failing"){
+    bfs_organizer org;
+    org.load_program_from_file("test_src/arithmetic.pl");
+    org.load_query("add(Z, s(o), s(s(o))).");
+
+    org.get_answer();
+    org.get_unification_tree();
+    org.get_answer();
+    org.get_unification_tree();
+    //Require not failed
+
 }
