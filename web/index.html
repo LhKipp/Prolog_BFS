@@ -124,7 +124,7 @@
                             </li>
                             <li>
                                 Variables / constant names <strong>starting</strong> with an <strong>underscore</strong>
-                                are <strong>not supported</strong>. They must only contain characters of the english alphabet.
+                                are <strong>not supported</strong>. This especially includes anonymous variables ("_").
                             </li>
                             <li>
                                 There are <strong>no built-in predicates</strong>.
@@ -133,8 +133,13 @@
                                 The memory limit is 500MB. If that is not enough, you might want to check out
                                 the offline version on Github. You may free some memory by closing results.
                             </li>
+                            <li>
+                                If you supply an endless running program (e.G.: a(x) :- a(X).; ? a(o). ),
+                                the site will freeze and eventually run out of memory. Any kind of occurs check is not implemented.
+                            </li>
                         </ul>
-                        
+                        <p>The Prolog subset understood by the program can be viewed as a grammar <a  target="_blank" rel="noopener noreferrer" href="https://github.com/LhKipp/Prolog_BFS/blob/master/FAQ.md">here.</a></p>
+
                         <h4>What's special about it? Isn't it just another Prolog interpreter?</h4>
                         <p>It is one of the few, if not the only Prolog interpreters that does a <em>breadth-first-search</em>
                             as its <a href="https://en.wikipedia.org/wiki/SLD_resolution#SLD_resolution_strategies">SLD resolution strategy</a>.
