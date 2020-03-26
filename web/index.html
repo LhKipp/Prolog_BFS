@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <title>Prolog BFS</title>
@@ -11,11 +12,11 @@
         
         <script src="/build/prolog_bfs.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script> <!-- https://github.com/js-cookie/js-cookie-->
-        <script src="https://pagecdn.io/lib/ace/1.4.8/ace.js" type="text/javascript" charset="utf-8"></script> <!-- editor -->
+        <script src="https://pagecdn.io/lib/ace/1.4.8/ace.js"></script> <!-- editor -->
         <script src="/assets/js/hotkeys.min.js"></script>
         
-        <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-        <script type="text/javascript" src="http://code.iamkate.com/javascript/queues/Queue.js"></script>
+        <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+        <script src="http://code.iamkate.com/javascript/queues/Queue.js"></script>
         
     </head>
     <body>
@@ -23,7 +24,7 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="#">Prolog BFS</a>
             
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
@@ -63,7 +64,7 @@
         </div>
         
         <!-- Tree result display -->
-        <div class="modal" id="modal_tree_result" tabindex="-1" role="dialog" aria-labelledby="Tree result" aria-hidden="true">
+        <div class="modal" id="modal_tree_result" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -74,7 +75,7 @@
                     </div>
                     <div class="modal-body">
                         <p>
-                            <button class="btn btn-primary btn-sm" type="button" data-toggle="collapse" data-target="#modal_tree_result_help" aria-expanded="false" aria-controls="collapseExample">
+                            <button class="btn btn-primary btn-sm" type="button" data-toggle="collapse" data-target="#modal_tree_result_help">
                                 Show/hide help
                             </button>
                         </p>
@@ -103,7 +104,7 @@
         </div>
         
         <!-- infobox -->
-        <div class="modal fade" id="modal_limitations" tabindex="-1" role="dialog" aria-labelledby="Usage" aria-hidden="true">
+        <div class="modal fade" id="modal_limitations" tabindex="-1" role="dialog">
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
