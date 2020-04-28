@@ -20,18 +20,9 @@ void wam::bfs_organizer::load_program(const std::string_view code) {
     return load_term_lines(code);
 }
 
-void wam::bfs_organizer::add_code_to_program_code(const std::unordered_map<wam::functor_view, std::vector<wam::rule>>& code){
-    std::for_each(code.cbegin(), code.cend(),[&](const auto& it){
-        //it->first is the head_functor
-
-        //if the head_functor is already added, append other rules
-        auto head_func = program_code.find(it.first);
-        if(head_func != program_code.cend()){
-            auto& vec = program_code[head_func->first];
-            vec.insert(vec.end(), it.second.cbegin(), it.second.cend());
-        }else{
-            program_code[it.first] = it.second;
-        }
+void wam::bfs_organizer::merge_program_and_built_in_preds(){
+    std::for_each(built_in_preds.cbegin(), built_in_preds.cend(),[&](const auto& it){
+        program_code[it.first] = it.second;
     });
 
     for(auto& entry : program_code) {
@@ -41,26 +32,10 @@ void wam::bfs_organizer::add_code_to_program_code(const std::unordered_map<wam::
     }
 }
 
-void wam::bfs_organizer::add_code_to_storage(const std::unordered_map<wam::functor_view, std::vector<wam::rule>>& program_code){
-    storage.functor_index_map.reserve(storage.functor_index_map.size() + program_code.size());
-    storage.functors.reserve(storage.functors.size() + program_code.size());
-
-    std::for_each(program_code.cbegin(), program_code.cend(),[&](const auto& it){
-        //it->first is the head_functor
-
-        //if the head_functor is already added simply return
-        if(storage.functor_index_map.find(it.first) != storage.functor_index_map.cend()){
-            return;
-        }
-        storage.functor_index_map[it.first] = storage.functors.size();
-        storage.functors.push_back(it.first);
-    });
-}
 
 void wam::bfs_organizer::load_term_lines(const std::string_view code) {
-    auto prg_code = wam::compile_program(code, storage);
-    add_code_to_storage(prg_code);
-    add_code_to_program_code(prg_code);
+    program_code = wam::compile_program(code, storage);
+    merge_program_and_built_in_preds();
 }
 
 
@@ -149,9 +124,7 @@ wam::query_node wam::bfs_organizer::get_unification_tree() const{
     return wam::make_tree(init_executor, storage);
 }
 
-wam::bfs_organizer::bfs_organizer() {
-    auto result = get_build_in_predicates(storage);
-    add_code_to_storage(result);
-    add_code_to_program_code(result);
+wam::bfs_organizer::bfs_organizer() : built_in_preds{get_build_in_predicates(storage)}{
+    program_code = built_in_preds;
 }
 

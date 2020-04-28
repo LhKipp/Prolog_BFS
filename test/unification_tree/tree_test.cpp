@@ -225,3 +225,14 @@ TEST_CASE("Tree add not failing"){
     org.get_unification_tree();
 }
 
+TEST_CASE("Tree test predicate not in program"){
+    bfs_organizer org;
+    org.load_program(
+            "weiblich(e2)."
+            "weiblich(k2)."
+            "schwester(X,Y) :- weiblich(X), ges(X,Y).");
+    org.load_query("schwester(X, Y).");
+    org.get_answer();
+    auto t = org.get_unification_tree();
+    REQUIRE(true);
+}

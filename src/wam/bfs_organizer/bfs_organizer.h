@@ -39,6 +39,7 @@ namespace wam {
         wam::storage storage;
         //functor to multiple term_codes
         std::unordered_map<functor_view, std::vector<rule>> program_code;
+        std::unordered_map<functor_view, std::vector<rule>> built_in_preds;
         wam::rule current_query_code;
 
         //std::vector<var_reg_substitution> permanent_substitutions;
@@ -70,9 +71,7 @@ namespace wam {
             return program_code.find(functor) != program_code.end();
         }
 
-        void add_code_to_storage(const std::unordered_map<wam::functor_view, std::vector<wam::rule>>& program_code);
-
-        void add_code_to_program_code(const std::unordered_map<wam::functor_view, std::vector<wam::rule>>& map);
+        void merge_program_and_built_in_preds();
     };
 
 
