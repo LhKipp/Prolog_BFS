@@ -77,3 +77,9 @@ void wam::childs_to_list(node &list_start, char unused_attribute) {
     }
 }
 
+void wam::make_build_in_pred(node &result, node &lhs, std::string predicate, node &rhs) {
+    make_to_func(predicate, result);
+    result.add_to_children(lhs);
+    result.add_to_children(rhs);
+}
+

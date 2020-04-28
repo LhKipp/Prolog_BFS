@@ -24,6 +24,10 @@ namespace wam{
         error_handler<> handler;
         parser_error error;
 
+        qi::rule<Iterator, node(), Skipper> built_in_pred;
+        qi::rule<Iterator, node(), Skipper> built_in_equals;
+        qi::rule<Iterator, node(), Skipper> built_in_not_equals;
+
         qi::rule<Iterator, node(), Skipper> constant;
         qi::rule<Iterator, std::string(), Skipper> constant_name;
         qi::rule<Iterator, node(), Skipper> functor;
@@ -37,8 +41,10 @@ namespace wam{
 
         base_grammar(qi::rule<Iterator, Base_Value, Skipper> &start) : base_grammar::base_type(start) {
             namespace phoenix = boost::phoenix;
+            namespace bf = boost::fusion;
             using qi::_val;
             using qi::lit;
+            using qi::string;
             using qi::lexeme;
             using qi::char_;
             using qi::on_error;
@@ -87,9 +93,18 @@ namespace wam{
             prolog_element %= functor | constant | variable | list;
 
             using boost::spirit::repository::qi::iter_pos;
-            atom = (iter_pos >> (functor | constant) >> qi::no_skip[iter_pos])
+            atom = (iter_pos >> (built_in_pred | functor | constant) >> qi::no_skip[iter_pos])
             [phoenix::bind(&add_source_code_info<Iterator>, phoenix::ref(qi::_2), qi::_1, qi::_3),
              qi::_val = qi::_2];
+
+
+            //Built in predicates definitions
+            //TODO it should be prolog_elem >> string > prolog_elem - but then the compiler cries so hard :(
+            built_in_equals = (prolog_element >> string("==") >> prolog_element)
+                    [phoenix::bind(&make_build_in_pred, phoenix::ref(qi::_val), phoenix::ref(qi::_1), qi::_2, phoenix::ref(qi::_3))];
+            built_in_not_equals = (prolog_element >> string("\\==") >> prolog_element)
+                    [phoenix::bind(&make_build_in_pred, phoenix::ref(qi::_val), phoenix::ref(qi::_1), qi::_2, phoenix::ref(qi::_3))];
+            built_in_pred %= built_in_equals | built_in_not_equals;
 
             comment.name("comment");
             variable.name("variable");
