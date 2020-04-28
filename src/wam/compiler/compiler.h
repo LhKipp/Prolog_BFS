@@ -18,6 +18,9 @@
 
 namespace wam {
 
+    std::unordered_map<wam::functor_view, std::vector<wam::rule>>
+    get_build_in_predicates(storage& storage);
+
     std::pair<functor_view, wam::rule> compile_program_term(std::vector<node>& atoms, storage& storage);
 
     int assign_registers(node &functor, node* first_body_atom = nullptr);

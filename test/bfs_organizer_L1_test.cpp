@@ -73,6 +73,17 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->empty());
     }
+
+    SECTION("Query: f(g) : Program: f(Lhs, Rhs)") {
+        program_code.emplace_back("f(Lhs, Rhs).");
+
+        setup_org("f(a, b).");
+
+        auto found_answer = org.get_answer();
+
+        REQUIRE(found_answer.has_value());
+        REQUIRE(found_answer->empty());
+    }
     SECTION("Query: r(x,h(Z,W),f(g)) : Program: ") {
         program_code.emplace_back("r(Z,h(Z,f(a)),f(Z)).");
         //Z/x, W/f(a) , Z/g

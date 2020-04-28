@@ -45,6 +45,8 @@ namespace wam {
 
         void load_term_lines(std::string_view term_lines);
     public:
+
+        bfs_organizer();
         void clear();
 
         wam::parser_error validate_program(std::string_view code);
@@ -68,6 +70,9 @@ namespace wam {
             return program_code.find(functor) != program_code.end();
         }
 
+        void add_code_to_storage(const std::unordered_map<wam::functor_view, std::vector<wam::rule>>& program_code);
+
+        void add_code_to_program_code(const std::unordered_map<wam::functor_view, std::vector<wam::rule>>& map);
     };
 
 

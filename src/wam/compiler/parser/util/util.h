@@ -30,6 +30,8 @@ namespace wam {
 
     template<typename Iter>
     void add_source_code_info(node& node, Iter begin, Iter end);
+
+    void make_build_in_pred(node& result, node& lhs, std::string predicate, node& rhs);
 }
 
 template<typename Iter>

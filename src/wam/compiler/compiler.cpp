@@ -4,6 +4,7 @@
 
 #include <unordered_map>
 #include <numeric>
+#include <wam/compiler/built_in_predicates/predicates/equals.h>
 #include "compiler.h"
 #include "util/node_iteration.h"
 #include "util/node_util.h"
@@ -14,6 +15,8 @@
 #include "parser/parser.h"
 #include "../data/rule.h"
 #include "../bfs_organizer/data/storage.h"
+
+#include <wam/compiler/built_in_predicates/built_in_pred_comp.h>
 
 /*
  * Assigns register to an functor (constant is also viable)
@@ -605,3 +608,27 @@ int wam::assign_permanent_registers(std::vector<node>& nodes, bool program_term)
 
     return y_reg_index;
 }
+
+std::unordered_map<wam::functor_view, std::vector<wam::rule>> wam::get_build_in_predicates(wam::storage &storage) {
+    std::unordered_map<wam::functor_view, std::vector<wam::rule>> result;
+    using namespace wam::preds;
+
+    //binary predicates
+    auto binary_preds = wam::preds::get_binary_built_in_preds();
+    for(binary_built_in_pred& pred : binary_preds){
+        //Wrap the atom in an vector for compile_program_term
+        std::vector<node> atoms;
+        atoms.push_back(pred.tree_representation);
+        auto[head_functor, code] = wam::compile_program_term(atoms, storage);
+        auto& instrcts = code.atoms()[0].instructions;
+        auto& atom = atoms[0];
+        instrcts.insert(instrcts.end() - 1,
+                        std::bind(pred.func, std::placeholders::_1, atom.children->at(0).get_x_reg(), atom.children->at(1).get_x_reg())
+        );
+        result[head_functor].push_back(code);
+    }
+
+    return result;
+}
+
+
