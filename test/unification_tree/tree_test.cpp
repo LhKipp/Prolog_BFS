@@ -223,8 +223,4 @@ TEST_CASE("Tree add not failing"){
 
     org.get_answer();
     org.get_unification_tree();
-    org.get_answer();
-    org.get_unification_tree();
-    //Require not failed
-
 }
