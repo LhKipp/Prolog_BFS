@@ -11,6 +11,9 @@ node wam::preds::not_equals_node_tree() {
     node lhs{STORED_OBJECT_FLAG ::VARIABLE, "Lhs"};
     node rhs{STORED_OBJECT_FLAG ::VARIABLE, "Rhs"};
 
+    pred.code_info.line_begin = 0;
+    pred.code_info.line_end = 0;
+    pred.code_info.value = "Lhs \\== Rhs";
     pred.add_to_children(lhs);
     pred.add_to_children(rhs);
 
