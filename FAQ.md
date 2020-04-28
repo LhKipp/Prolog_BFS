@@ -14,11 +14,14 @@ And here is the grammar:
 query_code = atom % , "."
 program_code = *(clause | comment)
 comment = "%" text... \n
-atom = functor | constant
-clause =  atom [ ":-" atom % , ] "." [comment]
+atom = functor | constant | built_in_pred
+clause_head = functor | constant
+clause_body = atom % ,
+clause =  clause_head [ ":-" clause_body ] "." [comment]
 constant = a-z *(a-zA-Z0-9_)
 variable = A-Z *(a-zA-Z0-9_)
 functor = a-z *(a-zA-Z0-9_) "(" prolog_element % , ")"
 list = "[]" | "[" prolog_element % , ["|" variable | list]"]"
 prolog_element = functor | constant | variable | list
+built_in_pred = "==" | "\=="
 ```
