@@ -64,6 +64,7 @@ std::optional<std::vector<wam::var_binding>> wam::bfs_organizer::get_answer() {
             instruction(*next_exec);
             //if the executor fails we stop executing
             if (next_exec->failed()) {
+                next_exec->clear();
                 break;
             }
         }

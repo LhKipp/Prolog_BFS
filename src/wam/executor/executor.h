@@ -217,6 +217,10 @@ namespace wam {
             }
         }
 
+        inline void set_state(EXEC_STATE s){
+            state = s;
+        }
+
         inline void set_archived(){
             state = EXEC_STATE ::ARCHIVED;
         }
@@ -237,7 +241,6 @@ namespace wam {
 
         void inline set_failed(){
             state = EXEC_STATE::FAIL;
-            clear();
         }
 
         bool inline failed()const{
