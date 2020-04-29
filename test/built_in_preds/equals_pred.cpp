@@ -89,3 +89,18 @@ TEST_CASE("Var inequality 2") {
     auto ans = org.get_answer();
     REQUIRE(!ans.has_value());
 }
+
+
+TEST_CASE("Var equality tree") {
+    bfs_organizer org;
+    org.load_program("eq(X, X).");
+    org.load_query("eq(X, X).");
+    auto ans1 = org.get_answer();
+    REQUIRE(ans1.has_value());
+    auto t1 = org.get_unification_tree();
+
+    org.load_query("X == X.");
+    auto ans = org.get_answer();
+    auto t = org.get_unification_tree();
+    REQUIRE(ans.has_value());
+}
