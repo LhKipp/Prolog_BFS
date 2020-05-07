@@ -22,6 +22,8 @@ constant = a-z *(a-zA-Z0-9_)
 variable = A-Z *(a-zA-Z0-9_)
 functor = a-z *(a-zA-Z0-9_) "(" prolog_element % , ")"
 list = "[]" | "[" prolog_element % , ["|" variable | list]"]"
-prolog_element = functor | constant | variable | list
-built_in_pred = "==" | "\=="
+number = *0-9
+prolog_element = functor | constant | variable | list | number
+
+built_in_pred = "==" | "\==" | "is"
 ```

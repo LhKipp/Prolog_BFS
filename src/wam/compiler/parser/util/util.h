@@ -8,6 +8,9 @@
 #include <string>
 #include <boost/spirit/home/support/unused.hpp>
 #include <boost/spirit/include/support_line_pos_iterator.hpp>
+#include <boost/fusion/sequence.hpp>
+#include <boost/fusion/include/sequence.hpp>
+#include <boost/optional.hpp>
 #include "../../util/node.h"
 
 namespace wam {
@@ -31,7 +34,16 @@ namespace wam {
     template<typename Iter>
     void add_source_code_info(node& node, Iter begin, Iter end);
 
-    void make_build_in_pred(node& result, node& lhs, std::string predicate, node& rhs);
+    void make_to_binary_func(node& result, node& lhs, std::string predicate, node& rhs);
+
+
+    void make_to_sum(node &result, node& product, std::vector<boost::fusion::vector<std::string, node>> &rhs);
+
+    void make_to_product(node &result, node& product, std::vector<boost::fusion::vector<std::string, node>> &rhs);
+
+    void make_to_power(node &result, node& value, boost::optional<node>& rhs);
+
+    void make_to_int(node& result, std::vector<char>& val);
 }
 
 template<typename Iter>
@@ -48,5 +60,6 @@ void wam::add_source_code_info(node &node, Iter begin, Iter end) {
     //So for now we let it be
     //code_info.column = get_column(lower_bound, begin) -1;
 }
+
 
 #endif //PROLOG_BFS_UTIL_H

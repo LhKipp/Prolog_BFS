@@ -13,6 +13,12 @@
 #include "util/error_handler.h"
 #include "parser_error.h"
 
+BOOST_FUSION_ADAPT_STRUCT(
+        node,
+        (STORED_OBJECT_FLAG, type)
+        (std::string, name)
+)
+
 
 namespace wam{
     namespace qi = boost::spirit::qi;
@@ -25,6 +31,7 @@ namespace wam{
         parser_error error;
 
         qi::rule<Iterator, node(), Skipper> built_in_pred;
+        qi::rule<Iterator, node(), Skipper> built_in_is;
         qi::rule<Iterator, node(), Skipper> built_in_equals;
         qi::rule<Iterator, node(), Skipper> built_in_not_equals;
 
@@ -39,6 +46,13 @@ namespace wam{
         qi::rule<Iterator, node(), Skipper> prolog_element;
         qi::rule<Iterator, node(), Skipper> atom;
 
+        qi::rule<Iterator, node(), Skipper> expression;
+        qi::rule<Iterator, node(), Skipper> sum;
+        qi::rule<Iterator, node(), Skipper> product;
+        qi::rule<Iterator, node(), Skipper> power;
+        qi::rule<Iterator, node(), Skipper> value;
+        qi::rule<Iterator, node(), Skipper> number;
+
         base_grammar(qi::rule<Iterator, Base_Value, Skipper> &start) : base_grammar::base_type(start) {
             namespace phoenix = boost::phoenix;
             namespace bf = boost::fusion;
@@ -52,10 +66,7 @@ namespace wam{
             //Comments start with %
             comment = lexeme['%' > *(char_ - lit('\n')) > '\n'];
 
-            constant_name %= (lexeme[char_("a-z") > *char_("a-zA-Z_0-9")]);
-            constant = (constant_name)
-            [phoenix::bind(&make_to_cons, qi::_1, phoenix::ref(_val))];
-
+            constant = qi::attr(STORED_OBJECT_FLAG::CONSTANT) >> lexeme[char_("a-z") > *char_("a-zA-Z_0-9")];
             functor_name %= lexeme[char_("a-z") >> *(char_("a-zA-Z_0-9")) >> '('];
             functor = functor_name
                       [phoenix::bind(&make_to_func, qi::_1, phoenix::ref(_val))]
@@ -90,7 +101,7 @@ namespace wam{
                             [phoenix::bind(&childs_to_list, phoenix::ref(_val), qi::_1)]
                            ) | char_(']'));
 
-            prolog_element %= functor | constant | variable | list;
+            prolog_element %= functor | constant | variable | list | number;
 
             using boost::spirit::repository::qi::iter_pos;
             atom = (iter_pos >> (built_in_pred | functor | constant) >> qi::no_skip[iter_pos])
@@ -98,20 +109,43 @@ namespace wam{
              qi::_val = qi::_2];
 
 
+            expression %= sum;
+            sum = (product >> *((string("+") | string("-")) > product))
+                [phoenix::bind(&make_to_sum, phoenix::ref(qi::_val), phoenix::ref(qi::_1), phoenix::ref(qi::_2))];
+            product = (power >> *((string("*") | string("//")) > power))
+                [phoenix::bind(&make_to_product, phoenix::ref(qi::_val), phoenix::ref(qi::_1), phoenix::ref(qi::_2))];
+            power = (value >> -(lit("^") > power))
+                [phoenix::bind(&make_to_power, phoenix::ref(qi::_val), phoenix::ref(qi::_1), phoenix::ref(qi::_2))];
+            value %= number | (lit('(') > expression > lit(')')) | variable;
+            number = qi::attr(STORED_OBJECT_FLAG::INT) >> (lexeme[+char_("0-9")]);
+
+
             //Built in predicates definitions
             //TODO it should be prolog_elem >> string > prolog_elem - but then the compiler cries so hard :(
             built_in_equals = (prolog_element >> string("==") >> prolog_element)
-                    [phoenix::bind(&make_build_in_pred, phoenix::ref(qi::_val), phoenix::ref(qi::_1), qi::_2, phoenix::ref(qi::_3))];
+                    [phoenix::bind(&make_to_binary_func, phoenix::ref(qi::_val), phoenix::ref(qi::_1), qi::_2, phoenix::ref(qi::_3))];
             built_in_not_equals = (prolog_element >> string("\\==") >> prolog_element)
-                    [phoenix::bind(&make_build_in_pred, phoenix::ref(qi::_val), phoenix::ref(qi::_1), qi::_2, phoenix::ref(qi::_3))];
+                    [phoenix::bind(&make_to_binary_func, phoenix::ref(qi::_val), phoenix::ref(qi::_1), qi::_2, phoenix::ref(qi::_3))];
+            built_in_is = ((number | variable) >> string("is") >> expression)
+                    [phoenix::bind(&make_to_binary_func, phoenix::ref(qi::_val), phoenix::ref(qi::_1), qi::_2, phoenix::ref(qi::_3))];
             built_in_pred %= built_in_equals | built_in_not_equals;
 
+            built_in_equals.name("==");
+            built_in_not_equals.name("\\==");
             comment.name("comment");
             variable.name("variable");
             functor.name("functor");
             list.name("list");
             constant.name("constant");
             prolog_element.name("prolog_element");
+
+            expression.name("Expression");
+            sum.name("sum");
+            product.name("product");
+            power.name("power");
+            value.name("value");
+            number.name("integer");
+
 
 
 #ifdef BOOST_SPIRIT_DEBUG

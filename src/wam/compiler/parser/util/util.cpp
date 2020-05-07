@@ -1,6 +1,4 @@
 //
-// Created by leonhard on 03.03.20.
-//
 
 #include <algorithm>
 #include <iterator>
@@ -77,9 +75,46 @@ void wam::childs_to_list(node &list_start, char unused_attribute) {
     }
 }
 
-void wam::make_build_in_pred(node &result, node &lhs, std::string predicate, node &rhs) {
+void wam::make_to_binary_func(node &result, node &lhs, std::string predicate, node &rhs) {
     make_to_func(predicate, result);
     result.add_to_children(lhs);
     result.add_to_children(rhs);
 }
 
+void wam::make_to_sum(node &result, node& product, std::vector<boost::fusion::vector<std::string, node>> &rhs){
+    using namespace boost::fusion;
+    result.set_type(STORED_OBJECT_FLAG::SUM);
+    result.children->push_back(product);
+    for(auto add_node : rhs){
+        auto math_sign = at_c<0>(add_node) == "+" ? STORED_OBJECT_FLAG::PLUS : STORED_OBJECT_FLAG::MINUS;
+        result.children->push_back(node{math_sign});
+        result.children->push_back(at_c<1>(add_node));
+    }
+}
+
+void wam::make_to_product(node &result, node& power, std::vector<boost::fusion::vector<std::string, node>> &rhs){
+    using namespace boost::fusion;
+    result.set_type(STORED_OBJECT_FLAG::PRODUCT);
+    result.children->push_back(power);
+    for(auto add_node : rhs){
+        auto math_sign = at_c<0>(add_node) == "*" ? STORED_OBJECT_FLAG::MULT : STORED_OBJECT_FLAG::INT_DIV;
+        result.children->push_back(node{math_sign});
+        result.children->push_back(at_c<1>(add_node));
+    }
+}
+
+void wam::make_to_power(node &result, node& value, boost::optional<node>& rhs){
+    using namespace boost::fusion;
+    result.set_type(STORED_OBJECT_FLAG::PRODUCT);
+    result.children->push_back(value);
+    if(rhs){
+        auto math_sign = STORED_OBJECT_FLAG::INT_POW;
+        result.children->push_back(node{math_sign});
+        result.children->push_back(*rhs);
+    }
+}
+
+void wam::make_to_int(node &result, std::vector<char> &val) {
+    result.set_type(STORED_OBJECT_FLAG::INT);
+    result.name = std::string{val.begin(), val.end()};
+}

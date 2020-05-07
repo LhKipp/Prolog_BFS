@@ -22,9 +22,9 @@ private:
     size_t x_reg = std::numeric_limits<size_t>::max();
     size_t a_reg = std::numeric_limits<size_t>::max();
     size_t y_reg = std::numeric_limits<size_t>::max();
-    STORED_OBJECT_FLAG type = STORED_OBJECT_FLAG ::NONE;
 
 public:
+    STORED_OBJECT_FLAG type = STORED_OBJECT_FLAG ::NONE;
 
     wam::source_code_info code_info;
 
