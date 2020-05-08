@@ -105,6 +105,7 @@ void wam::make_to_product(node &result, node& power, std::vector<boost::fusion::
 
 void wam::make_to_power(node &result, node& value, boost::optional<node>& rhs){
     using namespace boost::fusion;
+    result.children = std::make_unique<std::vector<node>>();
     result.set_type(STORED_OBJECT_FLAG::PRODUCT);
     result.children->push_back(value);
     if(rhs){

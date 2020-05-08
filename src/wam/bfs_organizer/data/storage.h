@@ -24,6 +24,8 @@ namespace wam{
 
         std::vector<var> variables;
 
+        std::vector<node> expressions;
+
         short inline functor_index_of(const functor_view& func){
             auto search = functor_index_map.find(func);
             //If we have seen this functor already
@@ -36,9 +38,15 @@ namespace wam{
                 return index;
             }
         }
+
         short inline push_back_var(std::string name){
             variables.emplace_back(name);
             return static_cast<short>(variables.size() - 1);
+        }
+
+        int inline push_back_expr(const node& expr){
+            expressions.push_back(expr);
+            return (int)expressions.size() -1;
         }
     };
 }

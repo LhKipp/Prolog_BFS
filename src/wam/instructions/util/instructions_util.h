@@ -10,5 +10,6 @@
 
 namespace wam{
     size_t deref(const executor& exec,const regist& init_regist);
+    size_t deref(const executor& exec, size_t heap_i);
 }
 #endif //PROLOG_BFS_INSTRUCTIONS_UTIL_H

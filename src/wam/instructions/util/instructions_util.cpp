@@ -13,15 +13,24 @@
 #endif
 
 /*
- * Assumes init_regist is a REF x_reg
  * Returns a index to a register the init_regist points to.
  */
 size_t wam::deref(const executor & exec, const regist& init_regist) {
 #ifdef DEBUG
     std::cout << "deref" << std::endl;
 #endif
+    return wam::deref(exec, init_regist.index);
+}
 
-    size_t last_reg_index = init_regist.index;
+/*
+ * Returns a index to a register the ref under heap_addr points to.
+ */
+size_t wam::deref(const executor & exec, const size_t heap_addr) {
+#ifdef DEBUG
+    std::cout << "deref" << std::endl;
+#endif
+
+    size_t last_reg_index = heap_addr;
     regist cur_regist = exec.heap_at(last_reg_index);
 
     while (cur_regist.type == heap_tag::REF && last_reg_index != cur_regist.index) {

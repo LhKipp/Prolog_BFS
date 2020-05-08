@@ -13,6 +13,15 @@
 #include <iostream>
 #endif
 
+void wam::put_expr(executor &executor, int expr_index, size_t regist_index) {
+#ifdef DEBUG
+    std::cout << "put_int" << std::endl;
+#endif
+    executor.push_back_expr(expr_index);
+    executor.registers.at(regist_index) = executor.heap_back();
+
+}
+
 void wam::put_int(wam::executor &executor, int value, size_t regist_index) {
 #ifdef DEBUG
     std::cout << "put_int" << std::endl;
@@ -86,7 +95,7 @@ void wam::get_int(wam::executor &executor, int value, size_t x_reg) {
         executor.heap_modify(heap_addr).bind_to((int)executor.heap_size() - 1);
         executor.read_or_write = wam::mode::WRITE;
     } else if (reg.is_INT()) {
-        if (reg.get_value() == value) {
+        if (reg.get_int_val() == value) {
             executor.S = heap_addr + 1;
             executor.read_or_write = wam::mode::READ;
         } else {
@@ -444,4 +453,5 @@ void wam::deallocate(wam::executor &executor) {
     bfs_organizer *organizer = executor.get_organizer();
     organizer->executors.push_back(&executor);
 }
+
 

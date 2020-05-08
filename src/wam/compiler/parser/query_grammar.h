@@ -5,6 +5,8 @@
 #ifndef PROLOG_BFS_QUERY_GRAMMAR_H
 #define PROLOG_BFS_QUERY_GRAMMAR_H
 
+//#define BOOST_SPIRIT_DEBUG
+//#define BOOST_SPIRIT_ASSERT_EXCEPTION
 #include <boost/phoenix/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include "../util/node.h"

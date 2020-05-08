@@ -6,6 +6,8 @@
 #include "node.h"
 #include <string>
 #include <algorithm>
+#include <wam/compiler/parser/parsed_helper_types/binary_arithmetic_predicate.h>
+#include <wam/compiler/parser/parsed_helper_types/expressions.h>
 
 std::string node::to_string() const {
     if(is_variable() || is_constant() || is_int()) return name;
@@ -59,3 +61,25 @@ std::string node::to_string() const {
     return "";
 }
 
+
+node::node(const parser::binary_arithmetic_predicate& p): type{STORED_OBJECT_FLAG::FUNCTOR}, children{std::make_unique<std::vector<node>>()}{
+    name = p.pred;
+    children->push_back(p.lhs);
+    children->push_back(p.rhs);
+}
+
+node::node(const parser::chained_expr &p): type{p.type}, children{std::make_unique<std::vector<node>>()}{
+    children->push_back(p.value);
+    for(auto &chained_value : p.chained_values){
+        children->emplace_back(chained_value.math_op);
+        children->push_back(chained_value.val);
+    }
+}
+
+node::node(const parser::opt_chained_value &p): type{p.type}, children{std::make_unique<std::vector<node>>()}{
+    children->push_back(p.value);
+    if(p.chained_val){
+        children->push_back(node{p.chained_val->math_op});
+        children->push_back(p.chained_val->val);
+    }
+}

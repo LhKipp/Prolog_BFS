@@ -17,6 +17,14 @@
 #include "../../data/source_code_info.h"
 #include "../../data/functor_view.h"
 
+using namespace wam;
+
+namespace parser{
+    struct binary_arithmetic_predicate;
+    struct chained_expr;
+    struct opt_chained_value;
+}
+
 struct node {
 private:
     size_t x_reg = std::numeric_limits<size_t>::max();
@@ -85,6 +93,11 @@ public:
         return type == STORED_OBJECT_FLAG::INT;
     }
 
+    inline bool is_expr() const{
+        //A sum is top level of any expression
+        return type == STORED_OBJECT_FLAG ::SUM;
+    }
+
     inline bool is_variable() const {
         return type == STORED_OBJECT_FLAG::VARIABLE;
     }
@@ -150,6 +163,11 @@ public:
         }
     }
 
+    bool is_binary_arithmetic_pred() const{
+        return static_cast<int>(type) > static_cast<int>(STORED_OBJECT_FLAG ::BINARY_ARITHMETIC_PREDS_BEGIN)
+            && static_cast<int>(type) < static_cast<int>(STORED_OBJECT_FLAG ::BINARY_ARITHMETIC_PREDS_END);
+    }
+
 
     explicit node(const STORED_OBJECT_FLAG type) : node(type, "") {};
     node(const STORED_OBJECT_FLAG type, const std::string name) : name(name), type(type) {
@@ -175,6 +193,7 @@ public:
         }
     }
 
+
     node &operator=(const node &other) {
         this->name = other.name;
         this->type = other.type;
@@ -196,6 +215,10 @@ public:
     }
 
     std::string to_string()const;
+
+    node(const parser::binary_arithmetic_predicate& p);
+    node(const parser::chained_expr& p);
+    node(const parser::opt_chained_value& p);
 };
 
 

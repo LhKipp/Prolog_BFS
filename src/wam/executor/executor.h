@@ -36,6 +36,8 @@ namespace wam {
     using FUN_index = NamedType<int, FUN_Parameter>;
     using STR_index = NamedType<int, STR_Parameter>;
     using Storage_FUN_index = NamedType<int, struct Storage_FUN_index_s>;
+    using Storage_Expr_index = NamedType<int, struct Storage_Expr_index_s>;
+
 
     struct executor {
 
@@ -103,6 +105,7 @@ namespace wam {
         }
 
         functor_view& functor_of(Storage_FUN_index storage_fun_index);
+        const node& expr_of(Storage_Expr_index expr_index);
 
         inline functor_view &functor_of(STR_index STR_index) {
             return functor_of(FUN_index{heap_at(STR_index.get()).index});
@@ -132,6 +135,9 @@ namespace wam {
         }
         inline void push_back_int(int value){
             heap.emplace_back(heap_tag::INT, value);
+        }
+        inline void push_back_expr(int expr_index){
+            heap.emplace_back(heap_tag::EXPR, expr_index);
         }
         inline size_t heap_size()const{
             return heap_start_index + heap.size();

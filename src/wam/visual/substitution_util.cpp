@@ -25,7 +25,7 @@ node wam::node_representation_of(const wam::executor &exec, size_t index, const 
 
     if(reg.is_INT()){
         //int cell
-        node int_node{STORED_OBJECT_FLAG ::INT, std::to_string(reg.get_value())};
+        node int_node{STORED_OBJECT_FLAG ::INT, std::to_string(reg.get_int_val())};
         return int_node;
     }
 
@@ -90,7 +90,7 @@ wam::string_representation_of(const executor &executor,
     }
 
     if (reg.is_INT()){
-        return std::to_string(reg.get_value());
+        return std::to_string(reg.get_int_val());
     }
 
     if (reg.is_STR()) {

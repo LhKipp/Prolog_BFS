@@ -5,6 +5,7 @@
 #ifndef PROLOG_BFS_DATA_ENUMS_H
 #define PROLOG_BFS_DATA_ENUMS_H
 
+#include <ostream>
 enum class STORED_OBJECT_FLAG{
     //Prolog data types
     VARIABLE,
@@ -13,7 +14,6 @@ enum class STORED_OBJECT_FLAG{
     INT,
 
     //Expressions
-    EXPR,
     SUM,
     PRODUCT,
     POWER,
@@ -24,6 +24,14 @@ enum class STORED_OBJECT_FLAG{
     MULT,
     INT_POW,
 
+    //Arithmetic binary operators usable as query atoms
+    BINARY_ARITHMETIC_PREDS_BEGIN,
+    IS,
+    BINARY_ARITHMETIC_PREDS_END,
+
+
     NONE
 };
+
+std::ostream& operator <<(std::ostream& stream, STORED_OBJECT_FLAG matrix);
 #endif //PROLOG_BFS_DATA_ENUMS_H

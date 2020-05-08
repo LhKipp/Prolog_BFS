@@ -174,10 +174,17 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term,
             }
             return;
         }
-        //The node is a functor or constant or int
+        //The node is a functor or constant or int or expr
         //Shouldnt be needed
         const seen_register func_reg{register_type::X_REG, node->get_x_reg()};
         seen_registers[func_reg] = true;
+
+        if(node->is_expr()){
+            auto expr_i = storage.push_back_expr(*node);
+            *out = std::bind(wam::put_expr, _1, expr_i, node->get_x_reg());
+            ++out;
+            return;
+        }
 
         if(node->is_int()){
             *out = std::bind(wam::put_int, _1, std::stoi(node->name), node->get_x_reg());
@@ -370,12 +377,11 @@ void wam::compile_query_atom(node &&atom, std::unordered_map<wam::helper::seen_r
     const int x_a_reg_counts = assign_registers(atom);
 
     const std::vector<const node *> flattened_form = flatten_query(atom);
-
     to_query_instructions(flattened_form,
-            atom,
-            std::back_inserter(instructions),
-            seen_registers,
-            storage);
+                          atom,
+                          std::back_inserter(instructions),
+                          seen_registers,
+                          storage);
 
     rule.add_atom(x_a_reg_counts,
                             instructions,

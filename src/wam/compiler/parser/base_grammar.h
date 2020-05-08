@@ -8,7 +8,9 @@
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/repository/include/qi_iter_pos.hpp>
 #include <boost/phoenix/phoenix.hpp>
-#include "../util/node.h"
+
+#include <wam/compiler/parser/parsed_helper_types/binary_arithmetic_predicate.h>
+#include <wam/compiler/parser/parsed_helper_types/expressions.h>
 #include "util/util.h"
 #include "util/error_handler.h"
 #include "parser_error.h"
@@ -19,43 +21,46 @@ BOOST_FUSION_ADAPT_STRUCT(
         (std::string, name)
 )
 
-
 namespace wam{
     namespace qi = boost::spirit::qi;
+
 
     template<typename Iterator, typename Base_Value, typename Skipper>
     struct base_grammar : qi::grammar<Iterator, Base_Value, Skipper> {
     public:
-
         error_handler<> handler;
         parser_error error;
 
         qi::rule<Iterator, node(), Skipper> built_in_pred;
-        qi::rule<Iterator, node(), Skipper> built_in_is;
-        qi::rule<Iterator, node(), Skipper> built_in_equals;
-        qi::rule<Iterator, node(), Skipper> built_in_not_equals;
+        qi::rule<Iterator, parser::binary_arithmetic_predicate(), Skipper> built_in_equals;
+        qi::rule<Iterator, parser::binary_arithmetic_predicate(), Skipper> built_in_not_equals;
+        qi::rule<Iterator, parser::binary_arithmetic_predicate(), Skipper> built_in_is;
 
         qi::rule<Iterator, node(), Skipper> constant;
-        qi::rule<Iterator, std::string(), Skipper> constant_name;
         qi::rule<Iterator, node(), Skipper> functor;
         qi::rule<Iterator, std::string(), Skipper> functor_name;
         qi::rule<Iterator, node(), Skipper> list;
         qi::rule<Iterator, node(), Skipper> variable;
-        qi::rule<Iterator, std::string(), Skipper> variable_name;
         qi::rule<Iterator, void(), Skipper> comment;
         qi::rule<Iterator, node(), Skipper> prolog_element;
         qi::rule<Iterator, node(), Skipper> atom;
 
         qi::rule<Iterator, node(), Skipper> expression;
-        qi::rule<Iterator, node(), Skipper> sum;
+        qi::rule<Iterator, parser::chained_value(), Skipper> chained_sum;
+        qi::rule<Iterator, parser::chained_value(), Skipper> chained_prod;
+        qi::rule<Iterator, parser::chained_value(), Skipper> chained_pow;
+        qi::rule<Iterator, parser::chained_expr(), Skipper> sum;
         qi::rule<Iterator, node(), Skipper> product;
+        qi::rule<Iterator, parser::chained_expr(), Skipper> product_helper;
         qi::rule<Iterator, node(), Skipper> power;
+        qi::rule<Iterator, parser::chained_expr(), Skipper> power_helper;
         qi::rule<Iterator, node(), Skipper> value;
         qi::rule<Iterator, node(), Skipper> number;
 
         base_grammar(qi::rule<Iterator, Base_Value, Skipper> &start) : base_grammar::base_type(start) {
             namespace phoenix = boost::phoenix;
             namespace bf = boost::fusion;
+            using qi::attr;
             using qi::_val;
             using qi::lit;
             using qi::string;
@@ -76,9 +81,7 @@ namespace wam{
                         % ','
                       > ')';
 
-            variable_name %= (lexeme[char_("A-Z") > *char_("a-zA-Z_0-9")]);
-            variable = variable_name
-            [phoenix::bind(&make_to_var, qi::_1, phoenix::ref(_val))];
+            variable = attr(STORED_OBJECT_FLAG::VARIABLE) >> (lexeme[char_("A-Z") > *char_("a-zA-Z_0-9")]);
 
             //Every list is of type: list(X,Xs) or nil
             //Where X is an value (const, func, list) and Xs is the rest list
@@ -109,26 +112,28 @@ namespace wam{
              qi::_val = qi::_2];
 
 
-            expression %= sum;
-            sum = (product >> *((string("+") | string("-")) > product))
-                [phoenix::bind(&make_to_sum, phoenix::ref(qi::_val), phoenix::ref(qi::_1), phoenix::ref(qi::_2))];
-            product = (power >> *((string("*") | string("//")) > power))
-                [phoenix::bind(&make_to_product, phoenix::ref(qi::_val), phoenix::ref(qi::_1), phoenix::ref(qi::_2))];
-            power = (value >> -(lit("^") > power))
-                [phoenix::bind(&make_to_power, phoenix::ref(qi::_val), phoenix::ref(qi::_1), phoenix::ref(qi::_2))];
-            value %= number | (lit('(') > expression > lit(')')) | variable;
             number = qi::attr(STORED_OBJECT_FLAG::INT) >> (lexeme[+char_("0-9")]);
-
+            value = number | (lit('(') > expression > lit(')')) | variable;
+            chained_pow = lit("^") > attr(STORED_OBJECT_FLAG::INT_POW) > value;
+            power_helper = attr(STORED_OBJECT_FLAG::POWER) >> value >> -chained_pow;
+            power = power_helper;
+            chained_prod = (lit("*") > (attr(STORED_OBJECT_FLAG::MULT) > power))
+                           |(lit("//") > (attr(STORED_OBJECT_FLAG::INT_DIV) > power));
+            product_helper = attr(STORED_OBJECT_FLAG::PRODUCT) >> power >> *chained_prod;
+            product = product_helper;
+            chained_sum = (lit("+") > (attr(STORED_OBJECT_FLAG::PLUS) > product))
+                            |(lit("-") > (attr(STORED_OBJECT_FLAG::MINUS) > product));
+            sum = attr(STORED_OBJECT_FLAG::SUM) >> product >> *chained_sum;
+            expression = sum;
 
             //Built in predicates definitions
-            //TODO it should be prolog_elem >> string > prolog_elem - but then the compiler cries so hard :(
-            built_in_equals = (prolog_element >> string("==") >> prolog_element)
-                    [phoenix::bind(&make_to_binary_func, phoenix::ref(qi::_val), phoenix::ref(qi::_1), qi::_2, phoenix::ref(qi::_3))];
-            built_in_not_equals = (prolog_element >> string("\\==") >> prolog_element)
-                    [phoenix::bind(&make_to_binary_func, phoenix::ref(qi::_val), phoenix::ref(qi::_1), qi::_2, phoenix::ref(qi::_3))];
-            built_in_is = ((number | variable) >> string("is") >> expression)
-                    [phoenix::bind(&make_to_binary_func, phoenix::ref(qi::_val), phoenix::ref(qi::_1), qi::_2, phoenix::ref(qi::_3))];
-            built_in_pred %= built_in_equals | built_in_not_equals;
+            built_in_equals = prolog_element >> string("==") >> prolog_element;
+            built_in_not_equals = prolog_element >> string("\\==") >> prolog_element;
+            //Built in arithmetic binary predicates
+            built_in_is = (number | variable) >> string("is") >> expression;
+            built_in_pred = built_in_equals
+                    | built_in_not_equals
+                    | built_in_is;
 
             built_in_equals.name("==");
             built_in_not_equals.name("\\==");
@@ -149,7 +154,11 @@ namespace wam{
 
 
 #ifdef BOOST_SPIRIT_DEBUG
-            BOOST_SPIRIT_DEBUG_NODES((comment)(variable)(functor)(list)(constant)(prolog_element))
+            BOOST_SPIRIT_DEBUG_NODES(
+                    (comment)(variable)(functor)(list)(constant)(prolog_element)
+                    (expression)(sum)(product)(power)(value)(number)
+                    (built_in_pred)(built_in_equals)(built_in_not_equals)
+                    )
 #endif
         }
 

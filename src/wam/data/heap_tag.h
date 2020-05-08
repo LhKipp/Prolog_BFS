@@ -12,7 +12,8 @@ namespace wam {
         STR,
         REF,
         FUN,
-        INT
+        INT,
+        EXPR
     };
 }
 

@@ -72,3 +72,7 @@ wam::regist wam::executor::heap_at(size_t index) const {
 wam::functor_view &wam::executor::functor_of(Storage_FUN_index indx) {
     return organizer->storage.functors[indx.get()];
 }
+
+const node &executor::expr_of(Storage_Expr_index expr_index) {
+    return organizer->storage.expressions[expr_index.get()];
+}
