@@ -4,7 +4,7 @@
 #include "../catch.hpp"
 #include <map>
 #include "../src/wam/bfs_organizer/bfs_organizer.h"
-#include "util.h"
+#include "./test_util.h"
 
 using namespace std;
 using namespace wam;

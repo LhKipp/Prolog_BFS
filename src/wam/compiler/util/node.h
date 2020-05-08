@@ -81,6 +81,10 @@ public:
         return type == STORED_OBJECT_FLAG::CONSTANT;
     }
 
+    inline bool is_int() const {
+        return type == STORED_OBJECT_FLAG::INT;
+    }
+
     inline bool is_variable() const {
         return type == STORED_OBJECT_FLAG::VARIABLE;
     }
@@ -138,6 +142,7 @@ public:
     }
 
     inline wam::functor_view to_functor_view() const {
+        assert(is_constant() || is_functor());
         if (is_constant()) {
             return wam::functor_view{name, 0};
         } else {

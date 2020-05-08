@@ -121,6 +121,7 @@ std::vector<const node *> wam::flatten_program(const node &outer_functor) {
     bfs_order(outer_functor, true, [&](const node *node) {
         if (node->is_functor()
             || node->is_constant()
+            || node->is_int()
             || node->is_argument()) {
             result.push_back(node);
         }
@@ -173,11 +174,16 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term,
             }
             return;
         }
-
-        //The node is a functor or constant
+        //The node is a functor or constant or int
         //Shouldnt be needed
         const seen_register func_reg{register_type::X_REG, node->get_x_reg()};
         seen_registers[func_reg] = true;
+
+        if(node->is_int()){
+            *out = std::bind(wam::put_int, _1, std::stoi(node->name), node->get_x_reg());
+            ++out;
+            return;
+        }
 
         const functor_view functor_view = node->to_functor_view();
         *out = std::bind(wam::put_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());
@@ -264,6 +270,12 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term,
         //Not needed because in a program term, an outer functor wont repeat as an inner functor again
 //        const seen_register func_reg{register_type::X_REG, node->get_x_reg()};
 //        seen_registers[func_reg] = true;
+
+        if(node->is_int()){
+            *out = std::bind(wam::get_int, _1, std::stoi(node->name), node->get_x_reg());
+            ++out;
+            return;
+        }
 
         const functor_view functor_view = node->to_functor_view();
         *out = std::bind(wam::get_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());

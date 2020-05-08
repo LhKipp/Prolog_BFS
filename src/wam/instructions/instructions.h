@@ -8,6 +8,7 @@
 #include "../executor/executor.h"
 
 namespace wam {
+    void put_int(executor &executor, int value, size_t regist_index);
     void put_structure(executor& executor, int functor_index, size_t regist_index);
 
 //    void put_list(executor& executor, const size_t regist_index);
@@ -19,6 +20,7 @@ namespace wam {
     void set_permanent_value(executor& executor, size_t y_reg);
 
     void get_structure(executor& executor,int functor, size_t x_reg);
+    void get_int(wam::executor &executor, int value, size_t x_reg);
 
     void unify_variable(executor& executor,  size_t x_reg, short var_index);
     void unify_permanent_variable(executor& executor, size_t y_reg, short var_index);

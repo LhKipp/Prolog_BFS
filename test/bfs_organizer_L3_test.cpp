@@ -11,6 +11,21 @@
 using namespace wam;
 using namespace std;
 
+TEST_CASE("BFS_Organizer L3 hard test") {
+    bfs_organizer org;
+    const char *text =
+            "h(a)."
+            "o(X) :- h(X)."
+            "nat(b)."
+            "nat(a)."
+            "one(X) :- nat(X), o(X)."
+            "two(b)."
+            "l([a, b, [Y, [X]]], f(b([a, [a] | [Z]]))) :- one(Y), one(X), two(Z).";
+    org.load_program(text);
+    org.load_query("l([a, b, [a, [a]]], f(b([a, [a] | [b]]))).");
+    auto ans = org.get_answer();
+    REQUIRE(ans.has_value());
+}
 TEST_CASE("BFS_Organizer L3 Tests") {
     std::vector<std::string> program_code;
     program_code.push_back("p(X,Y) :- q(X,Z), r(Z,Y).");

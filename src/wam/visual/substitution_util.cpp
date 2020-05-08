@@ -23,6 +23,12 @@ node wam::node_representation_of(const wam::executor &exec, size_t index, const 
         return var_node;
     }
 
+    if(reg.is_INT()){
+        //int cell
+        node int_node{STORED_OBJECT_FLAG ::INT, std::to_string(reg.get_value())};
+        return int_node;
+    }
+
     if (reg.is_STR()) {
         index = reg.index;
     }
@@ -81,6 +87,10 @@ wam::string_representation_of(const executor &executor,
     //If the register is still a ref it is an unbound ref cell
     if (reg.is_REF()) {
         return storage.variables[reg.var_index].name;
+    }
+
+    if (reg.is_INT()){
+        return std::to_string(reg.get_value());
     }
 
     if (reg.is_STR()) {

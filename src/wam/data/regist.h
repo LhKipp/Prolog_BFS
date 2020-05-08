@@ -28,6 +28,19 @@ namespace wam {
         inline bool is_FUN()const{
             return type == heap_tag ::FUN;
         }
+        inline bool is_INT()const{
+            return type == heap_tag ::INT;
+        }
+
+        inline int get_value()const{
+            assert(is_INT());
+            return index;
+        }
+
+        inline void bind_to(int index){
+            assert(is_REF());
+            this->index = index;
+        }
     };
 }
 

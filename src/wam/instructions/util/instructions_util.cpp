@@ -15,7 +15,6 @@
 /*
  * Assumes init_regist is a REF x_reg
  * Returns a index to a register the init_regist points to.
- * The heap register will be either FUN or REF
  */
 size_t wam::deref(const executor & exec, const regist& init_regist) {
 #ifdef DEBUG
@@ -36,7 +35,6 @@ size_t wam::deref(const executor & exec, const regist& init_regist) {
         return cur_regist.index;
     }
 
-    //The register is a REF cell pointing to itself
-    assert(cur_regist.is_REF());
+    assert(cur_regist.is_REF() || cur_regist.is_INT());
     return last_reg_index;
 }

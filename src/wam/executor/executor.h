@@ -130,6 +130,9 @@ namespace wam {
         inline void push_back_unbound_REF(short var_index) {
             heap.emplace_back((int) heap_size(), var_index);
         }
+        inline void push_back_int(int value){
+            heap.emplace_back(heap_tag::INT, value);
+        }
         inline size_t heap_size()const{
             return heap_start_index + heap.size();
         }

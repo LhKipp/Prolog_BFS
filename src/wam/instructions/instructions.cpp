@@ -13,6 +13,14 @@
 #include <iostream>
 #endif
 
+void wam::put_int(wam::executor &executor, int value, size_t regist_index) {
+#ifdef DEBUG
+    std::cout << "put_int" << std::endl;
+#endif
+    executor.push_back_int(value);
+    executor.registers.at(regist_index) = executor.heap_back();
+}
+
 void wam::put_structure(wam::executor &executor, int functor_index, size_t regist_index) {
 #ifdef DEBUG
     std::cout << "put_structure" << std::endl;
@@ -57,6 +65,38 @@ void wam::set_permanent_value(wam::executor &executor, size_t y_reg) {
     executor.push_back(executor.cur_permanent_registers().at(y_reg));
 }
 
+void wam::get_int(wam::executor &executor, int value, size_t x_reg) {
+#ifdef DEBUG
+    std::cout << "get_int" << std::endl;
+#endif
+    regist reg;
+    size_t heap_addr;
+    if(executor.registers.at(x_reg).is_REF()) {
+        heap_addr = deref(executor, executor.registers.at(x_reg));
+        reg = executor.heap_at(heap_addr);
+    }else{ //reg is int reg
+        reg = executor.registers.at(x_reg);
+    }
+
+    if (reg.is_REF()) {
+        //We bind a var from the query to a int
+        executor.push_back_int(value);
+
+        //exe.heap.size - 1 == H. The var will be bound to the new int
+        executor.heap_modify(heap_addr).bind_to((int)executor.heap_size() - 1);
+        executor.read_or_write = wam::mode::WRITE;
+    } else if (reg.is_INT()) {
+        if (reg.get_value() == value) {
+            executor.S = heap_addr + 1;
+            executor.read_or_write = wam::mode::READ;
+        } else {
+            executor.set_failed();
+        }
+    } else {//Default case if reg.is_FUN() || reg.is_STR() || reg.is_LIST()
+        executor.set_failed();
+    }
+}
+
 void wam::get_structure(wam::executor &executor, int functor_index, size_t x_reg) {
 #ifdef DEBUG
     std::cout << "get_structure" << std::endl;
@@ -68,6 +108,7 @@ void wam::get_structure(wam::executor &executor, int functor_index, size_t x_reg
         addr = executor.registers.at(x_reg).index;
     }
 
+    //TODO heap_at returns no ref!!! FIX NEEDED, remove & why does it even compile?
     const regist &reg = executor.heap_at(addr);
 
     if (reg.type == heap_tag::REF) {

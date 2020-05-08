@@ -8,7 +8,7 @@
 #include <algorithm>
 
 std::string node::to_string() const {
-    if(is_variable() || is_constant()) return name;
+    if(is_variable() || is_constant() || is_int()) return name;
     if(is_empty_list()) return "[]";
     if(is_list()){//its a list
         if(children->size() == 1){
