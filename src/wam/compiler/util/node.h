@@ -23,6 +23,9 @@ namespace parser{
     struct binary_arithmetic_predicate;
     struct chained_expr;
     struct opt_chained_value;
+    struct functor;
+    struct normal_list;
+    struct finished_list;
 }
 
 struct node {
@@ -219,6 +222,9 @@ public:
     node(const parser::binary_arithmetic_predicate& p);
     node(const parser::chained_expr& p);
     node(const parser::opt_chained_value& p);
+    node(const parser::functor& f);
+    node(const parser::normal_list& l);
+    node(const parser::finished_list& l);
 };
 
 

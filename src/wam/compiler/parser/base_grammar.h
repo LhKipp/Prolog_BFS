@@ -11,6 +11,7 @@
 
 #include <wam/compiler/parser/parsed_helper_types/binary_arithmetic_predicate.h>
 #include <wam/compiler/parser/parsed_helper_types/expressions.h>
+#include <wam/compiler/parser/parsed_helper_types/prolog_data_types.h>
 #include "util/util.h"
 #include "util/error_handler.h"
 #include "parser_error.h"
@@ -38,7 +39,13 @@ namespace wam{
 
         qi::rule<Iterator, node(), Skipper> constant;
         qi::rule<Iterator, node(), Skipper> functor;
-        qi::rule<Iterator, std::string(), Skipper> functor_name;
+        qi::rule<Iterator, parser::functor(), Skipper> functor_helper;
+        qi::rule<Iterator, parser::functor(), Skipper> empty_list_t;
+        qi::rule<Iterator, node(), Skipper> empty_list;
+        qi::rule<Iterator, parser::normal_list(), Skipper> normal_list_t;
+        qi::rule<Iterator, node(), Skipper> normal_list;
+        qi::rule<Iterator, parser::finished_list(), Skipper> finished_list_t;
+        qi::rule<Iterator, node(), Skipper> finished_list;
         qi::rule<Iterator, node(), Skipper> list;
         qi::rule<Iterator, node(), Skipper> variable;
         qi::rule<Iterator, void(), Skipper> comment;
@@ -71,38 +78,25 @@ namespace wam{
             //Comments start with %
             comment = lexeme['%' > *(char_ - lit('\n')) > '\n'];
 
-            constant = qi::attr(STORED_OBJECT_FLAG::CONSTANT) >> lexeme[char_("a-z") > *char_("a-zA-Z_0-9")];
-            functor_name %= lexeme[char_("a-z") >> *(char_("a-zA-Z_0-9")) >> '('];
-            functor = functor_name
-                      [phoenix::bind(&make_to_func, qi::_1, phoenix::ref(_val))]
-                      //Append each upcoming child to result node
+            functor_helper = lexeme[char_("a-z") >> *(char_("a-zA-Z_0-9")) >> '(']
                       > prolog_element
-                        [phoenix::bind(&node::add_to_children, phoenix::ref(_val), qi::_1)]
-                        % ','
-                      > ')';
-
+                      % ','
+                      > lit(')');
+            functor = functor_helper;
+            constant = attr(STORED_OBJECT_FLAG::CONSTANT) >> lexeme[char_("a-z") > *char_("a-zA-Z_0-9")];
             variable = attr(STORED_OBJECT_FLAG::VARIABLE) >> (lexeme[char_("A-Z") > *char_("a-zA-Z_0-9")]);
+            number = attr(STORED_OBJECT_FLAG::INT) >> (lexeme[-char_("-") >> +char_("0-9")]);
 
             //Every list is of type: list(X,Xs) or nil
             //Where X is an value (const, func, list) and Xs is the rest list
             //nil is represented as an empty list (list node without children)
-            list = char_('[')
-                   [phoenix::bind(&make_to_list, qi::_1, phoenix::ref(_val))]
-                   //Append each upcoming list element to results children
-                   > (
-                           (prolog_element
-                            [phoenix::bind(&node::add_to_children, phoenix::ref(_val), qi::_1)]
-                            % ','
-                            //Every list may end with concatenation of rest list.
-                            //Rest list may be actual list or var
-                            > -(char_('|')
-                                [phoenix::bind(&set_list_finished, qi::_1, phoenix::ref(_val))]
-                                > (variable | list)
-                                [phoenix::bind(&node::add_to_children, phoenix::ref(_val), qi::_1)]
-                           )
-                            > char_(']')
-                            [phoenix::bind(&childs_to_list, phoenix::ref(_val), qi::_1)]
-                           ) | char_(']'));
+            empty_list_t = string("[") >> "]" >> attr(std::vector<node>());
+            empty_list = empty_list_t;
+            normal_list_t = lit("[") >> prolog_element % ',' >> lit("]");
+            finished_list_t = "[" >> prolog_element % ',' >> '|' >> (variable | list) >> "]";
+            normal_list = normal_list_t;
+            finished_list = finished_list_t;
+            list = empty_list | normal_list | finished_list;
 
             prolog_element %= functor | constant | variable | list | number;
 
@@ -112,7 +106,6 @@ namespace wam{
              qi::_val = qi::_2];
 
 
-            number = qi::attr(STORED_OBJECT_FLAG::INT) >> (lexeme[+char_("0-9")]);
             value = number | (lit('(') > expression > lit(')')) | variable;
             chained_pow = lit("^") > attr(STORED_OBJECT_FLAG::INT_POW) > value;
             power_helper = attr(STORED_OBJECT_FLAG::POWER) >> value >> -chained_pow;
@@ -146,8 +139,13 @@ namespace wam{
 
             expression.name("Expression");
             sum.name("sum");
+            chained_sum.name("sum");
             product.name("product");
+            product_helper.name("product");
+            chained_prod.name("product");
             power.name("power");
+            power_helper.name("power");
+            chained_pow.name("power");
             value.name("value");
             number.name("integer");
 

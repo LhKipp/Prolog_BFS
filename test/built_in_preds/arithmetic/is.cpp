@@ -13,6 +13,10 @@ void make_is_test_case(std::string rhs, int rhs_val){
     auto ans = org.get_answer();
     REQUIRE(ans.has_value());
     REQUIRE(ans->at(0).binding == std::to_string(rhs_val));
+
+    org.load_query(to_string(rhs_val) + " is " + rhs);
+    auto ans2 = org.get_answer();
+    REQUIRE(ans.has_value());
 }
 
 TEST_CASE("Is correct assignment") {

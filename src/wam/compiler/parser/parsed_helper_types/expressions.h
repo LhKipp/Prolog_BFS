@@ -2,12 +2,14 @@
 // Created by leonhard on 08.05.20.
 //
 
+#ifndef PROLOG_BFS_EXPRESSIONS_H
+#define PROLOG_BFS_EXPRESSIONS_H
+
 #include <vector>
-#include <tuple>
+#include <optional>
 #include <wam/compiler/util/data_enums.h>
 #include <wam/compiler/util/node.h>
 #include <boost/fusion/include/adapt_struct.hpp>
-#include <boost/fusion/tuple.hpp>
 
 namespace parser {
 
@@ -45,3 +47,5 @@ BOOST_FUSION_ADAPT_STRUCT(
         (node, value)
         (std::optional<parser::chained_value>, chained_val)
 )
+
+#endif //PROLOG_BFS_EXPRESSIONS_H

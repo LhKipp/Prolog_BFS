@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <wam/compiler/parser/parsed_helper_types/binary_arithmetic_predicate.h>
 #include <wam/compiler/parser/parsed_helper_types/expressions.h>
+#include <wam/compiler/parser/parsed_helper_types/prolog_data_types.h>
 
 std::string node::to_string() const {
     if(is_variable() || is_constant() || is_int()) return name;
@@ -83,3 +84,40 @@ node::node(const parser::opt_chained_value &p): type{p.type}, children{std::make
         children->push_back(p.chained_val->val);
     }
 }
+
+node::node(const parser::functor &f): type{STORED_OBJECT_FLAG::FUNCTOR}, name{f.name},
+                                      children{std::make_unique<std::vector<node>>(f.children)} {
+}
+
+node::node(const parser::normal_list &l): type{STORED_OBJECT_FLAG::FUNCTOR}, name{"["},
+                                      children{std::make_unique<std::vector<node>>()} {
+    if(l.children.empty()){
+        return;
+    }
+    //Now transform ',' seperated list to list(x, list(y, list(...
+    node* cur_parent = this;
+    //if list is of type [a,b,c,d] (no finish through "|")
+    std::for_each(l.children.begin(), l.children.end(), [&](auto &child) {
+        cur_parent->children->push_back(std::move(child));
+        cur_parent->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
+        cur_parent = &cur_parent->children->back();
+    });
+}
+
+node::node(const parser::finished_list &l): type{STORED_OBJECT_FLAG::FUNCTOR}, name{"["},
+                                          children{std::make_unique<std::vector<node>>()} {
+    if(l.children.empty()){
+        return;
+    }
+    //Now transform ',' seperated list to list(x, list(y, list(...
+    node* cur_parent = this;
+    //if list is of type [a,b,c,d | e] (finish through "|")
+    std::for_each(l.children.begin(), l.children.end() -1, [&](auto &child) {
+        cur_parent->children->push_back(std::move(child));
+        cur_parent->children->emplace_back(STORED_OBJECT_FLAG::FUNCTOR, "[");
+        cur_parent = &cur_parent->children->back();
+    });
+    cur_parent->children->push_back(*(l.children.end() - 1));
+    cur_parent->children->push_back(l.end);
+}
+
