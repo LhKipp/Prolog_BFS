@@ -1,0 +1,12 @@
+//
+// Created by leonhard on 09.05.20.
+//
+
+#ifndef PROLOG_BFS_RUNTIME_ERROR_TYPE_H
+#define PROLOG_BFS_RUNTIME_ERROR_TYPE_H
+
+enum class ERROR_TYPE{
+    DIV_BY_0,
+    ARGUMENTS_NOT_INSTANCIATED,
+};
+#endif //PROLOG_BFS_RUNTIME_ERROR_TYPE_H
