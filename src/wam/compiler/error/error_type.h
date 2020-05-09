@@ -8,7 +8,8 @@
 namespace compiler{
     enum class ERROR_TYPE{
         PARSER_ERROR,
-        USAGE_OF_UNINIT_VAR
+        //Usage of uninit var
+        ARGUMENTS_NOT_SUFF_INSTANCIATED
     };
 }
 #endif //PROLOG_BFS_ERROR_TYPE_H
