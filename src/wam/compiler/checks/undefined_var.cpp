@@ -3,7 +3,6 @@
 //
 
 #include <wam/compiler/util/node_iteration.h>
-#include <wam/compiler/parser/parser_error.h>
 #include <wam/compiler/error/compiler_error.h>
 #include "undefined_var.h"
 

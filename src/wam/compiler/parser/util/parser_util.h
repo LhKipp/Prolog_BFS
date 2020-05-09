@@ -2,12 +2,11 @@
 // Created by leonhard on 06.02.20.
 //
 
-#ifndef PROLOG_BFS_UTIL_H
-#define PROLOG_BFS_UTIL_H
+#ifndef PROLOG_BFS_PARSER_UTIL_H
+#define PROLOG_BFS_PARSER_UTIL_H
 
 #include <string>
 #include <vector>
-
 #include <wam/compiler/util/node.h>
 
 namespace wam {
@@ -34,4 +33,4 @@ void wam::add_source_code_info(node &node, Iter begin, Iter end) {
 }
 
 
-#endif //PROLOG_BFS_UTIL_H
+#endif //PROLOG_BFS_BFS_UTIL_H

@@ -5,11 +5,6 @@
 #ifndef PROLOG_BFS_PROGRAM_GRAMMAR_H
 #define PROLOG_BFS_PROGRAM_GRAMMAR_H
 
-#include <boost/spirit/include/qi.hpp>
-#include <boost/phoenix/phoenix.hpp>
-#include "../util/node.h"
-#include "util/util.h"
-#include "parser_error.h"
 #include "base_grammar.h"
 
 namespace wam {

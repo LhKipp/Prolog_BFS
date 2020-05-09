@@ -7,10 +7,7 @@
 
 //#define BOOST_SPIRIT_DEBUG
 //#define BOOST_SPIRIT_ASSERT_EXCEPTION
-#include <boost/phoenix/phoenix.hpp>
-#include <boost/spirit/include/qi.hpp>
-#include "../util/node.h"
-#include "util/util.h"
+
 #include "base_grammar.h"
 
 namespace wam{

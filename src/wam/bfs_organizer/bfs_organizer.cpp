@@ -2,6 +2,7 @@
 // Created by leonhard on 29.07.19.
 //
 
+#include <wam/bfs_organizer/util/bfs_util.h>
 #include "bfs_organizer.h"
 #include "../visual/substitution_util.h"
 #include "../compiler/compiler.h"
@@ -11,12 +12,12 @@
 
 //#define DEBUG
 
-void wam::bfs_organizer::load_program_from_file(const std::string_view file_path) {
+compiler::error wam::bfs_organizer::load_program_from_file(const std::string_view file_path) {
     auto code = read_file(file_path);
-    load_term_lines(code);
+    return load_term_lines(code);
 }
 
-void wam::bfs_organizer::load_program(const std::string_view code) {
+compiler::error wam::bfs_organizer::load_program(const std::string_view code) {
     return load_term_lines(code);
 }
 
@@ -33,9 +34,16 @@ void wam::bfs_organizer::merge_program_and_built_in_preds(){
 }
 
 
-void wam::bfs_organizer::load_term_lines(const std::string_view code) {
-    program_code = wam::compile_program(code, storage);
+compiler::error wam::bfs_organizer::load_term_lines(const std::string_view code) {
+    try{
+        program_code = wam::compile_program(code, storage);
+    }catch(compiler::error& err){
+        return err;
+    }
     merge_program_and_built_in_preds();
+
+    //everything worked. return empty error
+    return compiler::error{};
 }
 
 
@@ -78,11 +86,16 @@ wam::result wam::bfs_organizer::get_answer() {
 }
 
 
-void wam::bfs_organizer::load_query(const std::string &query_line) {
+compiler::error wam::bfs_organizer::load_query(const std::string &query_line) {
+    auto query = append_dot_if_not_present(query_line);
     //Clear the old executors
     executors.clear();
     //parse the query and save the results
-    current_query_code = compile_query(query_line, storage);
+    try{
+        current_query_code = compile_query(query_line, storage);
+    }catch(compiler::error& err){
+        return err;
+    }
 
     init_executor = executor{current_query_code.atoms().size()};
     //Copy references to query instructions into the executor instructions
@@ -93,6 +106,9 @@ void wam::bfs_organizer::load_query(const std::string &query_line) {
                   });
     init_executor.organizer = this;
     executors.push_back(&init_executor);
+
+    //everything worked. return empty err
+    return compiler::error{};
 }
 
 void wam::bfs_organizer::clear(){
@@ -103,24 +119,25 @@ void wam::bfs_organizer::clear(){
     current_query_code.atoms().clear();
 }
 
-wam::parser_error wam::bfs_organizer::validate_program(const std::string_view code) {
+compiler::error wam::bfs_organizer::validate_program(const std::string_view code) {
 //TODO the code uses the parser code, a simple syntax checker would be good enough here
     try{
         wam::_program_grammar::result_t parser_result;
         parse_program(code, parser_result);
-        return parser_error{};
-    }catch(const parser_error& e){
+        return compiler::error{};
+    }catch(const compiler::error& e){
         return e;
     }
 }
 
-wam::parser_error wam::bfs_organizer::validate_query(const std::string_view code) {
+compiler::error wam::bfs_organizer::validate_query(const std::string_view code) {
 //TODO the code uses the parser code, a simple syntax checker would be good enough here
+    auto query_code = append_dot_if_not_present(std::string(code));
     try{
         wam::_query_grammar::result_t query; //= parser result
-        parse_query(code, query);
-        return parser_error{};
-    }catch(const parser_error& e){
+        parse_query(query_code, query);
+        return compiler::error{};
+    }catch(const compiler::error& e){
         return e;
     }
 }

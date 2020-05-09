@@ -1,6 +1,6 @@
 //
 
-#include "util.h"
+#include "parser_util.h"
 
 void wam::make_to_query(node& top_node, std::vector<node>& atoms){
     top_node.children = std::make_unique<std::vector<node>>(atoms);

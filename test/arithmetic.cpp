@@ -22,14 +22,9 @@ TEST_CASE("Div by 0 exception"){
 
 TEST_CASE("Arguments not suff instanciated"){
     bfs_organizer org;
-    try{
-        org.load_query("X is Y.");
-    }catch(compiler::error& e){
-        REQUIRE(e.type == compiler::ERROR_TYPE::USAGE_OF_UNINIT_VAR);
-        return;
-    }
-    //REquire catch
-    REQUIRE(false);
+    auto err = org.load_query("X is Y.");
+    REQUIRE(err.exists());
+    REQUIRE(err.type == compiler::ERROR_TYPE::ARGUMENTS_NOT_SUFF_INSTANCIATED);
 }
 
 TEST_CASE("Fun is not arithmetic exception"){

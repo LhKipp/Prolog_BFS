@@ -6,18 +6,41 @@
 #define PROLOG_BFS_COMPILER_ERROR_H
 
 #include <wam/data/source_code_info.h>
-#include "error_type.h"
+#include "compiler_error_type.h"
 
 namespace compiler{
     struct error{
         ERROR_TYPE type;
-        wam::source_code_info atom;
+        wam::source_code_info source_info;
         std::string description;
+        unsigned column;
 
-        error(ERROR_TYPE type, const wam::source_code_info &atom, const std::string &description) : type(type),
-                                                                                                    atom(atom),
-                                                                                                    description(
-                                                                                                            description) {}
+        error():type{ERROR_TYPE::NONE}{}
+        error(ERROR_TYPE type,
+              const wam::source_code_info &source_info,
+              const std::string &description,
+              unsigned column = std::numeric_limits<int>::max()) : type(type), source_info(source_info), description(description), column{column} {
+        }
+
+        std::string get_description()const{
+            return description;
+        }
+
+        bool has_column_info()const{
+            return column != std::numeric_limits<int>::max();
+        }
+
+        bool exists()const{
+            return type != ERROR_TYPE ::NONE;
+        }
+
+        unsigned get_row()const{
+            return source_info.line_begin;
+        }
+
+        unsigned get_col()const{
+            return column;
+        }
     };
 }
 

@@ -12,9 +12,9 @@
 #include <wam/compiler/parser/parsed_helper_types/binary_arithmetic_predicate.h>
 #include <wam/compiler/parser/parsed_helper_types/expressions.h>
 #include <wam/compiler/parser/parsed_helper_types/prolog_data_types.h>
-#include "util/util.h"
-#include "util/error_handler.h"
-#include "parser_error.h"
+#include <wam/compiler/error/compiler_error.h>
+#include <wam/compiler/parser/util/parser_util.h>
+#include <wam/compiler/parser/util/error_handler.h>
 
 BOOST_FUSION_ADAPT_STRUCT(
         node,
@@ -30,7 +30,7 @@ namespace wam{
     struct base_grammar : qi::grammar<Iterator, Base_Value, Skipper> {
     public:
         error_handler<> handler;
-        parser_error error;
+        compiler::error error;
 
         qi::rule<Iterator, node(), Skipper> built_in_pred;
         qi::rule<Iterator, parser::binary_arithmetic_predicate(), Skipper> built_in_equals;
