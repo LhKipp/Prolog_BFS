@@ -10,12 +10,12 @@ using namespace std;
 bfs_organizer org;
 void make_is_test_case(std::string rhs, int rhs_val){
     org.load_query("X is " + rhs);
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
     REQUIRE(ans->at(0).binding == std::to_string(rhs_val));
 
     org.load_query(to_string(rhs_val) + " is " + rhs);
-    auto ans2 = org.get_answer();
+    auto ans2 = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
 }
 
@@ -34,7 +34,7 @@ TEST_CASE("Is correct assignment") {
 
 TEST_CASE("Variable is assigment"){
     org.load_query("X is (4 + 4) * 4 - ((2 + 3)*2).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
     REQUIRE(ans->at(0).binding == std::to_string(22));
 }

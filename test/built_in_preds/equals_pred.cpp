@@ -10,7 +10,7 @@ TEST_CASE("Functor Equality") {
 
     org.load_program("eq(X, Y) :- X == Y.");
     org.load_query("eq(a, a).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
 }
 
@@ -22,7 +22,7 @@ TEST_CASE("Functor Equality 2") {
             "eq(X,Y) :- a(X), b(Y), X == Y.";
     org.load_program(text);
     org.load_query("eq(X, Y).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
 }
 
@@ -34,7 +34,7 @@ TEST_CASE("Functor inequality") {
             "eq(X,Y) :- a(X), b(Y), X == Y.";
     org.load_program(text);
     org.load_query("eq(X, Y).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(!ans.has_value());
 }
 
@@ -46,7 +46,7 @@ TEST_CASE("Functor inequality 2") {
             "eq(X,Y) :- a(X), b(Y), X == Y.";
     org.load_program(text);
     org.load_query("eq(X, Y).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(!ans.has_value());
 }
 
@@ -58,21 +58,21 @@ TEST_CASE("Functor inequality with var") {
             "eq(X,Y) :- a(X), b(Y), X == Y.";
     org.load_program(text);
     org.load_query("eq(X, Y).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(!ans.has_value());
 }
 
 TEST_CASE("Var equality") {
     bfs_organizer org;
     org.load_query("X == X.");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
 }
 
 TEST_CASE("Var inequality") {
     bfs_organizer org;
     org.load_query("Y == X.");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(!ans.has_value());
 }
 
@@ -86,7 +86,7 @@ TEST_CASE("Var inequality 2") {
             "eq(X,Y) :- a(X), b(Y), X == Y.";
     org.load_program(text);
     org.load_query("eq(A,B).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(!ans.has_value());
 }
 
@@ -95,12 +95,12 @@ TEST_CASE("Var equality tree") {
     bfs_organizer org;
     org.load_program("eq(X, X).");
     org.load_query("eq(X, X).");
-    auto ans1 = org.get_answer();
+    auto ans1 = org.get_answer().get_answer();
     REQUIRE(ans1.has_value());
     auto t1 = org.get_unification_tree();
 
     org.load_query("X == X.");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     auto t = org.get_unification_tree();
     REQUIRE(ans.has_value());
 }

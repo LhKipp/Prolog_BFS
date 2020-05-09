@@ -20,7 +20,7 @@ TEST_CASE("hard tree with integer") {
             "l([a, b, [Y, [X]]], f(b([a, [a] | [Z]]))) :- one(Y), one(X), two(Z).";
     org.load_program(text);
     org.load_query("l([Y, b, [1, [X]]], f(b([a, [a] | [Z]]))).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     auto t = org.get_unification_tree();
 }
 

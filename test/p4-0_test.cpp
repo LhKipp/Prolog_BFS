@@ -13,12 +13,12 @@ TEST_CASE("p4-b test") {
 
     SECTION("[]") {
         org.load_query("lvonN([b,a]).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
     }
     SECTION("[a]") {
         org.load_query("lvonN([b,b,b,a]).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
     }
     SECTION("lvonN") {
@@ -28,7 +28,7 @@ TEST_CASE("p4-b test") {
         org.load_query("lvonN(Z).");
 
         for (int i = 0; i < 25; i++) {
-            auto answer = org.get_answer();
+            auto answer = org.get_answer().get_answer();
             REQUIRE(answer.has_value());
             for (auto &elem : *answer) {
                 /* std::cout << elem<< endl; */

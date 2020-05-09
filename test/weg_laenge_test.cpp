@@ -15,13 +15,13 @@ TEST_CASE("weg laenge test") {
 
     SECTION("[]") {
         org.load_query("wegLaenge(a,f,Z).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
         REQUIRE(answer->at(0).binding == "s(s(s(o)))");
     }
     SECTION("[]") {
         org.load_query("wegLaenge(a,d,Z).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
         REQUIRE(answer->at(0).binding == "s(s(o))");
     }

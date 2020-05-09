@@ -29,7 +29,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
         setup_org("a.");
         REQUIRE(true);
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 0);
@@ -39,7 +39,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
 
         setup_org("b.");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         REQUIRE(!found_answer.has_value());
         /*The test below fails if compiled with clang. Passes if compiled with gcc*/
@@ -50,7 +50,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
 
         setup_org("p(Z,h(Z,W),f(W)).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["W"] = "f(a)";
@@ -68,7 +68,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
 
         setup_org("f(g).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->empty());
@@ -79,7 +79,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
 
         setup_org("f(a, b).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->empty());
@@ -89,7 +89,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
         //Z/x, W/f(a) , Z/g
         setup_org("r(x,h(Z,W),f(g)).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
         REQUIRE(!(found_answer.has_value()));
     }
     SECTION("Query: r(x,x) : Program: ") {
@@ -97,7 +97,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
 
         setup_org("r(x,x).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
         REQUIRE(!(found_answer.has_value()));
     }
     SECTION("Query: r(f(X),h(a,b),x) : Program: ") {
@@ -105,14 +105,14 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
 
         setup_org("r(f(X),h(a,b),x).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
         REQUIRE(!(found_answer.has_value()));
     }
     SECTION("Query: r(f(X),h(a,b),x) : Program: ") {
         program_code.emplace_back("r(f(a),h(D,Z)).");
 
         setup_org("r(f(X),h(a,b)).");
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
         REQUIRE(found_answer.has_value());
         map<std::string, std::string> actual_substs;
         actual_substs["X"] = "a";
@@ -126,7 +126,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
         program_code.emplace_back("r(f(a),h(D,Z),J).");
 
         setup_org("r(f(X),h(a,b),x).");
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
         REQUIRE(found_answer.has_value());
         map<std::string, std::string> actual_substs;
         actual_substs["X"] = "a";
@@ -140,7 +140,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
         program_code.emplace_back("r(f(f(f(a))),h(f(f(f(f(b)))),b)).");
 
         setup_org("r(f(f(f(X))),h(f(f(f(f(Z)))),b)).");
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
         REQUIRE(found_answer.has_value());
         map<std::string, std::string> actual_substs;
         actual_substs["X"] = "a";
@@ -157,7 +157,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
 
 
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
         REQUIRE(found_answer.has_value());
         map<std::string, std::string> actual_substs;
         actual_substs["X"] = "a";
@@ -174,7 +174,7 @@ TEST_CASE("BFS_Organizer_Tests", "[L1]") {
 
         setup_org("r(f(h(X,f(f(Z)))),h(f(f(f(f(Z)))),X)).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
         REQUIRE(!found_answer.has_value());
     }
 }

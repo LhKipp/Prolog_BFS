@@ -14,7 +14,7 @@ TEST_CASE("easy unification with integer") {
             "a(1).";
     org.load_program(text);
     org.load_query("a(X).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
     REQUIRE(ans->at(0).binding == "1");
 }
@@ -31,7 +31,7 @@ TEST_CASE("hard unification with integer") {
             "l([a, b, [Y, [X]]], f(b([a, [a] | [Z]]))) :- one(Y), one(X), two(Z).";
     org.load_program(text);
     org.load_query("l([Y, b, [1, [X]]], f(b([a, [a] | [Z]]))).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     has_all_of_these(ans,
                      {"Y", "a",
                       "X", "1",
@@ -45,10 +45,10 @@ TEST_CASE("altering with integer") {
             "alt([1, 0 | R]) :- alt(R).";
     org.load_program(text);
     org.load_query("alt(X).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans->at(0).binding == "[]");
-    auto ans2 = org.get_answer();
+    auto ans2 = org.get_answer().get_answer();
     REQUIRE(ans2->at(0).binding == "[1,0]");
-    auto ans3 = org.get_answer();
+    auto ans3 = org.get_answer().get_answer();
     REQUIRE(ans3->at(0).binding == "[1,0,1,0]");
 }

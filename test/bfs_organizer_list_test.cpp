@@ -24,7 +24,7 @@ auto setup_org = [&](string query) {
 
         setup_org("p([A,B], [A,b,C], Z).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["A"] = "a";
@@ -43,7 +43,7 @@ auto setup_org = [&](string query) {
 
         setup_org("append([a,b]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["Z"] = "b";
@@ -58,7 +58,7 @@ auto setup_org = [&](string query) {
 
         setup_org("append([a,b,c]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         REQUIRE(found_answer.has_value());
@@ -73,7 +73,7 @@ auto setup_org = [&](string query) {
 
         setup_org("f([a| B ]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["B"] = "[b]";
@@ -89,7 +89,7 @@ auto setup_org = [&](string query) {
 
         setup_org("append(Z, [a], [a]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["Z"] = "[]";
@@ -105,7 +105,7 @@ auto setup_org = [&](string query) {
 
         setup_org("append(Z, [c], [a,b,c]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["Z"] = "[a,b]";
@@ -121,7 +121,7 @@ auto setup_org = [&](string query) {
 
         setup_org("append([a],Z, [a,b,c]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["Z"] = "[b,c]";
@@ -137,7 +137,7 @@ auto setup_org = [&](string query) {
 
         setup_org("append([a,b,c],[d,e], Z).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["Z"] = "[a,b,c,d,e]";
@@ -152,7 +152,7 @@ auto setup_org = [&](string query) {
 
         setup_org("f([A]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["A"] = "[a]";
@@ -167,7 +167,7 @@ auto setup_org = [&](string query) {
 
         setup_org("f([A, B | C]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["A"] = "[a]";
@@ -185,7 +185,7 @@ auto setup_org = [&](string query) {
         bfs_organizer org;
         org.load_program(code);
         org.load_query("r(Z).");
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
         REQUIRE(found_answer.has_value());
     }
 
@@ -194,7 +194,7 @@ auto setup_org = [&](string query) {
         bfs_organizer org;
         org.load_program(code);
         org.load_query("g(Z).");
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
         REQUIRE(found_answer.has_value());
     }
     SECTION("Var to list3") {
@@ -203,7 +203,7 @@ auto setup_org = [&](string query) {
         bfs_organizer org;
         org.load_program(code);
         org.load_query("r(Z).");
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
         REQUIRE(found_answer.has_value());
     }
 
@@ -217,7 +217,7 @@ auto setup_org = [&](string query) {
         bfs_organizer org;
         org.load_program(code);
         org.load_query("r(Z).");
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["Z"] = "[a,b,c]";
@@ -234,7 +234,7 @@ auto setup_org = [&](string query) {
         bfs_organizer org;
         org.load_program(code);
         org.load_query("g(Z).");
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
         REQUIRE(found_answer.has_value());
 
         map<std::string, std::string> actual_substs;

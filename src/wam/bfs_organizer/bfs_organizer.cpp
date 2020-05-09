@@ -39,7 +39,7 @@ void wam::bfs_organizer::load_term_lines(const std::string_view code) {
 }
 
 
-std::optional<std::vector<wam::var_binding>> wam::bfs_organizer::get_answer() {
+wam::result wam::bfs_organizer::get_answer() {
     while (!executors.empty()) {
         executor* next_exec = executors.front();
         executors.pop_front();
@@ -64,12 +64,12 @@ std::optional<std::vector<wam::var_binding>> wam::bfs_organizer::get_answer() {
         }
 
         if(next_exec->succeeded()){
-            return find_substitutions_from_orig_query(*next_exec, storage);
+            return wam::result{find_substitutions_from_orig_query(*next_exec, storage)};
         }
     }
 
     //no more executor
-    return std::nullopt;
+    return wam::result{std::nullopt};
 }
 
 

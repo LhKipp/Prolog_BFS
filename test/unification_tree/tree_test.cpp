@@ -16,7 +16,7 @@ TEST_CASE("Tree mult") {
 
     org.load_query("mult(s(o),s(s(s(o))),Z).");
 
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     query_node t = org.get_unification_tree();
 
     REQUIRE(t.get_query_as_str() == "mult(s(o), s(s(s(o))), Z)");
@@ -113,7 +113,7 @@ TEST_CASE("Tree additional var"){
             "unifyVar(s(s(o))).";
     org.load_program(code);
     org.load_query("p(Y).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
 
     var_binding expected{"Y", "s(s(o))"};
@@ -141,7 +141,7 @@ TEST_CASE("Tree to be continued node"){
     bfs_organizer org;
     org.load_program(code);
     org.load_query("p(Z).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
     query_node t = org.get_unification_tree();
 
@@ -170,19 +170,19 @@ TEST_CASE("Tree fuzzing"){
     org.load_query("lVonM(Z).");
 
     for (int i = 0; i < 5; ++i) {
-        org.get_answer();
+        org.get_answer().get_answer();
         org.get_unification_tree();
     }
 
     org.load_program_from_file("test_src/p4-0.pl");
     org.load_query("lvonN(Z).");
-    org.get_answer();
+    org.get_answer().get_answer();
     org.get_unification_tree();
-    org.get_answer();
+    org.get_answer().get_answer();
     org.get_unification_tree();
-    org.get_answer();
+    org.get_answer().get_answer();
     org.get_unification_tree();
-    org.get_answer();
+    org.get_answer().get_answer();
     org.get_unification_tree();
     //require not failed
 }
@@ -197,7 +197,7 @@ TEST_CASE("Tree with list unifications"){
     bfs_organizer org;
     org.load_program(code);
     org.load_query("r(Z).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
     query_node t = org.get_unification_tree();
     var_binding_node& r = t.get_children()[0];
@@ -221,7 +221,7 @@ TEST_CASE("Tree add not failing"){
     org.load_program_from_file("test_src/arithmetic.pl");
     org.load_query("add(Z, s(o), s(s(o))).");
 
-    org.get_answer();
+    org.get_answer().get_answer();
     org.get_unification_tree();
 }
 
@@ -232,7 +232,7 @@ TEST_CASE("Tree test predicate not in program"){
             "weiblich(k2)."
             "schwester(X,Y) :- weiblich(X), ges(X,Y).");
     org.load_query("schwester(X, Y).");
-    org.get_answer();
+    org.get_answer().get_answer();
     auto t = org.get_unification_tree();
     REQUIRE(true);
 }

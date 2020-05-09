@@ -10,7 +10,7 @@ TEST_CASE("not_equals Functor inequality") {
 
     org.load_program("eq(X, Y) :- X \\== Y.");
     org.load_query("eq(b, a).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
 }
 
@@ -22,7 +22,7 @@ TEST_CASE("not_equals Functor inequality 2") {
             "eq(X,Y) :- a(X), b(Y), X \\== Y.";
     org.load_program(text);
     org.load_query("eq(X, Y).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
 }
 
@@ -34,7 +34,7 @@ TEST_CASE("not_equals Functor equality") {
             "eq(X,Y) :- a(X), b(Y), X \\== Y.";
     org.load_program(text);
     org.load_query("eq(X, Y).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(!ans.has_value());
 }
 
@@ -46,7 +46,7 @@ TEST_CASE("not_equals Functor equality 2") {
             "eq(X,Y) :- a(X), b(Y), X \\== Y.";
     org.load_program(text);
     org.load_query("eq(X, Y).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(!ans.has_value());
 }
 
@@ -58,21 +58,21 @@ TEST_CASE("not_equals Functor equality with var") {
             "eq(X,Y) :- a(X), b(Y), X \\== Y.";
     org.load_program(text);
     org.load_query("eq(X, Y).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
 }
 
 TEST_CASE("not_equals Var inequality") {
     bfs_organizer org;
     org.load_query("X \\== X.");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(!ans.has_value());
 }
 
 TEST_CASE("not_equals Var inequality2") {
     bfs_organizer org;
     org.load_query("Y \\== X.");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
 }
 
@@ -86,6 +86,6 @@ TEST_CASE("not_equals Var inequality 2") {
             "eq(X,Y) :- a(X), b(Y), X \\== Y.";
     org.load_program(text);
     org.load_query("eq(A,B).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
 }

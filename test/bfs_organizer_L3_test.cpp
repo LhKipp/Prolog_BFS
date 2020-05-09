@@ -23,7 +23,7 @@ TEST_CASE("BFS_Organizer L3 hard test") {
             "l([a, b, [Y, [X]]], f(b([a, [a] | [Z]]))) :- one(Y), one(X), two(Z).";
     org.load_program(text);
     org.load_query("l([a, b, [a, [a]]], f(b([a, [a] | [b]]))).");
-    auto ans = org.get_answer();
+    auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
 }
 TEST_CASE("BFS_Organizer L3 Tests") {
@@ -54,7 +54,7 @@ auto setup_org = [&](string query) {
         program_code.push_back("z(a).");
         setup_org("z(A).");
 
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         map<std::string, std::string> actual_substs;
         actual_substs["A"] = "a";
         REQUIRE(answer.has_value());
@@ -68,7 +68,7 @@ auto setup_org = [&](string query) {
         program_code.push_back("z(a).");
         setup_org("z(A).");
 
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         map<std::string, std::string> actual_substs;
         actual_substs["A"] = "a";
         REQUIRE(answer.has_value());
@@ -82,7 +82,7 @@ auto setup_org = [&](string query) {
         program_code.push_back("z(a).");
         setup_org("z(A), p(X,y), z(A), a(A,b).");
 
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         map<std::string, std::string> actual_substs;
         actual_substs["A"] = "a";
         actual_substs["X"] = "x";
@@ -97,7 +97,7 @@ auto setup_org = [&](string query) {
         program_code.push_back("x(A) :- a(a,A).");
         setup_org("x(A).");
 
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
         map<std::string, int> actual_substs;
         int total_answers=0;
@@ -106,7 +106,7 @@ auto setup_org = [&](string query) {
             for (auto &subst : *answer) {
                 actual_substs[subst.binding]+= 1;
             }
-            answer = org.get_answer();
+            answer = org.get_answer().get_answer();
         }
         REQUIRE(total_answers == 2);
         REQUIRE(actual_substs.size() ==2);
@@ -119,7 +119,7 @@ auto setup_org = [&](string query) {
         program_code.push_back("x(A) :- h(X,Y,Z), p(D,J), a(a,A).");
         setup_org("x(A).");
 
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
         map<std::string, int> actual_substs;
         int total_answers=0;
@@ -128,7 +128,7 @@ auto setup_org = [&](string query) {
             for (auto &subst : *answer) {
                 actual_substs[subst.binding]+= 1;
             }
-            answer = org.get_answer();
+            answer = org.get_answer().get_answer();
         }
         REQUIRE(total_answers == 2);
         REQUIRE(actual_substs.size() ==2);
@@ -143,7 +143,7 @@ auto setup_org = [&](string query) {
         program_code.push_back("x(B) :- a(a,B).");
         setup_org("x(A), z(A), g(A,B).");
 
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
         map<std::string, int> actual_substs;
         int total_answers=0;
@@ -152,7 +152,7 @@ auto setup_org = [&](string query) {
             for (auto &subst : *answer) {
                 actual_substs[subst.binding]+= 1;
             }
-            answer = org.get_answer();
+            answer = org.get_answer().get_answer();
             if(total_answers > 40) break;
         }
         REQUIRE(actual_substs.size() == 3);

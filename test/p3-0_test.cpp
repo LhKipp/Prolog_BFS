@@ -18,7 +18,7 @@ TEST_CASE("p3-0 test") {
         org.load_query("roots(Z1, Z2).");
 
         for (int i = 0; i < 25; i++) {
-            auto answer = org.get_answer();
+            auto answer = org.get_answer().get_answer();
             REQUIRE(answer.has_value());
             for (auto &elem : *answer) {
 //                cout << elem.binding << endl;

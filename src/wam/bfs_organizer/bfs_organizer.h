@@ -9,7 +9,6 @@
 #include <unordered_map>
 #include <vector>
 #include <list>
-#include <experimental/filesystem>
 #include "../data/functor_view.h"
 #include "../data/var_binding.h"
 #include "../data/compiled_atom.h"
@@ -20,6 +19,7 @@
 #include "../visual/unification_tree/query_node.h"
 #include "../data/rule.h"
 #include "data/storage.h"
+#include <wam/bfs_organizer/data/result.h>
 
 
 namespace wam {
@@ -65,7 +65,7 @@ namespace wam {
          * Returns var_substitutions if found otherwise std::nullopt
          * Note: This may run into an endless loop
          */
-        std::optional<std::vector<wam::var_binding>> get_answer();
+        wam::result get_answer();
 
         bool has_code_for(const functor_view &functor) const{
             return program_code.find(functor) != program_code.end();

@@ -31,6 +31,9 @@ namespace wam{
         const std::optional<std::vector<wam::var_binding>>& get_answer()const{
             return std::get<0>(data);
         }
+
+        result(const std::optional<std::vector<wam::var_binding>> &ans) : data(ans) {}
+        result(const wam::runtime_error& err) : data(err) {}
     };
 }
 

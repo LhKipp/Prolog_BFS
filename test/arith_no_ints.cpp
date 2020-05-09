@@ -16,7 +16,7 @@ TEST_CASE("arithmetics tests") {
 
     SECTION("a") {
         org.load_query("mult(s(o),s(s(s(o))),Z).");
-        auto ans = org.get_answer();
+        auto ans = org.get_answer().get_answer();
         REQUIRE(ans.has_value());
         REQUIRE(ans->at(0).binding == "s(s(s(o)))");
     }

@@ -25,20 +25,20 @@ auto setup_org = [&](string query) {
 };
     SECTION("a") {
         setup_org("natSymb(s(A)).");
-        auto ans = org.get_answer();
+        auto ans = org.get_answer().get_answer();
         REQUIRE(ans.has_value());
         REQUIRE(ans->at(0).binding == "o");
     }
     SECTION("c") {
         setup_org("test(Z).");
         map<string,bool> found;
-        auto ans = org.get_answer();
+        auto ans = org.get_answer().get_answer();
         for(int i=0; i <5; i++){
                 REQUIRE(ans.has_value());
                 found[ans->at(0).binding ] = true;
                 bool is_a_or_b = ans->at(0).binding == "a" || ans->at(0).binding == "b";
                 REQUIRE(is_a_or_b);
-                ans = org.get_answer();
+                ans = org.get_answer().get_answer();
         }
         REQUIRE(found["a"]);
         REQUIRE(found["b"]);
