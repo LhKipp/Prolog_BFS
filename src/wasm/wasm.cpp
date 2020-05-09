@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include "../wam/bfs_organizer/bfs_organizer.h"
+#include <wam/bfs_organizer/data/result.h>
 
 #include <emscripten/bind.h>
 using namespace emscripten;
@@ -58,30 +59,8 @@ public:
         }
     }
 
-    std::string getAnswer() {
-        //TODO Refactor the get_answer() method in normal mode to write to a templametarized output stream
-        std::string result = "";
-        auto answer = bfs_organizer.get_answer();
-
-        if(!answer){
-            return "false";
-        }
-
-        //If it was an easy unification without variables
-        if(answer->empty()){
-            return "true";
-        }
-
-        result += "[";
-        for (int i = 0; i < answer->size(); i++) {
-            result += answer->at(i).var_name + "/" + answer->at(i).binding;
-            if (i != answer->size()-1) {
-                result += ", ";
-            }
-        }
-        result += "]";
-
-        return result;
+    wam::result getAnswer() {
+        return bfs_organizer.get_answer();
     }
     
     wam::query_node getUnificationTree() const{
