@@ -32,7 +32,7 @@ namespace wam{
             return std::get<0>(data);
         }
         
-        const std::string get_answer_as_str() const;
+        std::string get_answer_as_str() const;
 
         result(const std::optional<std::vector<wam::var_binding>> &ans) : data(ans) {}
         result(const wam::runtime_error& err) : data(err) {}

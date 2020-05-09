@@ -5,7 +5,7 @@
 #include <sstream>
 #include <util/vector_util.h>
 
-const std::string wam::result::get_answer_as_str() const {
+std::string wam::result::get_answer_as_str() const {
     auto answer = get_answer();
 
     if(!answer){
