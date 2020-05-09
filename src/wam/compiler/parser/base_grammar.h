@@ -123,7 +123,7 @@ namespace wam{
             built_in_equals = prolog_element >> string("==") >> prolog_element;
             built_in_not_equals = prolog_element >> string("\\==") >> prolog_element;
             //Built in arithmetic binary predicates
-            built_in_is = (number | variable) >> string("is") >> expression;
+            built_in_is = prolog_element >> string("is") >> expression;
             built_in_pred = built_in_equals
                     | built_in_not_equals
                     | built_in_is;

@@ -49,6 +49,8 @@ namespace wam {
             assert(is_REF());
             this->index = index;
         }
+
+        std::string type_as_str();
     };
 }
 

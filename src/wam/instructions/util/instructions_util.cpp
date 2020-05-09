@@ -19,6 +19,7 @@ size_t wam::deref(const executor & exec, const regist& init_regist) {
 #ifdef DEBUG
     std::cout << "deref" << std::endl;
 #endif
+    assert(init_regist.is_REF());
     return wam::deref(exec, init_regist.index);
 }
 
@@ -46,4 +47,24 @@ size_t wam::deref(const executor & exec, const size_t heap_addr) {
 
     assert(cur_regist.is_REF() || cur_regist.is_INT());
     return last_reg_index;
+}
+
+regist wam::derefed_reg(const executor &exec, const regist &init_regist) {
+    auto deref_i = deref(exec, init_regist);
+    return exec.heap_at(deref_i);
+}
+
+regist derefed_reg(const executor &exec, size_t heap_i) {
+    auto deref_i = deref(exec, heap_i);
+    return exec.heap_at(deref_i);
+}
+
+regist& wam::derefed_reg_modify(executor &exec, const regist &init_regist) {
+    auto deref_i = deref(exec, init_regist);
+    return exec.heap_modify(deref_i);
+}
+
+regist& derefed_reg_modify(executor &exec, size_t heap_i) {
+    auto deref_i = deref(exec, heap_i);
+    return exec.heap_modify(deref_i);
 }

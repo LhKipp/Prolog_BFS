@@ -7,8 +7,8 @@
 using namespace wam;
 using namespace std;
 
-bfs_organizer org;
 void make_is_test_case(std::string rhs, int rhs_val){
+    bfs_organizer org;
     org.load_query("X is " + rhs);
     auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
@@ -33,8 +33,22 @@ TEST_CASE("Is correct assignment") {
 }
 
 TEST_CASE("Variable is assigment"){
+    bfs_organizer org;
     org.load_query("X is (4 + 4) * 4 - ((2 + 3)*2).");
     auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
     REQUIRE(ans->at(0).binding == std::to_string(22));
+}
+
+TEST_CASE("is comparison rules"){
+    bfs_organizer org;
+    //THIS IS THE BEHAVIOR OF SWIPL AND NOT NECESSARILY THE OPINION OF THE AUTHOR
+    auto ass_false = [&](auto q){
+        org.load_query(q);
+        auto ans = org.get_answer().get_answer();
+        REQUIRE(!ans.has_value());
+    };
+    ass_false("[] is 3.");
+    ass_false("a is 3.");
+    ass_false("f(a) is 3.");
 }

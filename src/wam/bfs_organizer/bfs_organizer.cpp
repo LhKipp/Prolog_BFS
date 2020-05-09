@@ -55,7 +55,12 @@ wam::result wam::bfs_organizer::get_answer() {
         next_exec->heap.reserve(next_term_code->expected_register_count * 2);
 
         for (const auto &instruction : next_term_code->instructions) {
-            instruction(*next_exec);
+            try{
+                instruction(*next_exec);
+            }catch(ERROR_TYPE runtime_err){
+                next_exec->clear();
+                return wam::result{next_exec->get_runtime_err()};
+            }
             //if the executor fails we stop executing
             if (next_exec->failed()) {
                 next_exec->clear();

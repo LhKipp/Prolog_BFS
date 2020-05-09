@@ -23,6 +23,7 @@
 #include <cassert>
 #include <iostream>
 #include <variant>
+#include <wam/bfs_organizer/data/error/runtime_error.h>
 
 namespace wam {
 
@@ -37,6 +38,7 @@ namespace wam {
     using STR_index = NamedType<int, STR_Parameter>;
     using Storage_FUN_index = NamedType<int, struct Storage_FUN_index_s>;
     using Storage_Expr_index = NamedType<int, struct Storage_Expr_index_s>;
+    using Storage_Var_index = NamedType<int, struct Storage_Var_index_s>;
 
 
     struct executor {
@@ -64,6 +66,8 @@ namespace wam {
         std::vector<regist> heap{};
 
         std::vector<std::unique_ptr<executor>> children;
+
+        wam::runtime_error runtime_error;
 
     public:
         //We also need to keep track whether this exec is from an original user entered query
@@ -105,9 +109,10 @@ namespace wam {
         }
 
         functor_view& functor_of(Storage_FUN_index storage_fun_index);
-        const node& expr_of(Storage_Expr_index expr_index);
+        const node& expr_of(Storage_Expr_index expr_index) const;
 
-        inline functor_view &functor_of(STR_index STR_index) {
+        std::string var_name_of(Storage_Var_index var_index);
+        inline functor_view &functor_of(STR_index STR_index){
             return functor_of(FUN_index{heap_at(STR_index.get()).index});
         }
 
@@ -253,7 +258,7 @@ namespace wam {
         }
 
         bool inline failed()const{
-            return state == EXEC_STATE::FAIL;
+            return state == EXEC_STATE::FAIL || error_occured();
         }
 
         bool is_leaf()const{
@@ -285,6 +290,26 @@ namespace wam {
         bool inline is_running()const{
             return state == EXEC_STATE ::RUNNING;
         }
+
+        bool inline error_occured()const{
+            return state == EXEC_STATE ::RUNTIME_EXCEPTION_FAIL;
+        }
+
+        void inline set_runtime_error_flag(){
+            set_state(EXEC_STATE::RUNTIME_EXCEPTION_FAIL);
+        }
+
+        void inline set_runtime_error(const wam::runtime_error& err){
+            set_runtime_error_flag();
+            runtime_error = err;
+        }
+
+        wam::runtime_error inline get_runtime_err()const{
+            assert(error_occured());
+            return runtime_error;
+        }
+
+
     };
 }
 

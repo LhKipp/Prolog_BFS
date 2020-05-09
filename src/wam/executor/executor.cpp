@@ -73,6 +73,10 @@ wam::functor_view &wam::executor::functor_of(Storage_FUN_index indx) {
     return organizer->storage.functors[indx.get()];
 }
 
-const node &executor::expr_of(Storage_Expr_index expr_index) {
+const node &executor::expr_of(Storage_Expr_index expr_index)const{
     return organizer->storage.expressions[expr_index.get()];
+}
+
+std::string executor::var_name_of(Storage_Var_index var_index) {
+    return organizer->storage.variables[var_index.get()].name;
 }

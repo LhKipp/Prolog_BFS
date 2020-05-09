@@ -33,5 +33,6 @@ enum class STORED_OBJECT_FLAG{
     NONE
 };
 
-std::ostream& operator <<(std::ostream& stream, STORED_OBJECT_FLAG matrix);
+std::string stored_object_flag_to_str(STORED_OBJECT_FLAG f);
+std::ostream& operator <<(std::ostream& stream, STORED_OBJECT_FLAG f);
 #endif //PROLOG_BFS_DATA_ENUMS_H

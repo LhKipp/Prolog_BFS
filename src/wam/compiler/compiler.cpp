@@ -17,6 +17,7 @@
 #include "../bfs_organizer/data/storage.h"
 
 #include <wam/compiler/built_in_predicates/built_in_pred_comp.h>
+#include <wam/compiler/checks/undefined_var.h>
 
 /*
  * Assigns register to an functor (constant is also viable)
@@ -180,6 +181,7 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term,
         seen_registers[func_reg] = true;
 
         if(node->is_expr()){
+            compiler::check_and_throw_undefined_var(outer_functor, *node, seen_registers);
             auto expr_i = storage.push_back_expr(*node);
             *out = std::bind(wam::put_expr, _1, expr_i, node->get_x_reg());
             ++out;

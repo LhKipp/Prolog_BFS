@@ -21,9 +21,9 @@ node wam::preds::is_node_tree() {
 }
 
 void wam::preds::is(wam::executor &exec, size_t lhs_x_reg_i, size_t rhs_x_reg_i){
-    regist& rhs_expr = exec.registers.at(rhs_x_reg_i);
-    const node& expr = exec.expr_of(Storage_Expr_index{rhs_expr.get_expr_i()});
-    int rhs_value = wam::arithmetic::eval_int_expr(exec, expr);
+    const regist& rhs_expr = exec.registers.at(rhs_x_reg_i);
+    int rhs_value = wam::arithmetic::eval_int_expr(exec, rhs_expr);
+    if(exec.error_occured()) return;
 
     regist& lhs = exec.registers.at(lhs_x_reg_i);
     //If people use is like =:=
@@ -32,32 +32,36 @@ void wam::preds::is(wam::executor &exec, size_t lhs_x_reg_i, size_t rhs_x_reg_i)
             exec.set_failed();
         }
         return;
-    }
-
-    //lhs is a variable
-    assert(lhs.is_REF());
-    size_t deref_reg = wam::deref(exec, lhs.index);
-    regist& reg = exec.heap_modify(deref_reg);
-    //if var already assigned before
-    if(reg.is_INT()){
-        if(reg.get_int_val() != rhs_value){
+    }else if(lhs.is_FUN() || lhs.is_STR() || lhs.is_EXPR()) {
+        exec.set_failed();
+        return;
+    }else if(lhs.is_REF()){
+        regist& derefed_reg = wam::derefed_reg_modify(exec, lhs);
+        //if var already assigned before
+        if(derefed_reg.is_INT()){
+            if(derefed_reg.get_int_val() != rhs_value){
+                exec.set_failed();
+            }
+            return;
+        }else if(derefed_reg.is_REF()){
+            //TODO check whether you can just push some ints on the stack
+            //I think its fine
+            exec.push_back_int(rhs_value);
+            derefed_reg.bind_to((int)exec.heap_size() - 1);
+            return;
+        }else{
+            //its list fun const or something. Yes this is the actual behavior, no runtime exc for that
             exec.set_failed();
+//            //derefed_reg is something else than ref or int
+//            exec.set_runtime_error(runtime_error{
+//                    ERROR_TYPE ::ARGUMENTS_NOT_SUFF_INSTANCIATED,
+//                    exec.get_current_term_code()->get_code_info(),
+//                    "In is/2 predicate: \
+//                    Lhs is a Variable pointing to a " + lhs.type_as_str() +
+//                    "\nExpected Lhs to be of type INT or REF"
+//            });
+            return;
         }
-        return;
     }
-
-    if(reg.is_REF()){
-        //TODO check whether you can just push some ints on the stack
-        exec.push_back_int(rhs_value);
-        reg.bind_to(exec.heap_size() -1);
-        return;
-    }
-
-    //reg is neither int nor ref --> runtime error
-    //TODO runtime error
-    exec.set_failed();
-    assert(false);
-
-
 }
 

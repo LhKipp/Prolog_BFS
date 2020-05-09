@@ -29,6 +29,10 @@ namespace wam {
         inline bool is_append_functor()const{
             return name == "|";
         }
+
+        std::string to_string()const{
+            return name + "/" + std::to_string(arity);
+        }
     };
 
     inline bool operator==(const functor_view &a, const functor_view &b) {
