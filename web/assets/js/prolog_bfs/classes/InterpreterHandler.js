@@ -112,7 +112,7 @@ class InterpreterHandler {
         TreeView.newest_drawing_id++;
         
         // check whether there might be more answers. If not, disable the next button
-        let tree = this.interpreter.getUnificationTree();
+        // let tree = this.interpreter.getUnificationTree();
         if (result == 'false') {
             this.resultDiv.disableNext();
         }
