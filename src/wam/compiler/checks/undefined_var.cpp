@@ -3,7 +3,6 @@
 //
 
 #include <wam/compiler/util/node_iteration.h>
-#include <wam/compiler/parser/parser_error.h>
 #include <wam/compiler/error/compiler_error.h>
 #include "undefined_var.h"
 
@@ -17,7 +16,7 @@ void compiler::check_and_throw_undefined_var(
         seen_register reg{*n};
         if(seen_registers.find(reg) == seen_registers.end()){
             throw compiler::error{
-                ERROR_TYPE::USAGE_OF_UNINIT_VAR,
+                ERROR_TYPE::ARGUMENTS_NOT_SUFF_INSTANCIATED,
                 atom.code_info,
                 "Any variable inside an expression must be defined before."
             };

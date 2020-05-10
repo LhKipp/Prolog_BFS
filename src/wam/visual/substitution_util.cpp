@@ -10,12 +10,12 @@
 
 node wam::node_representation_of(const wam::executor &exec, size_t index, const wam::storage &storage) {
     using namespace wam;
-    regist reg = exec.heap_at((index));
+    heap_reg reg = exec.heap_at((index));
     if(reg.is_REF()){
         index = wam::deref(exec, reg);
+        reg = exec.heap_at((index));
     }
 
-    reg = exec.heap_at((index));
     if(reg.is_REF()){
         //Unbound ref cell
         node var_node{STORED_OBJECT_FLAG ::VARIABLE, storage.variables[reg.var_index].name};
@@ -77,7 +77,7 @@ wam::string_representation_of(const executor &executor,
                               bool is_contigous_list) {
     using namespace wam;
     //If register is an Ref cell we try to dereference it
-    regist reg = executor.heap_at(index);
+    heap_reg reg = executor.heap_at(index);
     if (reg.is_REF()) {
         index = wam::deref(executor, reg);
     }
@@ -170,8 +170,8 @@ std::vector<wam::var_heap_substitution> wam::point_var_reg_substs_to_heap(const 
                    result.begin(),
                    [&](const var_reg_substitution& reg_sub){
                        size_t heap_index = reg_sub.is_permanent_register ?
-                                           executor.environments.back().permanent_registers.at(reg_sub.register_index).index
-                                                                         : executor.registers.at(reg_sub.register_index).index;
+                                           executor.environments.back().permanent_registers.at(reg_sub.register_index).heap_i
+                                                                         : executor.registers.at(reg_sub.register_index).heap_i;
 
                        return var_heap_substitution(
                                reg_sub.var_name,

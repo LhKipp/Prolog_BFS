@@ -17,7 +17,7 @@ size_t wam::executor::storage_index_of(const functor_view &functor) const{
 }
 
 
-wam::regist wam::executor::heap_back() const {
+wam::heap_reg wam::executor::heap_back() const {
     assert(heap_size() > 0);
     if(heap.empty()){
         assert(has_parent());
@@ -27,7 +27,7 @@ wam::regist wam::executor::heap_back() const {
     }
 }
 
-wam::regist &wam::executor::heap_modify(size_t index) {
+wam::heap_reg &wam::executor::heap_modify(size_t index) {
     //Assert that the index is within heap
     assert(index < heap_size());
     //If within this executor
@@ -40,15 +40,15 @@ wam::regist &wam::executor::heap_modify(size_t index) {
             return change->second;
         }else{
             //This executor has not overwritten the parent heap
-            //So we give back a regist stored as a local change to parent
-            //First copy the parent regist
+            //So we give back a heap_reg stored as a local change to parent
+            //First copy the parent heap_reg
             changes_to_parent.insert({index, parent->heap_at(index)});
             return changes_to_parent.at(index);
         }
     }
 }
 
-wam::regist wam::executor::heap_at(size_t index) const {
+wam::heap_reg wam::executor::heap_at(size_t index) const {
     //Assert that the index is within heap
     assert(index < heap_size());
     //If within child
@@ -64,7 +64,7 @@ wam::regist wam::executor::heap_at(size_t index) const {
             assert(has_parent());
             return parent->heap_at(index);
             //DEBUG
-            //return regist{heap_tag::REF, 0};
+            //return heap_reg{heap_tag::REF, 0};
         }
     }
 }

@@ -22,9 +22,9 @@ node wam::preds::equals_node_tree() {
 /*
  * This method assumes that if lhs_heap_i or rhs_heap_i is ref, it cant be further dereferenced
  */
-bool wam::preds::heap_reg_equals(wam::executor& executor, regist lhs, regist rhs){
-    size_t lhs_heap_i;
-    size_t rhs_heap_i;
+bool wam::preds::heap_reg_equals(wam::executor& executor, size_t lhs_heap_i, size_t rhs_heap_i){
+    heap_reg lhs = executor.heap_at(lhs_heap_i);
+    heap_reg rhs = executor.heap_at(rhs_heap_i);
     if(lhs.is_REF()){
         lhs_heap_i = wam::deref(executor, lhs.index);
         lhs = executor.heap_at(lhs_heap_i);
@@ -65,8 +65,8 @@ bool wam::preds::heap_reg_equals(wam::executor& executor, regist lhs, regist rhs
 
         for (int i = 0; i < functor1.arity; ++i) {
             if(!heap_reg_equals(executor,
-                    executor.heap_at(lhs_heap_i + 1 + i),
-                    executor.heap_at(rhs_heap_i + 1 + i))) {
+                    lhs_heap_i + 1 + i,
+                    rhs_heap_i + 1 + i)) {
                 return false;
             }
         }
@@ -77,15 +77,9 @@ bool wam::preds::heap_reg_equals(wam::executor& executor, regist lhs, regist rhs
 }
 
 void wam::preds::equals_check(wam::executor &executor, size_t lhs_x_reg_i, size_t rhs_x_reg_i) {
-    //This is very similar to the unify algorithm
-#ifdef DEBUG
-    std::cout << "equals_check" << std::endl;
-#endif
-    //Var equality means same var_string_name and same register in heap
-    //But both vars having same x_reg also means they are identical
-    regist lhs = executor.registers[lhs_x_reg_i];
-    regist rhs = executor.registers[rhs_x_reg_i];
-    if(!wam::preds::heap_reg_equals(executor, lhs, rhs)){
+    const size_t lhs_heap_i = executor.registers[lhs_x_reg_i].heap_i;
+    const size_t rhs_heap_i = executor.registers[rhs_x_reg_i].heap_i;
+    if(!wam::preds::heap_reg_equals(executor, lhs_heap_i, rhs_heap_i)){
         executor.set_failed();
     }
 }

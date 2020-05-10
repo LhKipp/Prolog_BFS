@@ -3,12 +3,8 @@
 //
 
 #include "../../catch.hpp"
-#include <wam/compiler/util/node.h>
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/repository/include/qi_iter_pos.hpp>
-#include <boost/phoenix/phoenix.hpp>
-#include <boost/spirit/include/support_line_pos_iterator.hpp>
 #include <wam/compiler/parser/query_grammar.h>
+#include <boost/spirit/include/support_line_pos_iterator.hpp>
 #include <string_view>
 
 template<typename Iterator, typename Skipper>

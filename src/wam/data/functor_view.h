@@ -39,7 +39,7 @@ namespace wam {
         return( a.arity == b.arity && a.name == b.name);
     }
 
-    inline bool operator!=(const functor_view& a, const functor_view& b){
+    inline bool operator!=(const functor_view &a, const functor_view &b) {
         return !(a == b);
     }
 

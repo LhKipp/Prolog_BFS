@@ -23,7 +23,7 @@ namespace wam{
 
 
         std::vector<binary_built_in_pred>
-        get_binary_built_in_preds();
+        compile_built_in_predicates();
     }
 }
 

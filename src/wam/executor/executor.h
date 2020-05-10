@@ -6,7 +6,7 @@
 #define PROLOG_BFS_EXECUTOR_H
 
 
-#include "../data/regist.h"
+#include "wam/data/heap_reg.h"
 #include "../data/functor_view.h"
 #include "util/mode.h"
 #include "../data/var_reg_substitution.h"
@@ -24,6 +24,7 @@
 #include <iostream>
 #include <variant>
 #include <wam/bfs_organizer/data/error/runtime_error.h>
+#include <wam/data/heap_reg_with_i.h>
 
 namespace wam {
 
@@ -61,9 +62,9 @@ namespace wam {
 
         //Every child may need to overwrite some parts of the heap of the parent. As many Childs rely on one heap
         //a particular child is not allowed to write in parent heap. So we need to store local changes
-        std::unordered_map<size_t, regist> changes_to_parent{};
+        std::unordered_map<size_t, heap_reg> changes_to_parent{};
 
-        std::vector<regist> heap{};
+        std::vector<heap_reg> heap{};
 
         std::vector<std::unique_ptr<executor>> children;
 
@@ -78,7 +79,7 @@ namespace wam {
             return term_codes.back()->is_from_original_query();
         }
 
-        std::vector<regist> registers;
+        std::vector<heap_reg_with_i> registers;
 
         mode read_or_write;
 
@@ -99,7 +100,7 @@ namespace wam {
 
         executor(size_t term_codes_size): term_codes{term_codes_size}{}
 
-        inline std::vector<wam::regist>& cur_permanent_registers(){
+        inline std::vector<wam::heap_reg_with_i>& cur_permanent_registers(){
             assert(!environments.empty());
             return environments.back().permanent_registers;
         }
@@ -126,7 +127,7 @@ namespace wam {
 
         size_t storage_index_of(const functor_view &functor)const;
 
-        inline void push_back(const regist& regist){
+        inline void push_back(const heap_reg& regist){
             heap.push_back(regist);
         }
         inline void push_back_STR(){
@@ -148,11 +149,11 @@ namespace wam {
             return heap_start_index + heap.size();
         }
 
-        regist heap_back()const;
+        heap_reg heap_back()const;
 
-        regist& heap_modify(size_t index);
+        heap_reg& heap_modify(size_t index);
 
-        regist heap_at(size_t index)const;
+        heap_reg heap_at(size_t index)const;
 
         inline void move_from_parent(executor& parent){
             this->parent = &parent;

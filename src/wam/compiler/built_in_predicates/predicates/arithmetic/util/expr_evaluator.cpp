@@ -7,7 +7,7 @@
 #include <wam/runtime_errors/err_handling.h>
 #include "expr_evaluator.h"
 
-int wam::arithmetic::eval_int_expr(executor &exec, const regist &rhs_expr) {
+int wam::arithmetic::eval_int_expr(executor &exec, const heap_reg &rhs_expr) {
     err_handling::check_and_throw_is_evaluable(exec, rhs_expr);
 
     if(rhs_expr.is_INT()){
@@ -100,11 +100,11 @@ int arithmetic::eval_int_value(executor &exec, const node &value){
     }else{
         assert(value.is_variable());
 
-        regist derefed_reg;
+        heap_reg derefed_reg;
         if(value.is_permanent()){
-            derefed_reg = wam::derefed_reg(exec, exec.cur_permanent_registers().at(value.get_y_reg()));
+            derefed_reg = wam::derefed_reg(exec, exec.cur_permanent_registers().at(value.get_y_reg()).reg);
         }else{
-            derefed_reg = wam::derefed_reg(exec, exec.registers.at(value.get_x_reg()));
+            derefed_reg = wam::derefed_reg(exec, exec.registers.at(value.get_x_reg()).reg);
         }
         err_handling::check_and_throw_is_evaluable(exec, derefed_reg);
         //if var pointed to a expression
