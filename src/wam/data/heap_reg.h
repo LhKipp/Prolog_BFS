@@ -2,22 +2,22 @@
 // Created by leonhard on 27.07.19.
 //
 
-#ifndef PROLOG_BFS_REGIST_H
-#define PROLOG_BFS_REGIST_H
+#ifndef PROLOG_BFS_HEAP_REG_H
+#define PROLOG_BFS_HEAP_REG_H
 
 
 #include "heap_tag.h"
 #include <cstddef>
 
 namespace wam {
-    struct regist {
+    struct heap_reg {
         int index;
         short var_index;
         heap_tag type;
 
-        regist()= default;
-        regist(heap_tag type, int index): type{type}, index{index}{}
-        regist(int index, short var_index): type{heap_tag::REF}, index{index}, var_index{var_index}{}
+        heap_reg()= default;
+        heap_reg(heap_tag type, int index): type{type}, index{index}{}
+        heap_reg(int index, short var_index): type{heap_tag::REF}, index{index}, var_index{var_index}{}
 
         inline bool is_REF()const {
             return type == heap_tag::REF;
@@ -56,4 +56,4 @@ namespace wam {
 
 
 
-#endif //PROLOG_BFS_REGIST_H
+#endif //PROLOG_BFS_HEAP_REG_H

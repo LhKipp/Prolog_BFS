@@ -3,9 +3,9 @@
 //
 
 
-#include "regist.h"
+#include "heap_reg.h"
 
-std::string regist::type_as_str() {
+std::string heap_reg::type_as_str() {
     return std::string(((const char *[]) {
             "STR",
             "REF",

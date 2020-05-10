@@ -8,7 +8,7 @@
 #include <wam/executor/executor.h>
 
 namespace wam::arithmetic{
-    int eval_int_expr(executor& exec, const regist& expr);
+    int eval_int_expr(executor& exec, const heap_reg& expr);
 
     int eval_int_sum(executor& exec, const node& sum);
     int eval_int_product(executor& exec, const node& prod);

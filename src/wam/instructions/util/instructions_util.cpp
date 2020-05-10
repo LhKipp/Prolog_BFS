@@ -3,7 +3,7 @@
 //
 
 #include "instructions_util.h"
-#include "../../data/regist.h"
+#include "wam/data/heap_reg.h"
 #include "../../executor/executor.h"
 #include <vector>
 #include <cassert>
@@ -15,7 +15,7 @@
 /*
  * Returns a index to a register the init_regist points to.
  */
-size_t wam::deref(const executor & exec, const regist& init_regist) {
+size_t wam::deref(const executor & exec, const heap_reg& init_regist) {
 #ifdef DEBUG
     std::cout << "deref" << std::endl;
 #endif
@@ -32,7 +32,7 @@ size_t wam::deref(const executor & exec, const size_t heap_addr) {
 #endif
 
     size_t last_reg_index = heap_addr;
-    regist cur_regist = exec.heap_at(last_reg_index);
+    heap_reg cur_regist = exec.heap_at(last_reg_index);
 
     while (cur_regist.type == heap_tag::REF && last_reg_index != cur_regist.index) {
         //If the Ref cell doesnt reference itself, it will get dereferenced
@@ -49,22 +49,22 @@ size_t wam::deref(const executor & exec, const size_t heap_addr) {
     return last_reg_index;
 }
 
-regist wam::derefed_reg(const executor &exec, const regist &init_regist) {
+heap_reg wam::derefed_reg(const executor &exec, const heap_reg &init_regist) {
     auto deref_i = deref(exec, init_regist);
     return exec.heap_at(deref_i);
 }
 
-regist derefed_reg(const executor &exec, size_t heap_i) {
+heap_reg derefed_reg(const executor &exec, size_t heap_i) {
     auto deref_i = deref(exec, heap_i);
     return exec.heap_at(deref_i);
 }
 
-regist& wam::derefed_reg_modify(executor &exec, const regist &init_regist) {
+heap_reg& wam::derefed_reg_modify(executor &exec, const heap_reg &init_regist) {
     auto deref_i = deref(exec, init_regist);
     return exec.heap_modify(deref_i);
 }
 
-regist& derefed_reg_modify(executor &exec, size_t heap_i) {
+heap_reg& derefed_reg_modify(executor &exec, size_t heap_i) {
     auto deref_i = deref(exec, heap_i);
     return exec.heap_modify(deref_i);
 }

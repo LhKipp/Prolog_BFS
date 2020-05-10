@@ -5,7 +5,7 @@
 #include "src/program_arguments/parser.h"
 
 #include "src/app_runner/normal_mode.h"
-#include "src/wam/data/regist.h"
+#include "wam/data/heap_reg.h"
 
 int main(int argc, const char *argv[]) {
     using namespace std;

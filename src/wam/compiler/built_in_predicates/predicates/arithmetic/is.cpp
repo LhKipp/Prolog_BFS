@@ -21,11 +21,11 @@ node wam::preds::is_node_tree() {
 }
 
 void wam::preds::is(wam::executor &exec, size_t lhs_x_reg_i, size_t rhs_x_reg_i){
-    const regist& rhs_expr = exec.registers.at(rhs_x_reg_i);
+    const heap_reg& rhs_expr = exec.registers.at(rhs_x_reg_i).reg;
     int rhs_value = wam::arithmetic::eval_int_expr(exec, rhs_expr);
     if(exec.error_occured()) return;
 
-    regist& lhs = exec.registers.at(lhs_x_reg_i);
+    heap_reg& lhs = exec.registers.at(lhs_x_reg_i).reg;
     //If people use is like =:=
     if(lhs.is_INT() ) {
         if(lhs.get_int_val() != rhs_value){
@@ -36,7 +36,7 @@ void wam::preds::is(wam::executor &exec, size_t lhs_x_reg_i, size_t rhs_x_reg_i)
         exec.set_failed();
         return;
     }else if(lhs.is_REF()){
-        regist& derefed_reg = wam::derefed_reg_modify(exec, lhs);
+        heap_reg& derefed_reg = wam::derefed_reg_modify(exec, lhs);
         //if var already assigned before
         if(derefed_reg.is_INT()){
             if(derefed_reg.get_int_val() != rhs_value){

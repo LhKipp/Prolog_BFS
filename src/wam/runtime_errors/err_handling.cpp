@@ -5,7 +5,7 @@
 #include "err_handling.h"
 #include <wam/instructions/util/instructions_util.h>
 
-void err_handling::check_and_throw_is_evaluable(wam::executor &exec, const wam::regist &reg) {
+void err_handling::check_and_throw_is_evaluable(wam::executor &exec, const wam::heap_reg &reg) {
     if(reg.is_STR()){
         auto fn_view = exec.functor_of(STR_index{reg.index});
         exec.set_runtime_error(runtime_error{

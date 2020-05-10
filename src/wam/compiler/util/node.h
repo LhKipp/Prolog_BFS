@@ -13,7 +13,7 @@
 #include <cassert>
 #include <ostream>
 #include "data_enums.h"
-#include "../../data/regist.h"
+#include "wam/data/heap_reg.h"
 #include "../../data/source_code_info.h"
 #include "../../data/functor_view.h"
 
