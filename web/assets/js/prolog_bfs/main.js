@@ -77,8 +77,14 @@ function onRunClicked() {
  */
 function autosave() {
     // Store program code for autosaveCookieLifetime days
-    Cookies.set('programcode', ace.edit("program").getValue(), {expires: autosaveCookieLifetime});
-    Cookies.set('querycode', ace.edit("query").getValue(), {expires: autosaveCookieLifetime});
+    Cookies.set('programcode', ace.edit("program").getValue(), {
+        expires: autosaveCookieLifetime,
+        sameSite: 'lax'
+    });
+    Cookies.set('querycode', ace.edit("query").getValue(), {
+        expires: autosaveCookieLifetime,
+        sameSite: 'lax'
+    });
 }
 
 /*
