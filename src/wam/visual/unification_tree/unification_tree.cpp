@@ -51,6 +51,10 @@ wam::query_node wam::make_tree(const wam::executor &top_exec, const wam::storage
  * The query exec must not be running so that the reg.heap_i can be retrieved
  */
 void wam::resolve_query_node_name(wam::query_node& query_node, const wam::storage& storage){
+    if(query_node.is_to_be_continued()){
+        query_node.set_name(node{STORED_OBJECT_FLAG ::CONSTANT, "cant determine name yet"});
+        return;
+    }
     assert(!query_node.is_to_be_continued());
     node query_name = query_node.get_atom().get_parsed_atom();
     //atom outer is always functor
@@ -137,13 +141,9 @@ void wam::resolve_parent(wam::query_node &parent, wam::var_binding_node& binding
     //binding node continues
     query_node& following_query = binding_node.get_continuing_query();
 
-    if(following_query.is_to_be_continued()){
-        following_query.set_name(node{STORED_OBJECT_FLAG ::CONSTANT, "cant determine name yet"});
-        return;
-    }
     resolve_query_node_name(following_query, storage);
 
-    if(following_query.failed()){
+    if(following_query.failed() || following_query.is_to_be_continued()){
         return;
     }
 
