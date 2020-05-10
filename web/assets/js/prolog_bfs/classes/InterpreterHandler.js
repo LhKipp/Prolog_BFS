@@ -73,8 +73,21 @@ class InterpreterHandler {
      */
     getAnswer() {
         try {
-            var result = this.interpreter.getAnswer();
-            return result;
+            let result = this.interpreter.getAnswer();
+            
+            if (result.isAnswer()) {
+                // no parsing error, no runtime error
+                return result.getAnswerAsString();
+            } else {
+                // no parsing error, got runtime error
+                /*
+                console.log(result.getError().getTypeAsString());
+                console.log(result.getError().getErrorLine());
+                console.log(result.getError().getErrorAtomAsString());
+                console.log(result.getError().getExplanation());
+                */
+                return result.getError().getExplanation();
+            }
         } catch (err) {
             alert.show("Error getting result. Probably ran out of memory (infinite loop).");
             console.log(err);
