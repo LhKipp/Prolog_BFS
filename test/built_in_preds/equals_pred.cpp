@@ -5,6 +5,13 @@
 using namespace wam;
 using namespace std;
 
+void make_eq_test_case(std::string q, bool ans_expected){
+    bfs_organizer org;
+    org.load_query(q);
+    auto ans1 = org.get_answer().get_answer();
+    REQUIRE(ans1.has_value() == ans_expected);
+    auto t1 = org.get_unification_tree();
+}
 TEST_CASE("Functor Equality") {
     bfs_organizer org;
 
@@ -12,6 +19,7 @@ TEST_CASE("Functor Equality") {
     org.load_query("eq(a, a).");
     auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
+    org.get_unification_tree();
 }
 
 TEST_CASE("Functor Equality 2") {
@@ -24,7 +32,9 @@ TEST_CASE("Functor Equality 2") {
     org.load_query("eq(X, Y).");
     auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
+    org.get_unification_tree();
 }
+
 
 TEST_CASE("Functor inequality") {
     bfs_organizer org;
@@ -36,6 +46,7 @@ TEST_CASE("Functor inequality") {
     org.load_query("eq(X, Y).");
     auto ans = org.get_answer().get_answer();
     REQUIRE(!ans.has_value());
+    org.get_unification_tree();
 }
 
 TEST_CASE("Functor inequality 2") {
@@ -48,6 +59,7 @@ TEST_CASE("Functor inequality 2") {
     org.load_query("eq(X, Y).");
     auto ans = org.get_answer().get_answer();
     REQUIRE(!ans.has_value());
+    org.get_unification_tree();
 }
 
 TEST_CASE("Functor inequality with var") {
@@ -60,6 +72,7 @@ TEST_CASE("Functor inequality with var") {
     org.load_query("eq(X, Y).");
     auto ans = org.get_answer().get_answer();
     REQUIRE(!ans.has_value());
+    org.get_unification_tree();
 }
 
 TEST_CASE("Var equality") {
@@ -67,6 +80,7 @@ TEST_CASE("Var equality") {
     org.load_query("X == X.");
     auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
+    org.get_unification_tree();
 }
 
 TEST_CASE("Var inequality") {
@@ -74,6 +88,7 @@ TEST_CASE("Var inequality") {
     org.load_query("Y == X.");
     auto ans = org.get_answer().get_answer();
     REQUIRE(!ans.has_value());
+    org.get_unification_tree();
 }
 
 //TODO this code doenst compile under swipl because X is a singleton variable
@@ -88,12 +103,13 @@ TEST_CASE("Var inequality 2") {
     org.load_query("eq(A,B).");
     auto ans = org.get_answer().get_answer();
     REQUIRE(!ans.has_value());
+    org.get_unification_tree();
 }
 
 
 TEST_CASE("Var equality tree") {
     bfs_organizer org;
-    org.load_program("eq(X, X).");
+    org.load_program("eq(X, X) :- X == X.");
     org.load_query("eq(X, X).");
     auto ans1 = org.get_answer().get_answer();
     REQUIRE(ans1.has_value());
@@ -103,4 +119,20 @@ TEST_CASE("Var equality tree") {
     auto ans = org.get_answer().get_answer();
     auto t = org.get_unification_tree();
     REQUIRE(ans.has_value());
+}
+
+TEST_CASE("Int equality"){
+    make_eq_test_case("3 == 3.", true);
+}
+
+TEST_CASE("Int equality false"){
+    make_eq_test_case("3 ==4.", false);
+}
+
+TEST_CASE("Cons equality"){
+    make_eq_test_case("a == a.", true);
+}
+
+TEST_CASE("Cons inequality"){
+    make_eq_test_case("a == b.", false);
 }
