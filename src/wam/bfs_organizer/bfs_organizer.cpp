@@ -92,7 +92,7 @@ compiler::error wam::bfs_organizer::load_query(const std::string &query_line) {
     executors.clear();
     //parse the query and save the results
     try{
-        current_query_code = compile_query(query_line, storage);
+        current_query_code = compile_query(query, storage);
     }catch(compiler::error& err){
         return err;
     }

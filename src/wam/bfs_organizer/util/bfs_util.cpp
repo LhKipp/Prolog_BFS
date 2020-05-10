@@ -15,6 +15,6 @@ std::string append_dot_if_not_present(std::string query) {
 
     //we better append a .
 
-    query.insert(last_elem.base() + 1, '.');
+    query.insert(last_elem.base(), '.');
     return query;
 }
