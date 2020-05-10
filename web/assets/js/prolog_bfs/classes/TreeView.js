@@ -61,7 +61,6 @@ class TreeView {
         // needs redrawing?
         if (this.drawing_id === TreeView.newest_drawing_id) {
             // no re-drawing needed, do nothing
-            console.log("no redrawing");
             return;
         }
         // re-drawing needed

@@ -48,6 +48,5 @@ class SyntaxError {
     hide() {
         this.ace_session.removeMarker(this.markerID_line);
         this.ace_session.removeMarker(this.markerID_col);
-        console.log("Debug: hiding markers event");
     }
 }
