@@ -10,7 +10,7 @@ std::string append_dot_if_not_present(std::string query) {
        return !std::isspace(e);
     });
     //If the query is empty...
-    if(last_elem == query.rbegin()){return query;}
+    if(last_elem == query.rend()){return query;}
     if(*last_elem == '.'){return query;}
 
     //we better append a .
