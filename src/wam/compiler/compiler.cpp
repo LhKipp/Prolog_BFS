@@ -16,7 +16,7 @@
 #include "../data/rule.h"
 #include "../bfs_organizer/data/storage.h"
 
-#include <wam/compiler/built_in_predicates/built_in_pred_comp.h>
+#include <wam/compiler/built_in_pred_comp.h>
 #include <wam/compiler/checks/undefined_var.h>
 
 /*
@@ -634,7 +634,7 @@ std::unordered_map<wam::functor_view, std::vector<wam::rule>> wam::get_build_in_
     using namespace wam::preds;
 
     //binary predicates
-    auto binary_preds = wam::preds::get_binary_built_in_preds();
+    auto binary_preds = wam::preds::compile_built_in_predicates();
     for(binary_built_in_pred& pred : binary_preds){
         //Wrap the atom in an vector for compile_program_term
         std::vector<node> atoms;
