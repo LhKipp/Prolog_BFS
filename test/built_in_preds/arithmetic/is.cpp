@@ -10,7 +10,8 @@ using namespace std;
 void make_is_test_case(std::string rhs, int rhs_val){
     bfs_organizer org;
     org.load_query("X is " + rhs);
-    auto ans = org.get_answer().get_answer();
+    auto ans1 = org.get_answer();
+    auto ans = ans1.get_answer();
     REQUIRE(ans.has_value());
     REQUIRE(ans->at(0).binding == std::to_string(rhs_val));
 
@@ -39,6 +40,18 @@ TEST_CASE("Variable is assigment"){
     REQUIRE(ans.has_value());
     REQUIRE(ans->at(0).binding == std::to_string(22));
 }
+
+//TEST_CASE("Variable is assigment 2"){
+//    bfs_organizer org;
+//    const char* prog =
+//            "e(1 + 1).";
+//    org.load_program(prog);
+//    org.load_query("e(Y), X is Y");
+//    auto ans = org.get_answer().get_answer();
+//    REQUIRE(ans.has_value());
+//    REQUIRE(ans->at(0).binding == "1 + 1");
+//    REQUIRE(ans->at(1).binding == std::to_string(2));
+//}
 
 TEST_CASE("is comparison rules"){
     bfs_organizer org;

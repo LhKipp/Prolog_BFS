@@ -21,32 +21,30 @@ node wam::preds::is_node_tree() {
 }
 
 void wam::preds::is(wam::executor &exec, size_t lhs_x_reg_i, size_t rhs_x_reg_i){
-    const heap_reg& rhs_expr = exec.registers.at(rhs_x_reg_i).reg;
-    int rhs_value = wam::arithmetic::eval_int_expr(exec, rhs_expr);
-    if(exec.error_occured()) return;
-
+    const heap_reg& rhs_value = wam::arithmetic::eval_arithmetic_reg(exec,
+                                                                     exec.registers[rhs_x_reg_i].heap_i);
     heap_reg& lhs = exec.registers.at(lhs_x_reg_i).reg;
     //If people use is like =:=
     if(lhs.is_INT() ) {
-        if(lhs.get_int_val() != rhs_value){
+        if(lhs.get_int_val() != rhs_value.get_int_val()){
             exec.set_failed();
         }
         return;
-    }else if(lhs.is_FUN() || lhs.is_STR() || lhs.is_EXPR()) {
+    }else if(lhs.is_FUN() || lhs.is_STR() || lhs.is_EVAL_FUN()) {
         exec.set_failed();
         return;
     }else if(lhs.is_REF()){
         heap_reg& derefed_reg = wam::derefed_reg_modify(exec, lhs);
         //if var already assigned before
         if(derefed_reg.is_INT()){
-            if(derefed_reg.get_int_val() != rhs_value){
+            if(derefed_reg.get_int_val() != rhs_value.get_int_val()){
                 exec.set_failed();
             }
             return;
         }else if(derefed_reg.is_REF()){
             //TODO check whether you can just push some ints on the stack
             //I think its fine
-            exec.push_back_int(rhs_value);
+            exec.push_back(rhs_value);
             derefed_reg.bind_to((int)exec.heap_size() - 1);
             return;
         }else{

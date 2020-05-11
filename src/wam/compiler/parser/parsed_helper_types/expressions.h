@@ -14,17 +14,16 @@
 namespace parser {
 
     struct chained_value{
-        STORED_OBJECT_FLAG math_op;
+        std::string math_op;
         node val;
     };
+
     struct chained_expr{
-        //The type of the expr (sum, product)
-        STORED_OBJECT_FLAG type;
         node value;
         std::vector<chained_value> chained_values;
     };
+
     struct opt_chained_value{
-        STORED_OBJECT_FLAG type;
         node value;
         std::optional<chained_value> chained_val;
     };
@@ -32,18 +31,16 @@ namespace parser {
 
 BOOST_FUSION_ADAPT_STRUCT(
         parser::chained_value,
-        (STORED_OBJECT_FLAG, math_op)
+        (std::string, math_op)
         (node, val)
 )
 BOOST_FUSION_ADAPT_STRUCT(
         parser::chained_expr,
-        (STORED_OBJECT_FLAG, type)
         (node, value)
         (std::vector<parser::chained_value>, chained_values)
 )
 BOOST_FUSION_ADAPT_STRUCT(
         parser::opt_chained_value,
-        (STORED_OBJECT_FLAG, type)
         (node, value)
         (std::optional<parser::chained_value>, chained_val)
 )

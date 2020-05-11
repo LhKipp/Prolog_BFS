@@ -22,7 +22,7 @@ TEST_CASE("Div by 0 exception"){
 
 TEST_CASE("Arguments not suff instanciated"){
     bfs_organizer org;
-    auto err = org.load_query("X is Y.");
+    auto err = org.load_query("X is 1 + Y.");
     REQUIRE(err.exists());
     REQUIRE(err.type == compiler::ERROR_TYPE::ARGUMENTS_NOT_SUFF_INSTANCIATED);
 }

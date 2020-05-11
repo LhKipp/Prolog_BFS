@@ -8,12 +8,17 @@
 #include <wam/executor/executor.h>
 
 namespace wam::arithmetic{
-    int eval_int_expr(executor& exec, const heap_reg& expr);
+    /*
+     * Evaluates the given heap_reg and returns:
+     *  heap_reg of type int
+     *  heap_reg of type double TODO not supported yet
+     * depending on the value of the expr
+     */
+    wam::heap_reg eval_arithmetic_reg(executor& exec, size_t rhs_heap_i);
+    wam::heap_reg eval_arithmetic_func(executor& exec,
+                                       heap_reg& func,
+                                       size_t func_heap_i);
 
-    int eval_int_sum(executor& exec, const node& sum);
-    int eval_int_product(executor& exec, const node& prod);
-    int eval_int_power(executor& exec, const node& power);
-    int eval_int_value(executor& exec, const node& value);
 }
 
 #endif //PROLOG_BFS_EXPR_EVALUATOR_H

@@ -8,7 +8,7 @@
 #include "../executor/executor.h"
 
 namespace wam {
-    void put_expr(executor& executor, int expr_index, size_t regist_index);
+    void put_eval_functor(executor& executor, int expr_index, size_t regist_index);
 
     void put_int(executor &executor, int value, size_t regist_index);
     void put_structure(executor& executor, int functor_index, size_t regist_index);

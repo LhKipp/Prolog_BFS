@@ -6,20 +6,19 @@
 #include "instructions.h"
 #include "util/instructions_util.h"
 #include "../bfs_organizer/bfs_organizer.h"
-#include "../data/rule.h"
 
 //#define DEBUG
 #ifdef DEBUG
 #include <iostream>
 #endif
 
-void wam::put_expr(executor &executor, int expr_index, size_t regist_index) {
+void wam::put_eval_functor(executor &executor, int expr_index, size_t regist_index) {
 #ifdef DEBUG
-    std::cout << "put_int" << std::endl;
+    std::cout << "put_eval_functor" << std::endl;
 #endif
-    executor.push_back_expr(expr_index);
-    executor.registers.at(regist_index) = {executor.heap_back(), executor.heap_size() -1};
-
+    executor.push_back_STR();
+    executor.registers.at(regist_index) = {executor.heap_back(), executor.heap_size()-1};
+    executor.push_back_EVAL_FUN(expr_index);
 }
 
 void wam::put_int(wam::executor &executor, int value, size_t regist_index) {
@@ -117,7 +116,6 @@ void wam::get_structure(wam::executor &executor, int functor_index, size_t x_reg
         addr = executor.registers.at(x_reg).reg.index;
     }
 
-    //TODO heap_at returns no ref!!! FIX NEEDED, remove & why does it even compile?
     const heap_reg reg = executor.heap_at(addr);
 
     if (reg.type == heap_tag::REF) {

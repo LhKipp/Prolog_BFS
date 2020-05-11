@@ -17,8 +17,11 @@ std::string wam::result::get_answer_as_str() const {
         return "true";
     }
 
-    std::stringstream result;
-    result << *answer;
+    std::stringstream ans;
+    for(int i = 0; i < answer->size() -1; i++){
+        ans << answer->at(i) << ' ';
+    }
+    ans << answer->back();
 
-    return result.str();
+    return ans.str();
 }

@@ -10,7 +10,7 @@
 
 namespace err_handling{
 
-    void check_and_throw_is_evaluable(wam::executor& exec, const wam::heap_reg& reg);
+    void check_and_throw_is_evaluable(wam::executor& exec, wam::heap_reg reg);
 }
 
 

@@ -12,8 +12,8 @@ namespace wam {
         STR,
         REF,
         FUN,
+        EVAL_FUN,
         INT,
-        EXPR
     };
 }
 

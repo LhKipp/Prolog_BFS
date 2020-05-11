@@ -2,117 +2,58 @@
 // Created by leonhard on 08.05.20.
 //
 
+#include "expr_evaluator.h"
+#include "arith_functor.h"
 #include <cmath>
 #include <wam/instructions/util/instructions_util.h>
 #include <wam/runtime_errors/err_handling.h>
-#include "expr_evaluator.h"
+#include <wam/compiler/built_in_predicates/predicates/arithmetic/checks/arithmetic_checks.h>
 
-int wam::arithmetic::eval_int_expr(executor &exec, const heap_reg &rhs_expr) {
-    err_handling::check_and_throw_is_evaluable(exec, rhs_expr);
+wam::heap_reg wam::arithmetic::eval_arithmetic_reg(executor &exec, size_t rhs_heap_i){
+    rhs_heap_i = deref(exec, rhs_heap_i);
+    heap_reg rhs = exec.heap_at(rhs_heap_i);
+    err_handling::check_and_throw_is_evaluable(exec, rhs);
 
-    if(rhs_expr.is_INT()){
-        return rhs_expr.get_int_val();
-    }else if(rhs_expr.is_REF()){
-        auto derefed_reg = wam::derefed_reg(exec, rhs_expr);
-        return eval_int_expr(exec, derefed_reg);
-    }else{
-        //rhs is expr
-        const node& expr = exec.expr_of(Storage_Expr_index{rhs_expr.get_expr_i()});
-        //Top level is always sum
-        assert(expr.type == STORED_OBJECT_FLAG::SUM);
-        return eval_int_sum(exec, expr);
+    switch (rhs.type){
+        case heap_tag::INT:
+            return rhs;
+        case heap_tag::REF:
+            return eval_arithmetic_reg(exec, wam::deref(exec, rhs));
+        case heap_tag::STR:
+            rhs_heap_i = rhs.index;
+            rhs = exec.heap_at(rhs_heap_i);
+        case heap_tag::EVAL_FUN :{
+            return eval_arithmetic_func(exec, rhs, rhs_heap_i);
+        }
+        //Not reachable
+        default: assert(false);
     }
+    //Not reachable
+    assert(false);
 }
 
-int arithmetic::eval_int_sum(executor &exec, const node &sum) {
-    assert(sum.children->size() > 0);
-    int total = eval_int_product(exec, (*sum.children)[0]);
-    for(auto math_sign = ++sum.children->begin(); math_sign != sum.children->end(); ++math_sign){
-        //Asert that after math sign value comes
-        assert(math_sign + 1 != sum.children->end());
-        auto prod = math_sign + 1;
-        if(math_sign->type == STORED_OBJECT_FLAG::PLUS){
-            total += eval_int_product(exec, *prod);
-        }else{// if its minus
-            assert(math_sign->type == STORED_OBJECT_FLAG::MINUS);
-            total -= eval_int_product(exec, *prod);
-        }
+wam::heap_reg arithmetic::eval_arithmetic_func(executor &exec, heap_reg &func, size_t func_heap_i) {
+    //for now only int arithmetic is implemented
+    const int arity = arity_of(func);
+    double value;
+    if(arity == 1){
+        auto& function = get_unary_func_of(func);
+        const heap_reg arg = eval_arithmetic_reg(exec, func_heap_i + 1);
+        //No such check for now
+//        check_and_throw_if_wrong_values(exec, func, arg);
+        //for now everything is int
+        value = function(arg.get_int_val());
+    }else{//binary
+        const heap_reg lhs = eval_arithmetic_reg(exec, func_heap_i + 1);
+        const heap_reg rhs = eval_arithmetic_reg(exec, func_heap_i + 2);
+        check_and_throw_if_wrong_values(exec, func, lhs, rhs);
 
-        ++math_sign;
+        auto& function = get_binary_func(func);
+        value = function(lhs.get_int_val(), rhs.get_int_val());
     }
 
-    return total;
-}
-
-int arithmetic::eval_int_product(executor &exec, const node &prod){
-    assert(prod.children->size() > 0);
-    int total = eval_int_power(exec, (*prod.children)[0]);
-    for(auto math_sign = ++prod.children->begin(); math_sign != prod.children->end(); ++math_sign){
-        //Asert that after math sign value comes
-        assert(math_sign + 1 != prod.children->end());
-        auto power = math_sign + 1;
-        if(math_sign->type == STORED_OBJECT_FLAG::MULT){
-            total *= eval_int_power(exec, *power);
-        }else{// if its int_div
-            assert(math_sign->type == STORED_OBJECT_FLAG::INT_DIV);
-
-            //Check that we dont div by 0
-            int rhs = eval_int_power(exec, *power);
-            if(rhs == 0){
-                exec.set_runtime_error(runtime_error{
-                    ERROR_TYPE::DIV_BY_0,
-                    exec.get_current_term_code()->get_code_info(),
-                    "ERROR: Arithmetic: evaluation error: zero_divisor"
-                });
-                throw ERROR_TYPE ::DIV_BY_0;
-            }
-            total /= rhs;
-        }
-
-        ++math_sign;
-    }
-
-    return total;
-}
-
-int arithmetic::eval_int_power(executor &exec, const node &power){
-    assert(power.children->size() > 0);
-    int total = eval_int_value(exec, (*power.children)[0]);
-    for(auto math_sign = ++power.children->begin(); math_sign != power.children->end(); ++math_sign){
-        //Asert that after math sign value comes
-        assert(math_sign + 1 != power.children->end());
-        auto value = math_sign + 1;
-
-        assert(math_sign->type == STORED_OBJECT_FLAG::INT_POW);
-        total = std::pow(total, eval_int_value(exec, *value));
-
-        ++math_sign;
-    }
-
-    return total;
-}
-
-int arithmetic::eval_int_value(executor &exec, const node &value){
-    if(value.is_expr()){
-        return eval_int_sum(exec, value);
-    }else if(value.is_int()){
-        return std::stoi(value.name);
-    }else{
-        assert(value.is_variable());
-
-        heap_reg derefed_reg;
-        if(value.is_permanent()){
-            derefed_reg = wam::derefed_reg(exec, exec.cur_permanent_registers().at(value.get_y_reg()).reg);
-        }else{
-            derefed_reg = wam::derefed_reg(exec, exec.registers.at(value.get_x_reg()).reg);
-        }
-        err_handling::check_and_throw_is_evaluable(exec, derefed_reg);
-        //if var pointed to a expression
-        if(derefed_reg.is_EXPR()){
-            return eval_int_expr(exec, derefed_reg);
-        }else{
-            assert(derefed_reg.is_INT());
-            return derefed_reg.get_int_val();
-        }
-    }
+    return wam::heap_reg{
+            heap_tag::INT,
+            (int) value
+    };
 }

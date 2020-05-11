@@ -12,24 +12,7 @@ enum class STORED_OBJECT_FLAG{
     CONSTANT,
     FUNCTOR,
     INT,
-
-    //Expressions
-    SUM,
-    PRODUCT,
-    POWER,
-    //Math operators
-    PLUS,
-    MINUS,
-    INT_DIV,
-    MULT,
-    INT_POW,
-
-    //Arithmetic binary operators usable as query atoms
-    BINARY_ARITHMETIC_PREDS_BEGIN,
-    IS,
-    BINARY_ARITHMETIC_PREDS_END,
-
-
+    EVALUABLE_FUNCTOR,
     NONE
 };
 

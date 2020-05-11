@@ -96,11 +96,6 @@ public:
         return type == STORED_OBJECT_FLAG::INT;
     }
 
-    inline bool is_expr() const{
-        //A sum is top level of any expression
-        return type == STORED_OBJECT_FLAG ::SUM;
-    }
-
     inline bool is_variable() const {
         return type == STORED_OBJECT_FLAG::VARIABLE;
     }
@@ -108,6 +103,11 @@ public:
     inline bool is_functor() const {
         return type == STORED_OBJECT_FLAG::FUNCTOR;
     }
+
+    inline bool is_evaluable_functor() const {
+        return type == STORED_OBJECT_FLAG::EVALUABLE_FUNCTOR;
+    }
+
     inline bool is_list() const {
         return name == "[";
     }
@@ -166,15 +166,9 @@ public:
         }
     }
 
-    bool is_binary_arithmetic_pred() const{
-        return static_cast<int>(type) > static_cast<int>(STORED_OBJECT_FLAG ::BINARY_ARITHMETIC_PREDS_BEGIN)
-            && static_cast<int>(type) < static_cast<int>(STORED_OBJECT_FLAG ::BINARY_ARITHMETIC_PREDS_END);
-    }
-
-
     explicit node(const STORED_OBJECT_FLAG type) : node(type, "") {};
     node(const STORED_OBJECT_FLAG type, const std::string name) : name(name), type(type) {
-        if (type == STORED_OBJECT_FLAG::FUNCTOR) {
+        if (is_functor() || is_evaluable_functor()) {
             children = std::make_unique<std::vector<node>>();
         } else {
             children = nullptr;

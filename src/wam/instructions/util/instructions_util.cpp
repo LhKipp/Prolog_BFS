@@ -19,12 +19,11 @@ size_t wam::deref(const executor & exec, const heap_reg& init_regist) {
 #ifdef DEBUG
     std::cout << "deref" << std::endl;
 #endif
-    assert(init_regist.is_REF());
     return wam::deref(exec, init_regist.index);
 }
 
 /*
- * Returns a index to a register the ref under heap_addr points to.
+ * Returns a index to a register the ref or Str under heap_addr points to.
  */
 size_t wam::deref(const executor & exec, const size_t heap_addr) {
 #ifdef DEBUG
@@ -33,6 +32,9 @@ size_t wam::deref(const executor & exec, const size_t heap_addr) {
 
     size_t last_reg_index = heap_addr;
     heap_reg cur_regist = exec.heap_at(last_reg_index);
+    if(cur_regist.is_STR()){
+        return cur_regist.index;
+    }
 
     while (cur_regist.type == heap_tag::REF && last_reg_index != cur_regist.index) {
         //If the Ref cell doesnt reference itself, it will get dereferenced

@@ -136,14 +136,14 @@ namespace wam {
         inline void push_back_FUN(int functor_index){
             heap.emplace_back(heap_tag::FUN, functor_index);
         }
+        inline void push_back_EVAL_FUN(int eval_func_index){
+            heap.emplace_back(heap_tag::EVAL_FUN, eval_func_index);
+        }
         inline void push_back_unbound_REF(short var_index) {
             heap.emplace_back((int) heap_size(), var_index);
         }
         inline void push_back_int(int value){
             heap.emplace_back(heap_tag::INT, value);
-        }
-        inline void push_back_expr(int expr_index){
-            heap.emplace_back(heap_tag::EXPR, expr_index);
         }
         inline size_t heap_size()const{
             return heap_start_index + heap.size();

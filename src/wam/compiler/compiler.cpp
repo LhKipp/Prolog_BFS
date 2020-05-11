@@ -17,6 +17,7 @@
 #include "../bfs_organizer/data/storage.h"
 
 #include <wam/compiler/built_in_pred_comp.h>
+#include <wam/compiler/built_in_predicates/predicates/arithmetic/util/arith_functor.h>
 #include <wam/compiler/checks/undefined_var.h>
 
 /*
@@ -121,6 +122,7 @@ std::vector<const node *> wam::flatten_program(const node &outer_functor) {
     }
     bfs_order(outer_functor, true, [&](const node *node) {
         if (node->is_functor()
+            || node->is_evaluable_functor()
             || node->is_constant()
             || node->is_int()
             || node->is_argument()) {
@@ -175,18 +177,11 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term,
             }
             return;
         }
-        //The node is a functor or constant or int or expr
+        //The node is a functor or constant or int or eval_func
         //Shouldnt be needed
         const seen_register func_reg{register_type::X_REG, node->get_x_reg()};
         seen_registers[func_reg] = true;
 
-        if(node->is_expr()){
-            compiler::check_and_throw_undefined_var(outer_functor, *node, seen_registers);
-            auto expr_i = storage.push_back_expr(*node);
-            *out = std::bind(wam::put_expr, _1, expr_i, node->get_x_reg());
-            ++out;
-            return;
-        }
 
         if(node->is_int()){
             *out = std::bind(wam::put_int, _1, std::stoi(node->name), node->get_x_reg());
@@ -194,13 +189,23 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term,
             return;
         }
 
-        const functor_view functor_view = node->to_functor_view();
-        *out = std::bind(wam::put_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());
-        ++out;
+
+        if(node->is_evaluable_functor()){
+            compiler::check_and_throw_undefined_var(outer_functor, *node, seen_registers);
+            const int arith_func_i = wam::arithmetic::to_index(node->name);
+            *out = std::bind(wam::put_eval_functor, _1, arith_func_i, node->get_x_reg());
+            ++out;
+        }else{
+            assert(node->is_functor() || node->is_constant());
+            const functor_view functor_view = node->to_functor_view();
+            *out = std::bind(wam::put_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());
+            ++out;
+        }
 
         if (node->is_constant()) {//No need to process any children
             return;
         }
+
         for (auto &childs : *node->children) {
             const seen_register child_reg{register_type::X_REG, childs.get_x_reg()};
 
@@ -285,6 +290,16 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term,
             ++out;
             return;
         }
+//        if(node->is_evaluable_functor()){
+//            const int arith_func_i = wam::arithmetic::to_index(node->name);
+//            *out = std::bind(wam::put_eval_functor, _1, arith_func_i, node->get_x_reg());
+//            ++out;
+//        }else{
+//            assert(node->is_functor() || node->is_constant());
+//            const functor_view functor_view = node->to_functor_view();
+//            *out = std::bind(wam::put_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());
+//            ++out;
+//        }
 
         const functor_view functor_view = node->to_functor_view();
         *out = std::bind(wam::get_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());

@@ -107,16 +107,16 @@ namespace wam{
 
 
             value = number | (lit('(') > expression > lit(')')) | variable;
-            chained_pow = lit("^") > attr(STORED_OBJECT_FLAG::INT_POW) > value;
-            power_helper = attr(STORED_OBJECT_FLAG::POWER) >> value >> -chained_pow;
+            chained_pow = char_("^") > value;
+            power_helper = value >> -chained_pow;
             power = power_helper;
-            chained_prod = (lit("*") > (attr(STORED_OBJECT_FLAG::MULT) > power))
-                           |(lit("//") > (attr(STORED_OBJECT_FLAG::INT_DIV) > power));
-            product_helper = attr(STORED_OBJECT_FLAG::PRODUCT) >> power >> *chained_prod;
+            chained_prod = (char_("*") > power)
+                           |(qi::string("//") > power);
+            product_helper = power >> *chained_prod;
             product = product_helper;
-            chained_sum = (lit("+") > (attr(STORED_OBJECT_FLAG::PLUS) > product))
-                            |(lit("-") > (attr(STORED_OBJECT_FLAG::MINUS) > product));
-            sum = attr(STORED_OBJECT_FLAG::SUM) >> product >> *chained_sum;
+            chained_sum = (char_("+") > product)
+                            | (char_("-") > product);
+            sum = product >> *chained_sum;
             expression = sum;
 
             //Built in predicates definitions

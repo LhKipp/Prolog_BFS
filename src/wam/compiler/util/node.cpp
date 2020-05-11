@@ -57,11 +57,22 @@ std::string node::to_string() const {
         start += children->back().to_string() + ")";
         return start;
     }
+    if(is_evaluable_functor()){//
+        switch(children->size()){
+            case 1:{
+                return name + '(' + children->at(0).to_string() + ')';
+            }
+            case 2:
+                return children->at(0).to_string() + ' ' +  name + ' ' + children->at(1).to_string();
+            default:
+                //Never happens
+                assert(false);
+        }
+    }
 
     //NONE
     return "";
 }
-
 
 node::node(const parser::binary_arithmetic_predicate& p): type{STORED_OBJECT_FLAG::FUNCTOR}, children{std::make_unique<std::vector<node>>()}{
     name = p.pred;
@@ -69,20 +80,41 @@ node::node(const parser::binary_arithmetic_predicate& p): type{STORED_OBJECT_FLA
     children->push_back(p.rhs);
 }
 
-node::node(const parser::chained_expr &p): type{p.type}, children{std::make_unique<std::vector<node>>()}{
-    children->push_back(p.value);
-    for(auto &chained_value : p.chained_values){
-        children->emplace_back(chained_value.math_op);
-        children->push_back(chained_value.val);
+node::node(const parser::chained_expr &p){
+    //If it is a simple value
+    if(p.chained_values.empty()){
+        *this = std::move(p.value);
+        return;
     }
+
+    node cur_parent{STORED_OBJECT_FLAG ::EVALUABLE_FUNCTOR, p.chained_values.back().math_op};
+    cur_parent.children->resize(2);
+    cur_parent.children->at(1) = p.chained_values.back().val;
+    std::for_each(p.chained_values.rbegin() + 1, p.chained_values.rend(), [&](auto& chained_val){
+        cur_parent.children->at(0) = std::move(chained_val.val);
+        node before{STORED_OBJECT_FLAG ::EVALUABLE_FUNCTOR, chained_val.math_op};
+        before.children->resize(2);
+        before.children->at(1) = std::move(cur_parent);
+        cur_parent = before;
+    });
+    cur_parent.children->at(0) = p.value;
+
+    *this = std::move(cur_parent);
 }
 
-node::node(const parser::opt_chained_value &p): type{p.type}, children{std::make_unique<std::vector<node>>()}{
-    children->push_back(p.value);
-    if(p.chained_val){
-        children->push_back(node{p.chained_val->math_op});
-        children->push_back(p.chained_val->val);
+node::node(const parser::opt_chained_value &p){
+    if(!p.chained_val){
+        *this = p.value;
+        return;
     }
+
+    //Its a real expr
+    this->type = STORED_OBJECT_FLAG::EVALUABLE_FUNCTOR;
+    this->name = p.chained_val->math_op;
+    this->children = std::make_unique<std::vector<node>>(2);
+    children->push_back(p.value);
+    children->push_back(p.chained_val->val);
+    this->code_info = code_info_for_built_in("Lhs" + this->name + "Rhs");
 }
 
 node::node(const parser::functor &f): type{STORED_OBJECT_FLAG::FUNCTOR}, name{f.name},

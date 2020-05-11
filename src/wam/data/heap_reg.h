@@ -31,8 +31,8 @@ namespace wam {
         inline bool is_INT()const{
             return type == heap_tag ::INT;
         }
-        inline bool is_EXPR()const{
-            return type == heap_tag ::EXPR;
+        inline bool is_EVAL_FUN()const{
+            return type == heap_tag ::EVAL_FUN;
         }
 
         inline int get_int_val()const{
@@ -40,8 +40,7 @@ namespace wam {
             return index;
         }
 
-        inline int get_expr_i()const{
-            assert(is_EXPR());
+        inline int get_eval_fun_i()const{
             return index;
         }
 
