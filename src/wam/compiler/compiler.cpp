@@ -124,7 +124,6 @@ std::vector<const node *> wam::flatten_program(const node &outer_functor) {
         if (node->is_functor()
             || node->is_evaluable_functor()
             || node->is_constant()
-            || node->is_int()
             || node->is_argument()) {
             result.push_back(node);
         }
@@ -207,6 +206,11 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term,
         }
 
         for (auto &childs : *node->children) {
+            if(childs.is_int()){
+                *out = std::bind(wam::put_int, _1, std::stoi(childs.name), childs.get_x_reg());
+                ++out;
+                continue;
+            }
             const seen_register child_reg{register_type::X_REG, childs.get_x_reg()};
 
             if (childs.is_permanent()) {
@@ -306,6 +310,11 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term,
 
         //If node is functor
         for (auto &childs : *node->children) {
+            if(childs.is_int()){
+                *out = std::bind(wam::unify_int, _1, std::stoi(childs.name), childs.get_x_reg());
+                ++out;
+                continue;
+            }
             const seen_register child_reg{register_type::X_REG, childs.get_x_reg()};
             if (seen_registers[child_reg]) {
                 if (childs.is_permanent()) {

@@ -47,7 +47,8 @@ TEST_CASE("altering with integer") {
     org.load_query("alt(X).");
     auto ans = org.get_answer().get_answer();
     REQUIRE(ans->at(0).binding == "[]");
-    auto ans2 = org.get_answer().get_answer();
+    auto exc2 = org.get_answer();
+    auto ans2 = exc2.get_answer();
     REQUIRE(ans2->at(0).binding == "[1,0]");
     auto ans3 = org.get_answer().get_answer();
     REQUIRE(ans3->at(0).binding == "[1,0,1,0]");

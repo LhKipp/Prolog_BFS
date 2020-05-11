@@ -28,6 +28,7 @@ namespace wam {
     void unify_variable(executor& executor,  size_t x_reg, short var_index);
     void unify_permanent_variable(executor& executor, size_t y_reg, short var_index);
 
+    void unify_int(wam::executor &executor, int int_val, size_t x_reg);
     void unify_value(executor& executor, size_t x_reg);
     void unify_permanent_value(executor& executor, size_t y_reg);
 

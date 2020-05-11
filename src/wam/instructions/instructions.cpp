@@ -7,7 +7,7 @@
 #include "util/instructions_util.h"
 #include "../bfs_organizer/bfs_organizer.h"
 
-//#define DEBUG
+#define DEBUG
 #ifdef DEBUG
 #include <iostream>
 #endif
@@ -77,14 +77,8 @@ void wam::get_int(wam::executor &executor, int value, size_t x_reg) {
 #ifdef DEBUG
     std::cout << "get_int" << std::endl;
 #endif
-    heap_reg reg;
-    size_t heap_addr;
-    if(executor.registers.at(x_reg).reg.is_REF()) {
-        heap_addr = deref(executor, executor.registers.at(x_reg).reg);
-        reg = executor.heap_at(heap_addr);
-    }else{ //reg is int reg
-        reg = executor.registers.at(x_reg).reg;
-    }
+    size_t heap_addr = wam::deref(executor, executor.registers.at(x_reg).heap_i);
+    const heap_reg reg = executor.heap_at(heap_addr);
 
     if (reg.is_REF()) {
         //We bind a var from the query to a int
@@ -92,12 +86,8 @@ void wam::get_int(wam::executor &executor, int value, size_t x_reg) {
 
         //exe.heap.size - 1 == H. The var will be bound to the new int
         executor.heap_modify(heap_addr).bind_to((int)executor.heap_size() - 1);
-        executor.read_or_write = wam::mode::WRITE;
     } else if (reg.is_INT()) {
-        if (reg.get_int_val() == value) {
-            executor.S = heap_addr + 1;
-            executor.read_or_write = wam::mode::READ;
-        } else {
+        if (reg.get_int_val() != value) {
             executor.set_failed();
         }
     } else {//Default case if reg.is_FUN() || reg.is_STR() || reg.is_LIST()
@@ -183,6 +173,42 @@ void wam::bind(executor &exec, size_t address_a, size_t address_b) {
 
 }
 
+void wam::unify_int(wam::executor &executor, int int_val, size_t x_reg) {
+#ifdef DEBUG
+    std::cout << "unify_variable" << std::endl;
+#endif
+    switch (executor.read_or_write) {
+        case wam::mode::READ: {
+            heap_reg& to_be_matched = executor.heap_modify(executor.S);
+            switch (to_be_matched.type){
+                case heap_tag::INT:{
+                    if(to_be_matched.get_int_val() != int_val){
+                        executor.set_failed();
+                    }
+                    return;
+                }
+                case heap_tag::REF:{
+                    //bind the ref to a new int
+                    executor.push_back_int(int_val);
+                    to_be_matched.bind_to(executor.heap_size() -1);
+                    return;
+                }
+                case heap_tag::STR:
+                case heap_tag::FUN:
+                case heap_tag::EVAL_FUN:
+                    executor.set_failed();
+                    return;
+            }
+        }
+        case mode::WRITE: {
+            executor.push_back_int(int_val);
+            executor.registers.at(x_reg) = {executor.heap_back(), executor.heap_size() - 1};
+            break;
+        }
+    }
+
+    ++executor.S;
+}
 
 void wam::unify_variable(wam::executor &executor, size_t x_reg, short var_index) {
 #ifdef DEBUG

@@ -10,6 +10,7 @@
 #include <vector>
 #include <wam/data/var_binding.h>
 #include <wam/bfs_organizer/data/error/runtime_error.h>
+#include <cassert>
 
 namespace wam{
     struct result{
@@ -25,10 +26,12 @@ namespace wam{
         }
 
         const wam::runtime_error& get_error()const{
+            assert(is_error());
             return std::get<1>(data);
         }
 
         const std::optional<std::vector<wam::var_binding>>& get_answer()const{
+            assert(is_answer());
             return std::get<0>(data);
         }
         
