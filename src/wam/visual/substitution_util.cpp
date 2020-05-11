@@ -1,11 +1,11 @@
 //
 // Created by leonhard on 29.07.19.
 //
-#include "../instructions/util/instructions_util.h"
 
 #include "substitution_util.h"
-#include "../bfs_organizer/data/storage.h"
-#include "wam/visual/unification_tree/util/node_binding.h"
+#include <wam/instructions/util/instructions_util.h>
+#include <wam/visual/unification_tree/util/node_binding.h>
+#include <wam/compiler/built_in_predicates/predicates/arithmetic/util/arith_functor.h>
 
 
 node wam::node_representation_of(const wam::executor &exec, size_t index, const wam::storage &storage) {
@@ -76,81 +76,89 @@ wam::string_representation_of(const executor &executor,
         //Need to negate part of the logic
                               bool is_contigous_list) {
     using namespace wam;
-    //If register is an Ref cell we try to dereference it
+    index = deref(executor, index);
     heap_reg reg = executor.heap_at(index);
-    if (reg.is_REF()) {
-        index = wam::deref(executor, reg);
-    }
-
-    reg = executor.heap_at(index);
 
     //If the register is still a ref it is an unbound ref cell
-    if (reg.is_REF()) {
-        return storage.variables[reg.var_index].name;
-    }
+    switch(reg.type){
+        case heap_tag::REF:
+            return storage.variables[reg.var_index].name;
+        case heap_tag::INT:
+            return std::to_string(reg.get_int_val());
+        case heap_tag::FUN: {
+            const functor_view &functor = storage.functors[reg.index];
+            if (functor.is_constant()) {
+                return functor.name;
+            }
 
-    if (reg.is_INT()){
-        return std::to_string(reg.get_int_val());
-    }
+            //If the functor is the empty list, we return only "[]" if it is not end-marker for another list.
+            // e.g. [a|[]] should be outputed as [a]
+            if (functor.is_empty_list()) {
+                if (!is_contigous_list) {
+                    return "[]";
+                }else{
+                    return "";
+                }
+            }
 
-    if (reg.is_STR()) {
-        index = reg.index;
-    }
+            if (functor.is_append_functor()) {
+                assert(false); //There is no append functor on the heap
+//                std::string appended_elem = string_representation_of(executor, index + 1, storage, false);
+//                if (appended_elem == "[]") {
+//                    //If it only appended the empty list, no need to output it too
+//                    return "]";
+//                } else {
+//                    //TODO is this correct?
+//                    return appended_elem + ",]";
+//                }
+            }
+            //Either list or normal functor
+            std::string result;
 
-    //At this point the register will be an FUN cell
-    const functor_view &functor = storage.functors[executor.heap_at(index).index];
+            //If the functor is a list
+            if (functor.is_list()) {
+                if (!is_contigous_list) {
+                    result = "[";
+                }
+                result += string_representation_of(executor, index + 1, storage, false) + ",";
+                result += string_representation_of(executor, index + 2, storage, true);
 
-    //If the functor is the empty list, we return only "[]" if it is not end-marker for another list.
-    // e.g. [a|[]] should be outputed as [a]
-    if (functor.is_empty_list()) {
-        if (!is_contigous_list) {
-            return "[]";
-        }else{
-            return "";
+                //If the list has been completly built, replace the last "," with an "]"
+                if (!is_contigous_list) {
+                    result.back() = ']';
+                }
+                return result;
+            }
+
+            //The functor is a normal functor
+            result += functor.name + '(';
+            //-1 for correct formatting of the ,
+            for (int i = 1; i <= functor.arity - 1; ++i) {
+                result += string_representation_of(executor, index + i, storage) + ',';
+            }
+            return result + string_representation_of(executor, index + functor.arity, storage) + ")";
         }
-    }
-
-    //If the functor is a constant, we return the name
-    if (functor.is_constant()) {
-        return functor.name;
-    }
-
-    if (functor.is_append_functor()) {
-        assert(false); //There is no append functor on the heap
-        std::string appended_elem = string_representation_of(executor, index + 1, storage, false);
-        if (appended_elem == "[]") {
-            //If it only appended the empty list, no need to output it too
-            return "]";
-        } else {
-            //TODO is this correct?
-            return appended_elem + ",]";
+        case heap_tag::EVAL_FUN: {
+            const auto functor = wam::arithmetic::functor_of(reg.get_eval_fun_i());
+            std::string result;
+            if(functor.arity == 2){
+                return string_representation_of(executor, index + 1, storage)
+                + ' ' + functor.name + ' '
+                + string_representation_of(executor, index + 2, storage);
+            }else if(functor.arity == 1){
+                return functor.name + '('
+                + string_representation_of(executor, index + 1, storage)
+                + ')';
+            }else{
+                assert(false);
+            }
         }
+            break;
+        case heap_tag::STR:
+            //unreachable
+            assert(false);
+            break;
     }
-    //Either list or normal functor
-    std::string result;
-
-    //If the functor is a list
-    if (functor.is_list()) {
-        if (!is_contigous_list) {
-            result = "[";
-        }
-        result += string_representation_of(executor, index + 1, storage, false) + ",";
-        result += string_representation_of(executor, index + 2, storage, true);
-
-        //If the list has been completly built, replace the last "," with an "]"
-        if (!is_contigous_list) {
-            result.back() = ']';
-        }
-        return result;
-    }
-
-    //The functor is a normal functor
-    result += functor.name + '(';
-    //-1 for correct formatting of the ,
-    for (int i = 1; i <= functor.arity - 1; ++i) {
-        result += string_representation_of(executor, index + i, storage) + ',';
-    }
-    return result + string_representation_of(executor, index + functor.arity, storage) + ")";
 }
 
 std::vector<wam::var_heap_substitution>

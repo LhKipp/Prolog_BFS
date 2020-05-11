@@ -8,12 +8,15 @@
 #include <string_view>
 #include <wam/data/heap_reg.h>
 #include <functional>
+#include <wam/data/functor_view.h>
 
 namespace wam::arithmetic{
 
     int to_index(const std::string& arith_functor);
 
+    int arity_of(int func_i);
     int arity_of(const wam::heap_reg& eval_func_reg);
+    functor_view functor_of(size_t func_i);
 
     const std::function<double(double)>& get_unary_func_of(const wam::heap_reg& eval_func_reg);
     const std::function<double(double, double)>& get_binary_func(const wam::heap_reg& eval_func_reg);

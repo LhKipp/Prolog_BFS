@@ -7,7 +7,8 @@
 
 
 #include "heap_tag.h"
-#include <cstddef>
+#include <string>
+#include <cassert>
 
 namespace wam {
     struct heap_reg {

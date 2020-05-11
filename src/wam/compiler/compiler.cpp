@@ -290,24 +290,20 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term,
             ++out;
             return;
         }
-//        if(node->is_evaluable_functor()){
-//            const int arith_func_i = wam::arithmetic::to_index(node->name);
-//            *out = std::bind(wam::put_eval_functor, _1, arith_func_i, node->get_x_reg());
-//            ++out;
-//        }else{
-//            assert(node->is_functor() || node->is_constant());
-//            const functor_view functor_view = node->to_functor_view();
-//            *out = std::bind(wam::put_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());
-//            ++out;
-//        }
-
-        const functor_view functor_view = node->to_functor_view();
-        *out = std::bind(wam::get_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());
-        ++out;
+        if(node->is_evaluable_functor()){
+            const int arith_func_i = wam::arithmetic::to_index(node->name);
+            *out = std::bind(wam::get_eval_fun_structure, _1, arith_func_i, node->get_x_reg());
+            ++out;
+        }else{//func or cons
+            const functor_view functor_view = node->to_functor_view();
+            *out = std::bind(wam::get_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());
+            ++out;
+        }
 
         if (node->is_constant()) {//no need to process children if node is constant
             return;
         }
+
         //If node is functor
         for (auto &childs : *node->children) {
             const seen_register child_reg{register_type::X_REG, childs.get_x_reg()};

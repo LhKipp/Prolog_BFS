@@ -105,17 +105,42 @@ void wam::get_int(wam::executor &executor, int value, size_t x_reg) {
     }
 }
 
+void wam::get_eval_fun_structure(wam::executor &executor, int eval_fun_i, size_t x_reg) {
+#ifdef DEBUG
+    std::cout << "get_eval_fun_structure" << std::endl;
+#endif
+    size_t addr = wam::deref(executor, executor.registers.at(x_reg).heap_i);
+    const heap_reg reg = executor.heap_at(addr);
+
+    if (reg.type == heap_tag::REF) {
+        //We bind a var from the query to a functor
+        executor.push_back_STR();
+        executor.push_back_EVAL_FUN(eval_fun_i);
+
+        //exe.heap.size - 2 == H. The newly created ref cell will be bound
+        wam::bind(executor, addr, executor.heap_size() - 2);
+        executor.read_or_write = wam::mode::WRITE;
+
+    } else if (reg.type == heap_tag::EVAL_FUN) {
+        if (reg.index == eval_fun_i) {
+            executor.S = addr + 1;
+            executor.read_or_write = wam::mode::READ;
+        } else {
+            executor.set_failed();
+        }
+    } else if (reg.type == heap_tag::STR) {
+        //This should never happen
+        assert(false);
+    } else {//Default case
+        executor.set_failed();
+    }
+}
+
 void wam::get_structure(wam::executor &executor, int functor_index, size_t x_reg) {
 #ifdef DEBUG
     std::cout << "get_structure" << std::endl;
 #endif
-    size_t addr;
-    if (executor.registers.at(x_reg).reg.is_REF()) {
-        addr = deref(executor, executor.registers.at(x_reg).reg);
-    } else {//x_reg is a STR
-        addr = executor.registers.at(x_reg).reg.index;
-    }
-
+    size_t addr = wam::deref(executor, executor.registers.at(x_reg).heap_i);
     const heap_reg reg = executor.heap_at(addr);
 
     if (reg.type == heap_tag::REF) {
@@ -136,7 +161,7 @@ void wam::get_structure(wam::executor &executor, int functor_index, size_t x_reg
         }
     } else if (reg.type == heap_tag::STR) {
         //This should never happen
-        throw int(3);
+        assert(false);
     } else {//Default case
         executor.set_failed();
     }

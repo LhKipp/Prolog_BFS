@@ -98,7 +98,7 @@ namespace wam{
             finished_list = finished_list_t;
             list = empty_list | normal_list | finished_list;
 
-            prolog_element %= functor | constant | variable | list | number;
+            prolog_element %= functor | constant | list | expression;
 
             using boost::spirit::repository::qi::iter_pos;
             atom = (iter_pos >> (built_in_pred | functor | constant) >> qi::no_skip[iter_pos])
@@ -106,7 +106,7 @@ namespace wam{
              qi::_val = qi::_2];
 
 
-            value = number | (lit('(') > expression > lit(')')) | variable;
+            value = variable | number | (lit('(') > expression > lit(')'));
             chained_pow = char_("^") > value;
             power_helper = value >> -chained_pow;
             power = power_helper;

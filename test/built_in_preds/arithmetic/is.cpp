@@ -1,4 +1,5 @@
 #include "../../../catch.hpp"
+#include "../../test_util.h"
 #include <wam/bfs_organizer/bfs_organizer.h>
 #include <string>
 
@@ -41,17 +42,17 @@ TEST_CASE("Variable is assigment"){
     REQUIRE(ans->at(0).binding == std::to_string(22));
 }
 
-//TEST_CASE("Variable is assigment 2"){
-//    bfs_organizer org;
-//    const char* prog =
-//            "e(1 + 1).";
-//    org.load_program(prog);
-//    org.load_query("e(Y), X is Y");
-//    auto ans = org.get_answer().get_answer();
-//    REQUIRE(ans.has_value());
-//    REQUIRE(ans->at(0).binding == "1 + 1");
-//    REQUIRE(ans->at(1).binding == std::to_string(2));
-//}
+TEST_CASE("Variable is assigment 2"){
+    bfs_organizer org;
+    const char* prog =
+            "e(1 + 1).";
+    org.load_program(prog);
+    org.load_query("e(Y), X is Y");
+    auto ans = org.get_answer().get_answer();
+    REQUIRE(ans.has_value());
+    REQUIRE(ans->at(1).binding == "1 + 1");
+    REQUIRE(ans->at(0).binding == std::to_string(2));
+}
 
 TEST_CASE("is comparison rules"){
     bfs_organizer org;
@@ -64,4 +65,30 @@ TEST_CASE("is comparison rules"){
     ass_false("[] is 3.");
     ass_false("a is 3.");
     ass_false("f(a) is 3.");
+}
+
+TEST_CASE("Expression builder"){
+    bfs_organizer org;
+    const char* prog =
+            "add(X, X + 1)."
+            "min(X, X - 1)."
+            "double(X, X * 2)."
+            "div(X, X // 2).";
+    org.load_program(prog);
+    org.load_query("add(X, A),"
+                   "add(A, B),"
+                   "double(B, C),"
+                   "double(C, D),"
+                   "min(D, E),"
+                   "div(E, R), X is 1, V is R.");
+    auto ans = org.get_answer().get_answer();
+    has_all_of_these(ans,
+                     {"X" , "1",
+                      "A", "1 + 1",
+                      "B", "1 + 1 + 1",
+                      "C", "1 + 1 + 1 * 2",
+                      "D", "1 + 1 + 1 * 2 * 2",
+                      "E", "1 + 1 + 1 * 2 * 2 - 1",
+                      "R", "1 + 1 + 1 * 2 * 2 - 1 // 2",
+                      "V", "5"});
 }

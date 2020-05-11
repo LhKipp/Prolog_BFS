@@ -5,7 +5,7 @@
 
 #include "heap_reg.h"
 
-std::string heap_reg::type_as_str() {
+std::string wam::heap_reg::type_as_str() {
     return std::string(((const char *[]) {
             "STR",
             "REF",

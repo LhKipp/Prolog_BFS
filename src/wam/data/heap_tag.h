@@ -5,7 +5,7 @@
 #ifndef PROLOG_BFS_HEAP_TAG_H
 #define PROLOG_BFS_HEAP_TAG_H
 
-#include "../compiler/util/node.h"
+#include <cstdint>
 
 namespace wam {
     enum class heap_tag : uint8_t{

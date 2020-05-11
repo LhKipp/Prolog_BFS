@@ -47,26 +47,27 @@ size_t wam::deref(const executor & exec, const size_t heap_addr) {
         return cur_regist.index;
     }
 
-    assert(cur_regist.is_REF() || cur_regist.is_INT());
     return last_reg_index;
 }
 
-heap_reg wam::derefed_reg(const executor &exec, const heap_reg &init_regist) {
+wam::heap_reg wam::derefed_reg(const executor &exec, const heap_reg &init_regist) {
     auto deref_i = deref(exec, init_regist);
     return exec.heap_at(deref_i);
 }
 
-heap_reg derefed_reg(const executor &exec, size_t heap_i) {
-    auto deref_i = deref(exec, heap_i);
-    return exec.heap_at(deref_i);
-}
 
-heap_reg& wam::derefed_reg_modify(executor &exec, const heap_reg &init_regist) {
+wam::heap_reg& wam::derefed_reg_modify(executor &exec, const heap_reg &init_regist) {
     auto deref_i = deref(exec, init_regist);
     return exec.heap_modify(deref_i);
 }
 
-heap_reg& derefed_reg_modify(executor &exec, size_t heap_i) {
+wam::heap_reg wam::derefed_reg(const executor &exec, size_t heap_i) {
+    auto deref_i = deref(exec, heap_i);
+    return exec.heap_at(deref_i);
+}
+
+
+wam::heap_reg& wam::derefed_reg_modify(executor &exec, size_t heap_i) {
     auto deref_i = deref(exec, heap_i);
     return exec.heap_modify(deref_i);
 }

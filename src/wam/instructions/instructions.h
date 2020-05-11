@@ -21,6 +21,7 @@ namespace wam {
     void set_value(executor& executor,size_t x_reg);
     void set_permanent_value(executor& executor, size_t y_reg);
 
+    void get_eval_fun_structure(executor &executor, int eval_fun_i, size_t x_reg);
     void get_structure(executor& executor,int functor, size_t x_reg);
     void get_int(wam::executor &executor, int value, size_t x_reg);
 
