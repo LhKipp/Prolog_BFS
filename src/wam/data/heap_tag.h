@@ -9,11 +9,12 @@
 
 namespace wam {
     enum class heap_tag : uint8_t{
-        STR,
+        CONS,
+        INT,
         REF,
         FUN,
         EVAL_FUN,
-        INT,
+        STR,
     };
 }
 

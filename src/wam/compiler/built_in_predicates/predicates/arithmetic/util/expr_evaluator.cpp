@@ -19,13 +19,12 @@ wam::heap_reg wam::arithmetic::eval_arithmetic_reg(executor &exec, size_t rhs_he
             return rhs;
         case heap_tag::REF:
             return eval_arithmetic_reg(exec, wam::deref(exec, rhs));
-        case heap_tag::STR:
-            rhs_heap_i = rhs.index;
-            rhs = exec.heap_at(rhs_heap_i);
         case heap_tag::EVAL_FUN :{
             return eval_arithmetic_func(exec, rhs, rhs_heap_i);
         }
-        //Not reachable
+            //Not reachable
+        case heap_tag::CONS:
+        case heap_tag::STR:
         default: assert(false);
     }
     //Not reachable

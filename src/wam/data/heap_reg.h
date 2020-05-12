@@ -29,6 +29,9 @@ namespace wam {
         inline bool is_FUN()const{
             return type == heap_tag ::FUN;
         }
+        inline bool is_CONS()const{
+            return type == heap_tag ::CONS;
+        }
         inline bool is_INT()const{
             return type == heap_tag ::INT;
         }
@@ -41,7 +44,13 @@ namespace wam {
             return index;
         }
 
+        inline int get_cons_i()const{
+            return index;
+        }
         inline int get_eval_fun_i()const{
+            return index;
+        }
+        inline int get_fun_i()const{
             return index;
         }
 

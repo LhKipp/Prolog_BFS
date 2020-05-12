@@ -30,7 +30,7 @@ void wam::preds::is(wam::executor &exec, size_t lhs_x_reg_i, size_t rhs_x_reg_i)
             exec.set_failed();
         }
         return;
-    }else if(lhs.is_FUN() || lhs.is_STR() || lhs.is_EVAL_FUN()) {
+    }else if(lhs.is_FUN() || lhs.is_CONS() || lhs.is_STR() || lhs.is_EVAL_FUN()) {
         exec.set_failed();
         return;
     }else if(lhs.is_REF()){

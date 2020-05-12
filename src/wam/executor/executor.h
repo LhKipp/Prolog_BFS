@@ -38,7 +38,6 @@ namespace wam {
     using FUN_index = NamedType<int, FUN_Parameter>;
     using STR_index = NamedType<int, STR_Parameter>;
     using Storage_FUN_index = NamedType<int, struct Storage_FUN_index_s>;
-    using Storage_Expr_index = NamedType<int, struct Storage_Expr_index_s>;
     using Storage_Var_index = NamedType<int, struct Storage_Var_index_s>;
 
 
@@ -109,8 +108,8 @@ namespace wam {
             return organizer;
         }
 
+        const functor_view& functor_of(Storage_FUN_index storage_fun_index)const;
         functor_view& functor_of(Storage_FUN_index storage_fun_index);
-        const node& expr_of(Storage_Expr_index expr_index) const;
 
         std::string var_name_of(Storage_Var_index var_index);
         inline functor_view &functor_of(STR_index STR_index){
@@ -141,6 +140,9 @@ namespace wam {
         }
         inline void push_back_unbound_REF(short var_index) {
             heap.emplace_back((int) heap_size(), var_index);
+        }
+        inline void push_back_cons(int constant_i){
+            heap.emplace_back(heap_tag::CONS, constant_i);
         }
         inline void push_back_int(int value){
             heap.emplace_back(heap_tag::INT, value);

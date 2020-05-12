@@ -5,6 +5,7 @@
 #include "executor.h"
 
 #include "../bfs_organizer/bfs_organizer.h"
+
 wam::functor_view &wam::executor::functor_of(FUN_index FUN_index) {
     return organizer->storage.functors.operator[](heap_at(FUN_index.get()).index);
 }
@@ -69,14 +70,14 @@ wam::heap_reg wam::executor::heap_at(size_t index) const {
     }
 }
 
+const wam::functor_view &wam::executor::functor_of(Storage_FUN_index storage_fun_index) const {
+    return organizer->storage.functors[storage_fun_index.get()];
+}
 wam::functor_view &wam::executor::functor_of(Storage_FUN_index indx) {
     return organizer->storage.functors[indx.get()];
-}
-
-const node &executor::expr_of(Storage_Expr_index expr_index)const{
-    return organizer->storage.expressions[expr_index.get()];
 }
 
 std::string executor::var_name_of(Storage_Var_index var_index) {
     return organizer->storage.variables[var_index.get()].name;
 }
+

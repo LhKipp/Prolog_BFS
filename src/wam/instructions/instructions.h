@@ -10,6 +10,7 @@
 namespace wam {
     void put_eval_functor(executor& executor, int expr_index, size_t regist_index);
 
+    void put_constant(wam::executor &executor, int constant_i, size_t regist_index);
     void put_int(executor &executor, int value, size_t regist_index);
     void put_structure(executor& executor, int functor_index, size_t regist_index);
 
@@ -22,15 +23,18 @@ namespace wam {
     void set_permanent_value(executor& executor, size_t y_reg);
 
     void get_eval_fun_structure(executor &executor, int eval_fun_i, size_t x_reg);
-    void get_structure(executor& executor,int functor, size_t x_reg);
+    void get_functor(executor& executor, int functor, size_t x_reg);
     void get_int(wam::executor &executor, int value, size_t x_reg);
+    void get_constant(executor& executor, int constant_i, size_t x_reg);
 
     void unify_variable(executor& executor,  size_t x_reg, short var_index);
     void unify_permanent_variable(executor& executor, size_t y_reg, short var_index);
 
-    void unify_int(wam::executor &executor, int int_val, size_t x_reg);
     void unify_value(executor& executor, size_t x_reg);
     void unify_permanent_value(executor& executor, size_t y_reg);
+
+    void unify_constant(wam::executor &executor, int constant_i, size_t x_reg);
+    void unify_int(wam::executor &executor, int int_val, size_t x_reg);
 
     void bind(executor& exec, size_t address_a,size_t address_b);
 

@@ -6,7 +6,7 @@
 #include <wam/instructions/util/instructions_util.h>
 
 void err_handling::check_and_throw_is_evaluable(wam::executor &exec, wam::heap_reg reg) {
-    if(reg.is_FUN()){
+    if(reg.is_FUN() || reg.is_CONS()){
         auto fn_view = exec.functor_of(FUN_index{reg.index});
         exec.set_runtime_error(runtime_error{
                 ERROR_TYPE::FUNCTOR_IS_NOT_ARITHMETIC,

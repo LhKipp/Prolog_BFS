@@ -103,12 +103,12 @@ auto setup_org = [&](string query) {
         program_code.emplace_back("append([X| Xs], Ys, [X | Rs]) :- append(Xs, Ys, Rs).");
         program_code.emplace_back("append([], Xs, Xs).");
 
-        setup_org("append(Z, [c], [a,b,c]).");
+        setup_org("append(Z, [b, c], [a, b, c]).");
 
         auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
-        actual_substs["Z"] = "[a,b]";
+        actual_substs["Z"] = "[a]";
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
@@ -119,12 +119,12 @@ auto setup_org = [&](string query) {
         program_code.emplace_back("append([X| Xs], Ys, [X | Rs]) :- append(Xs, Ys, Rs).");
         program_code.emplace_back("append([], Xs, Xs).");
 
-        setup_org("append([a],Z, [a,b,c]).");
+        setup_org("append([a],Z, [a,b]).");
 
         auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
-        actual_substs["Z"] = "[b,c]";
+        actual_substs["Z"] = "[b]";
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {

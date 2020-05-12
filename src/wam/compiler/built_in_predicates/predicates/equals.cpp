@@ -4,6 +4,7 @@
 
 #include "equals.h"
 #include <wam/instructions/util/instructions_util.h>
+#include <wam/compiler/built_in_predicates/predicates/arithmetic/util/arith_functor.h>
 
 node wam::preds::equals_node_tree() {
     node pred{STORED_OBJECT_FLAG::FUNCTOR, "=="};
@@ -22,58 +23,47 @@ node wam::preds::equals_node_tree() {
 /*
  * This method assumes that if lhs_heap_i or rhs_heap_i is ref, it cant be further dereferenced
  */
-bool wam::preds::heap_reg_equals(wam::executor& executor, size_t lhs_heap_i, size_t rhs_heap_i){
-    heap_reg lhs = executor.heap_at(lhs_heap_i);
-    heap_reg rhs = executor.heap_at(rhs_heap_i);
-    if(lhs.is_REF()){
-        lhs_heap_i = wam::deref(executor, lhs.index);
-        lhs = executor.heap_at(lhs_heap_i);
-    }
-    if(rhs.is_REF()){
-        rhs_heap_i = wam::deref(executor, rhs.index);
-        rhs = executor.heap_at(rhs_heap_i);
-    }
-    if(lhs.is_STR()){
-        lhs_heap_i = lhs.index;
-        lhs = executor.heap_at(lhs_heap_i);
-    }
-    if(rhs.is_STR()){
-        rhs_heap_i = rhs.index;
-        rhs = executor.heap_at(rhs_heap_i);
-    }
 
+bool wam::preds::functor_equals(const executor& exec, const functor_view &fn_view, size_t lhs, size_t rhs) {
+    for (int i = 0; i < fn_view.arity; ++i) {
+        if(!heap_reg_equals(exec,
+                            lhs + 1 + i,
+                            rhs + 1 + i)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool wam::preds::heap_reg_equals(const wam::executor& executor, size_t lhs_heap_i, size_t rhs_heap_i){
+    lhs_heap_i = wam::deref(executor, lhs_heap_i);
+    rhs_heap_i = wam::deref(executor, rhs_heap_i);
+    const heap_reg lhs = executor.heap_at(lhs_heap_i);
+    const heap_reg rhs = executor.heap_at(rhs_heap_i);
     if(lhs.type != rhs.type){
         return false;
     }
-    if(lhs.is_REF()){
-        assert(rhs.is_REF());
-        //Always false because of check at top
-        //return lhs_heap_i == rhs_heap_i;
-        return lhs_heap_i == rhs_heap_i;
-    }
-    if(lhs.is_INT()){
-        assert(rhs.is_INT());
-        return lhs.get_int_val() == rhs.get_int_val();
-    }
-    if(lhs.is_FUN()){
-        assert(rhs.is_FUN());
-        const functor_view &functor1 = executor.functor_of(Storage_FUN_index {lhs.index});
-        const functor_view &functor2 = executor.functor_of(Storage_FUN_index {rhs.index});
-        if(functor1 != functor2){
-            return false;
+    switch (lhs.type){
+        case heap_tag::REF:
+            return lhs_heap_i == rhs_heap_i;
+        case heap_tag::CONS:
+            return lhs.get_cons_i() == rhs.get_cons_i();
+        case heap_tag::INT:
+            return lhs.get_int_val() == rhs.get_int_val();
+        case heap_tag::FUN:{
+            if(lhs.get_fun_i() != rhs.get_fun_i()) return false;
+            const functor_view &functor = executor.functor_of(Storage_FUN_index {lhs.index});
+            return functor_equals(executor, functor, lhs_heap_i, rhs_heap_i);
         }
-
-        for (int i = 0; i < functor1.arity; ++i) {
-            if(!heap_reg_equals(executor,
-                    lhs_heap_i + 1 + i,
-                    rhs_heap_i + 1 + i)) {
-                return false;
-            }
+        case heap_tag::EVAL_FUN: {
+            if (lhs.get_eval_fun_i() == rhs.get_eval_fun_i()) return false;
+            const functor_view &functor = wam::arithmetic::functor_of(lhs.get_eval_fun_i());
+            return functor_equals(executor, functor, lhs_heap_i, rhs_heap_i);
         }
-        return true;
+        case heap_tag::STR:
+        default:
+            assert(false);
     }
-    //Didnt expect the type of lhs
-    assert(false);
 }
 
 void wam::preds::equals_check(wam::executor &executor, size_t lhs_x_reg_i, size_t rhs_x_reg_i) {

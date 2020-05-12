@@ -13,7 +13,10 @@ namespace wam{
         node equals_node_tree();
         void equals_check(wam::executor& exec, size_t lhs_x_reg_i, size_t rhs_x_reg_i);
 
-        bool heap_reg_equals(wam::executor& exec, size_t lhs, size_t rhs);
+        bool heap_reg_equals(const wam::executor& exec, size_t lhs, size_t rhs);
+
+        bool functor_equals(const wam::executor& exec, const functor_view &fn_view, size_t lhs, size_t rhs);
+
     }
 }
 

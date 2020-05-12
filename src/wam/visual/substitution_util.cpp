@@ -85,12 +85,12 @@ wam::string_representation_of(const executor &executor,
             return storage.variables[reg.var_index].name;
         case heap_tag::INT:
             return std::to_string(reg.get_int_val());
+        case heap_tag::CONS:{
+            const functor_view &functor = storage.functors[reg.index];
+            return functor.name;
+        }
         case heap_tag::FUN: {
             const functor_view &functor = storage.functors[reg.index];
-            if (functor.is_constant()) {
-                return functor.name;
-            }
-
             //If the functor is the empty list, we return only "[]" if it is not end-marker for another list.
             // e.g. [a|[]] should be outputed as [a]
             if (functor.is_empty_list()) {
@@ -157,7 +157,6 @@ wam::string_representation_of(const executor &executor,
         case heap_tag::STR:
             //unreachable
             assert(false);
-            break;
     }
 }
 

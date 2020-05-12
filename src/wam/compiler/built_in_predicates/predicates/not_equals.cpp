@@ -21,7 +21,6 @@ node wam::preds::not_equals_node_tree() {
 }
 
 void wam::preds::not_equals_check(wam::executor &executor, size_t lhs_x_reg_i, size_t rhs_x_reg_i) {
-    //This is very similar to the unify algorithm
 #ifdef DEBUG
     std::cout << "equals_check" << std::endl;
 #endif

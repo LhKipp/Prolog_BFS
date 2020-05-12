@@ -123,7 +123,6 @@ std::vector<const node *> wam::flatten_program(const node &outer_functor) {
     bfs_order(outer_functor, true, [&](const node *node) {
         if (node->is_functor()
             || node->is_evaluable_functor()
-            || node->is_constant()
             || node->is_argument()) {
             result.push_back(node);
         }
@@ -186,28 +185,30 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term,
             *out = std::bind(wam::put_int, _1, std::stoi(node->name), node->get_x_reg());
             ++out;
             return;
-        }
-
-
-        if(node->is_evaluable_functor()){
+        }else if(node->is_constant()){
+            const functor_view functor_view = node->to_functor_view();
+            *out = std::bind(wam::put_constant, _1, storage.functor_index_of(functor_view), node->get_x_reg());
+            ++out;
+            return;
+        }else if(node->is_evaluable_functor()){
             compiler::check_and_throw_undefined_var(outer_functor, *node, seen_registers);
             const int arith_func_i = wam::arithmetic::to_index(node->name);
             *out = std::bind(wam::put_eval_functor, _1, arith_func_i, node->get_x_reg());
             ++out;
         }else{
-            assert(node->is_functor() || node->is_constant());
             const functor_view functor_view = node->to_functor_view();
             *out = std::bind(wam::put_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());
             ++out;
         }
 
-        if (node->is_constant()) {//No need to process any children
-            return;
-        }
-
         for (auto &childs : *node->children) {
             if(childs.is_int()){
                 *out = std::bind(wam::put_int, _1, std::stoi(childs.name), childs.get_x_reg());
+                ++out;
+                continue;
+            }else if(childs.is_constant()){
+                const functor_view functor_view = childs.to_functor_view();
+                *out = std::bind(wam::put_constant, _1, storage.functor_index_of(functor_view), childs.get_x_reg());
                 ++out;
                 continue;
             }
@@ -293,18 +294,18 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term,
             *out = std::bind(wam::get_int, _1, std::stoi(node->name), node->get_x_reg());
             ++out;
             return;
-        }
-        if(node->is_evaluable_functor()){
+        }else if(node->is_evaluable_functor()){
             const int arith_func_i = wam::arithmetic::to_index(node->name);
             *out = std::bind(wam::get_eval_fun_structure, _1, arith_func_i, node->get_x_reg());
             ++out;
-        }else{//func or cons
+        }else if(node->is_functor()){//func or cons
             const functor_view functor_view = node->to_functor_view();
-            *out = std::bind(wam::get_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());
+            *out = std::bind(wam::get_functor, _1, storage.functor_index_of(functor_view), node->get_x_reg());
             ++out;
-        }
-
-        if (node->is_constant()) {//no need to process children if node is constant
+        }else if(node->is_constant()){
+            const functor_view functor_view = node->to_functor_view();
+            *out = std::bind(wam::get_constant, _1, storage.functor_index_of(functor_view), node->get_x_reg());
+            ++out;
             return;
         }
 
@@ -314,7 +315,14 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term,
                 *out = std::bind(wam::unify_int, _1, std::stoi(childs.name), childs.get_x_reg());
                 ++out;
                 continue;
+            }else if(childs.is_constant()){
+                const auto& fn_view = childs.to_functor_view();
+                *out = std::bind(wam::unify_constant, _1, storage.functor_index_of(fn_view), childs.get_x_reg());
+                ++out;
+                continue;
             }
+            //else its a var
+
             const seen_register child_reg{register_type::X_REG, childs.get_x_reg()};
             if (seen_registers[child_reg]) {
                 if (childs.is_permanent()) {
