@@ -8,7 +8,7 @@
 #include "../bfs_organizer/bfs_organizer.h"
 #include <wam/compiler/built_in_predicates/predicates/arithmetic/util/arith_functor.h>
 
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
 #include <iostream>
 #endif

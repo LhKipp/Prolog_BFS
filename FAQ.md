@@ -23,7 +23,14 @@ variable = A-Z *(a-zA-Z0-9_)
 functor = a-z *(a-zA-Z0-9_) "(" prolog_element % , ")"
 list = "[]" | "[" prolog_element % , ["|" variable | list]"]"
 number = *0-9
-prolog_element = functor | constant | variable | list | number
+prolog_element = functor | constant | variable | list | expression
+
+expression = sum
+sum = product % ("+" | "-")
+product = power % ("*" | "//")
+power = value [ "^" value]
+value = number | variable | "(" expession ")"
+
 
 built_in_pred = "==" | "\==" | "is"
 ```

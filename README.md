@@ -31,9 +31,9 @@ If you first build wasm, then native (or the other way around) make sure to dele
 
 Known Limitations
 -----------------
-1. Any kind of arithmetic is not supported. Use o for 0, s(o) for 1, s(s(o)) for 2, ...
+1. Only integer arithmetic is supported.
 2. Variables / constant names starting with an underscore are not supported. (This implies that a single "_" as a variable name is not supported)
-3. The only supported built in predicates are "==" and "\==".
+3. The only supported built in predicates are "==", "\==" and is.
 4. The online version has a limit of 500MB memory. For the offline version there is no memory usage check. If an endless program has been supplied, the program won't stop allocating memory. Make sure to kill the program before all memory is exhausted.
 
 
