@@ -64,8 +64,6 @@ wam::heap_reg wam::executor::heap_at(size_t index) const {
             //This executor has not overwritten the parent heap --> search in parent heap
             assert(has_parent());
             return parent->heap_at(index);
-            //DEBUG
-            //return heap_reg{heap_tag::REF, 0};
         }
     }
 }
