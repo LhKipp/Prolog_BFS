@@ -53,6 +53,10 @@ namespace wam {
         inline int get_fun_i()const{
             return index;
         }
+        inline int get_heap_i()const{
+            assert(is_REF() || is_STR());
+            return index;
+        }
 
         inline void bind_to(int index){
             assert(is_REF());

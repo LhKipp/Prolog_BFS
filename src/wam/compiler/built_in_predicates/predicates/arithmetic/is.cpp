@@ -22,44 +22,25 @@ node wam::preds::is_node_tree() {
 
 void wam::preds::is(wam::executor &exec, size_t lhs_x_reg_i, size_t rhs_x_reg_i){
     const heap_reg& rhs_value = wam::arithmetic::eval_arithmetic_reg(exec,
-                                                                     exec.registers[rhs_x_reg_i].heap_i);
-    heap_reg& lhs = exec.registers.at(lhs_x_reg_i).reg;
+                                                                     exec.registers[rhs_x_reg_i].get_heap_i());
+    heap_reg& lhs = wam::derefed_reg_modify(exec, exec.registers.at(lhs_x_reg_i).get_heap_i());
     //If people use is like =:=
-    if(lhs.is_INT() ) {
-        if(lhs.get_int_val() != rhs_value.get_int_val()){
-            exec.set_failed();
-        }
-        return;
-    }else if(lhs.is_FUN() || lhs.is_CONS() || lhs.is_STR() || lhs.is_EVAL_FUN()) {
-        exec.set_failed();
-        return;
-    }else if(lhs.is_REF()){
-        heap_reg& derefed_reg = wam::derefed_reg_modify(exec, lhs);
-        //if var already assigned before
-        if(derefed_reg.is_INT()){
-            if(derefed_reg.get_int_val() != rhs_value.get_int_val()){
+    switch(lhs.type){
+        case heap_tag::INT:
+            if(lhs.get_int_val() != rhs_value.get_int_val()){
                 exec.set_failed();
             }
             return;
-        }else if(derefed_reg.is_REF()){
-            //TODO check whether you can just push some ints on the stack
-            //I think its fine
+        case heap_tag::REF:
             exec.push_back(rhs_value);
-            derefed_reg.bind_to((int)exec.heap_size() - 1);
+            lhs.bind_to((int)exec.heap_size() - 1);
             return;
-        }else{
-            //its list fun const or something. Yes this is the actual behavior, no runtime exc for that
+        case heap_tag::CONS:
+        case heap_tag::FUN:
+        case heap_tag::EVAL_FUN:
+        case heap_tag::STR:
             exec.set_failed();
-//            //derefed_reg is something else than ref or int
-//            exec.set_runtime_error(runtime_error{
-//                    ERROR_TYPE ::ARGUMENTS_NOT_SUFF_INSTANCIATED,
-//                    exec.get_current_term_code()->get_code_info(),
-//                    "In is/2 predicate: \
-//                    Lhs is a Variable pointing to a " + lhs.type_as_str() +
-//                    "\nExpected Lhs to be of type INT or REF"
-//            });
             return;
-        }
     }
 }
 

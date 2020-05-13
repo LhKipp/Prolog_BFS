@@ -67,8 +67,8 @@ bool wam::preds::heap_reg_equals(const wam::executor& executor, size_t lhs_heap_
 }
 
 void wam::preds::equals_check(wam::executor &executor, size_t lhs_x_reg_i, size_t rhs_x_reg_i) {
-    const size_t lhs_heap_i = executor.registers[lhs_x_reg_i].heap_i;
-    const size_t rhs_heap_i = executor.registers[rhs_x_reg_i].heap_i;
+    const size_t lhs_heap_i = executor.registers[lhs_x_reg_i].get_heap_i();
+    const size_t rhs_heap_i = executor.registers[rhs_x_reg_i].get_heap_i();
     if(!wam::preds::heap_reg_equals(executor, lhs_heap_i, rhs_heap_i)){
         executor.set_failed();
     }

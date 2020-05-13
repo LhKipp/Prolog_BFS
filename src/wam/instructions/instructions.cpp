@@ -18,7 +18,7 @@ void wam::put_eval_functor(executor &executor, int expr_index, size_t regist_ind
     std::cout << "put_eval_functor" << std::endl;
 #endif
     executor.push_back_STR();
-    executor.registers.at(regist_index) = {executor.heap_back(), executor.heap_size()-1};
+    executor.registers.at(regist_index) = executor.heap_back();
     executor.push_back_EVAL_FUN(expr_index);
 }
 
@@ -27,7 +27,7 @@ void wam::put_constant(wam::executor &executor, int constant_i, size_t regist_in
     std::cout << "put_constant" << std::endl;
 #endif
     executor.push_back_cons(constant_i);
-    executor.registers.at(regist_index) = {executor.heap_back(), executor.heap_size() -1};
+    executor.registers.at(regist_index) = heap_reg{heap_tag::STR, (int)executor.heap_size() -1};
 }
 
 void wam::put_int(wam::executor &executor, int value, size_t regist_index) {
@@ -35,7 +35,7 @@ void wam::put_int(wam::executor &executor, int value, size_t regist_index) {
     std::cout << "put_int" << std::endl;
 #endif
     executor.push_back_int(value);
-    executor.registers.at(regist_index) = {executor.heap_back(), executor.heap_size() -1};
+    executor.registers.at(regist_index) = heap_reg{heap_tag::STR, (int)executor.heap_size() -1};
 }
 
 void wam::put_structure(wam::executor &executor, int functor_index, size_t regist_index) {
@@ -43,7 +43,7 @@ void wam::put_structure(wam::executor &executor, int functor_index, size_t regis
     std::cout << "put_structure" << std::endl;
 #endif
     executor.push_back_STR();
-    executor.registers.at(regist_index) = {executor.heap_back(), executor.heap_size() - 1};
+    executor.registers.at(regist_index) = executor.heap_back();
     executor.push_back_FUN(functor_index);
 }
 
@@ -56,7 +56,7 @@ void wam::set_variable(wam::executor &executor, size_t x_reg, short var_index) {
     std::cout << "set_variable" << std::endl;
 #endif
     executor.push_back_unbound_REF(var_index);
-    executor.registers.at(x_reg) = {executor.heap_back(), executor.heap_size() - 1};
+    executor.registers.at(x_reg) = executor.heap_back();
 }
 
 void wam::set_permanent_variable(wam::executor &executor, size_t y_reg, short var_index) {
@@ -64,7 +64,7 @@ void wam::set_permanent_variable(wam::executor &executor, size_t y_reg, short va
     std::cout << "set_permanent_variable" << std::endl;
 #endif
     executor.push_back_unbound_REF(var_index);
-    executor.cur_permanent_registers().at(y_reg) = {executor.heap_back(), executor.heap_size() - 1};
+    executor.cur_permanent_registers().at(y_reg) = executor.heap_back();
 
 }
 
@@ -72,21 +72,21 @@ void wam::set_value(wam::executor &executor, size_t x_reg) {
 #ifdef DEBUG
     std::cout << "set_value" << std::endl;
 #endif
-    executor.push_back(executor.registers.at(x_reg).reg);
+    executor.push_back(executor.registers.at(x_reg));
 }
 
 void wam::set_permanent_value(wam::executor &executor, size_t y_reg) {
 #ifdef DEBUG
     std::cout << "set_permanent_value" << std::endl;
 #endif
-    executor.push_back(executor.cur_permanent_registers().at(y_reg).reg);
+    executor.push_back(executor.cur_permanent_registers().at(y_reg));
 }
 
 void wam::get_constant(wam::executor &executor, int constant_i, size_t x_reg) {
 #ifdef DEBUG
     std::cout << "get_constant" << std::endl;
 #endif
-    size_t heap_addr = wam::deref(executor, executor.registers.at(x_reg).heap_i);
+    size_t heap_addr = wam::deref(executor, executor.registers.at(x_reg).get_heap_i());
     heap_reg& reg = executor.heap_modify(heap_addr);
 
     switch (reg.type){
@@ -113,7 +113,7 @@ void wam::get_int(wam::executor &executor, int value, size_t x_reg) {
 #ifdef DEBUG
     std::cout << "get_int" << std::endl;
 #endif
-    size_t heap_addr = wam::deref(executor, executor.registers.at(x_reg).heap_i);
+    size_t heap_addr = wam::deref(executor, executor.registers.at(x_reg).get_heap_i());
     heap_reg& reg = executor.heap_modify(heap_addr);
 
     if (reg.is_REF()) {
@@ -133,7 +133,7 @@ void wam::get_eval_fun_structure(wam::executor &executor, int eval_fun_i, size_t
 #ifdef DEBUG
     std::cout << "get_eval_fun_structure" << std::endl;
 #endif
-    size_t addr = wam::deref(executor, executor.registers.at(x_reg).heap_i);
+    size_t addr = wam::deref(executor, executor.registers.at(x_reg).get_heap_i());
     const heap_reg reg = executor.heap_at(addr);
 
     if (reg.type == heap_tag::REF) {
@@ -165,7 +165,7 @@ void wam::get_functor(wam::executor &executor, int functor, size_t x_reg) {
     std::cout << "get_functor" << std::endl;
     std::cout << "dheese" << std::endl;
 #endif
-    size_t addr = wam::deref(executor, executor.registers.at(x_reg).heap_i);
+    size_t addr = wam::deref(executor, executor.registers.at(x_reg).get_heap_i());
     const heap_reg reg = executor.heap_at(addr);
 
     if (reg.type == heap_tag::REF) {
@@ -240,7 +240,7 @@ void wam::unify_constant(wam::executor &executor, int constant_i, size_t x_reg) 
         }
         case mode::WRITE: {
             executor.push_back_cons(constant_i);
-            executor.registers.at(x_reg) = {executor.heap_back(), executor.heap_size() - 1};
+            executor.registers.at(x_reg) = heap_reg{heap_tag::STR, (int)executor.heap_size() -1};
             break;
         }
     }
@@ -280,7 +280,7 @@ void wam::unify_int(wam::executor &executor, int int_val, size_t x_reg) {
         }
         case mode::WRITE: {
             executor.push_back_int(int_val);
-            executor.registers.at(x_reg) = {executor.heap_back(), executor.heap_size() - 1};
+            executor.registers.at(x_reg) = heap_reg{heap_tag::STR, (int)executor.heap_size() - 1};
             break;
         }
     }
@@ -294,12 +294,12 @@ void wam::unify_variable(wam::executor &executor, size_t x_reg, short var_index)
 #endif
     switch (executor.read_or_write) {
         case wam::mode::READ: {
-            executor.registers.at(x_reg) = {executor.heap_at(executor.S), executor.S};
+            executor.registers.at(x_reg) = heap_reg{heap_tag::STR, (int) executor.S};
             break;
         }
         case mode::WRITE: {
             executor.push_back_unbound_REF(var_index);
-            executor.registers.at(x_reg) = {executor.heap_back(), executor.heap_size() - 1};
+            executor.registers.at(x_reg) = executor.heap_back();
             break;
         }
     }
@@ -313,18 +313,16 @@ void wam::unify_permanent_variable(wam::executor &executor, size_t y_reg, short 
 #endif
     switch (executor.read_or_write) {
         case wam::mode::READ: {
-            executor.cur_permanent_registers().at(y_reg) = {executor.heap_at(executor.S), executor.S};
+            executor.cur_permanent_registers().at(y_reg) = heap_reg{heap_tag::STR, (int)executor.S};
             break;
         }
         case mode::WRITE: {
             executor.push_back_unbound_REF(var_index);
-            executor.cur_permanent_registers().at(y_reg) = {executor.heap_back(), executor.heap_size() - 1};
+            executor.cur_permanent_registers().at(y_reg) = executor.heap_back();
             break;
         }
     }
-
     ++executor.S;
-
 }
 
 void wam::unify_value(wam::executor &executor, size_t x_reg) {
@@ -333,12 +331,27 @@ void wam::unify_value(wam::executor &executor, size_t x_reg) {
 #endif
     switch (executor.read_or_write) {
         case mode::READ: {
-            const size_t heap_i = executor.registers[x_reg].heap_i;
+            const size_t heap_i = executor.registers[x_reg].get_heap_i();
             unify(executor, heap_i, executor.S);
             break;
         }
         case mode::WRITE: {
-            executor.push_back(executor.registers.at(x_reg).reg);
+            //To stop binding chains we deref here and push back a reg pointing straight to the final reg
+            const size_t heap_i = wam::deref(executor, executor.registers.at(x_reg).get_heap_i());
+            const heap_reg reg = executor.heap_at(heap_i);
+            switch(reg.type){
+                case heap_tag::CONS:
+                case heap_tag::INT:
+                case heap_tag::REF:
+                    executor.push_back(reg);
+                    break;
+                case heap_tag::FUN:
+                case heap_tag::EVAL_FUN:
+                    executor.push_back_STR(heap_i);
+                    break;
+                case heap_tag::STR:
+                    assert(false);
+            }
             break;
         }
     }
@@ -351,12 +364,27 @@ void wam::unify_permanent_value(wam::executor &executor, size_t y_reg) {
 #endif
     switch (executor.read_or_write) {
         case mode::READ: {
-            const size_t heap_i = executor.cur_permanent_registers().at(y_reg).heap_i;
+            const size_t heap_i = executor.cur_permanent_registers().at(y_reg).get_heap_i();
             unify(executor, heap_i, executor.S);
             break;
         }
         case mode::WRITE: {
-            executor.push_back(executor.cur_permanent_registers().at(y_reg).reg);
+            //To stop binding chains we deref here and push back a reg pointing straight to the final reg
+            const size_t heap_i = wam::deref(executor, executor.cur_permanent_registers().at(y_reg).get_heap_i());
+            const heap_reg reg = executor.heap_at(heap_i);
+            switch(reg.type){
+                case heap_tag::CONS:
+                case heap_tag::INT:
+                case heap_tag::REF:
+                    executor.push_back(reg);
+                    break;
+                case heap_tag::FUN:
+                case heap_tag::EVAL_FUN:
+                    executor.push_back_STR(heap_i);
+                    break;
+                case heap_tag::STR:
+                    assert(false);
+            }
             break;
         }
     }
@@ -440,8 +468,8 @@ void wam::put_variable(wam::executor &executor, size_t x_reg, size_t a_reg, shor
     std::cout << "put_variable" << std::endl;
 #endif
     executor.push_back_unbound_REF(var_index);
-    executor.registers.at(x_reg) = {executor.heap_back(), executor.heap_size() - 1};
-    executor.registers.at(a_reg) = {executor.heap_back(), executor.heap_size() - 1};
+    executor.registers.at(x_reg) = executor.heap_back();
+    executor.registers.at(a_reg) = executor.heap_back();
 }
 
 void wam::put_permanent_variable(wam::executor &executor, size_t y_reg, size_t a_reg, short var_index) {
@@ -450,8 +478,8 @@ void wam::put_permanent_variable(wam::executor &executor, size_t y_reg, size_t a
 #endif
     executor.push_back_unbound_REF(var_index);
 
-    executor.cur_permanent_registers().at(y_reg) = {executor.heap_back(), executor.heap_size() - 1};
-    executor.registers.at(a_reg) = {executor.heap_back(), executor.heap_size() - 1};
+    executor.cur_permanent_registers().at(y_reg) = executor.heap_back(),
+    executor.registers.at(a_reg) = executor.heap_back();
 
 }
 
@@ -489,7 +517,7 @@ void wam::get_value(wam::executor &executor, size_t x_reg, size_t a_reg) {
     std::cout << "get_value" << std::endl;
 #endif
     //feature/parser TODO should be swapped ???
-    unify(executor, executor.registers.at(x_reg).heap_i, executor.registers.at(a_reg).heap_i);
+    unify(executor, executor.registers.at(x_reg).get_heap_i(), executor.registers.at(a_reg).get_heap_i());
 }
 
 void wam::get_permanent_value(wam::executor &executor, size_t y_reg, size_t a_reg) {
@@ -497,7 +525,7 @@ void wam::get_permanent_value(wam::executor &executor, size_t y_reg, size_t a_re
     std::cout << "get_permanent_value" << std::endl;
 #endif
     //these should also be swapped feature/parser
-    unify(executor, executor.cur_permanent_registers().at(y_reg).heap_i, executor.registers.at(a_reg).heap_i);
+    unify(executor, executor.cur_permanent_registers().at(y_reg).get_heap_i(), executor.registers.at(a_reg).get_heap_i());
 }
 
 void wam::call(wam::executor &old_executor, const functor_view &functor) {

@@ -24,7 +24,6 @@
 #include <iostream>
 #include <variant>
 #include <wam/bfs_organizer/data/error/runtime_error.h>
-#include <wam/data/heap_reg_with_i.h>
 
 namespace wam {
 
@@ -78,7 +77,7 @@ namespace wam {
             return term_codes.back()->is_from_original_query();
         }
 
-        std::vector<heap_reg_with_i> registers;
+        std::vector<heap_reg> registers;
 
         mode read_or_write;
 
@@ -99,7 +98,7 @@ namespace wam {
 
         executor(size_t term_codes_size): term_codes{term_codes_size}{}
 
-        inline std::vector<wam::heap_reg_with_i>& cur_permanent_registers(){
+        inline std::vector<wam::heap_reg>& cur_permanent_registers(){
             assert(!environments.empty());
             return environments.back().permanent_registers;
         }
@@ -128,6 +127,10 @@ namespace wam {
 
         inline void push_back(const heap_reg& regist){
             heap.push_back(regist);
+        }
+
+        inline void push_back_STR(int index){
+            heap.emplace_back(heap_tag::STR,index);
         }
         inline void push_back_STR(){
             heap.emplace_back(heap_tag::STR,(int)  heap_size() + 1);
