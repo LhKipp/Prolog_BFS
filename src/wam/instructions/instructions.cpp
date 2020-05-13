@@ -236,8 +236,8 @@ void wam::unify_constant(wam::executor &executor, int constant_i, size_t x_reg) 
                     executor.set_failed();
                     return;
             }
+            break;
         }
-        break;
         case mode::WRITE: {
             executor.push_back_cons(constant_i);
             executor.registers.at(x_reg) = {executor.heap_back(), executor.heap_size() - 1};
