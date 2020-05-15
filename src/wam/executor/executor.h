@@ -111,13 +111,6 @@ namespace wam {
         functor_view& functor_of(Storage_FUN_index storage_fun_index);
 
         std::string var_name_of(Storage_Var_index var_index);
-        inline functor_view &functor_of(STR_index STR_index){
-            return functor_of(FUN_index{heap_at(STR_index.get()).index});
-        }
-
-        inline const functor_view &functor_of(STR_index STR_index) const {
-            return functor_of(FUN_index{heap_at(STR_index.get()).index});
-        }
 
         functor_view &functor_of(FUN_index FUN_index);
 

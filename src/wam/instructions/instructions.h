@@ -36,8 +36,6 @@ namespace wam {
     void unify_constant(wam::executor &executor, int constant_i, size_t x_reg);
     void unify_int(wam::executor &executor, int int_val, size_t x_reg);
 
-    void bind(executor& exec, size_t address_a,size_t address_b);
-
     void unify(executor& executor, size_t addr_a, size_t addr_b);
 
     void put_variable(executor& executor, size_t x_reg, size_t a_reg, short var_index);

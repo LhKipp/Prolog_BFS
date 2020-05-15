@@ -32,19 +32,12 @@ size_t wam::deref(const executor & exec, const size_t heap_addr) {
 
     size_t last_reg_index = heap_addr;
     heap_reg cur_regist = exec.heap_at(last_reg_index);
-    if(cur_regist.is_STR()){
-        return cur_regist.index;
-    }
-
-    while (cur_regist.type == heap_tag::REF && last_reg_index != cur_regist.index) {
-        //If the Ref cell doesnt reference itself, it will get dereferenced
+    while ((cur_regist.type == heap_tag::REF
+            || cur_regist.type == heap_tag::STR)
+           //If the Ref cell doesnt reference itself, it will get dereferenced
+           && last_reg_index != cur_regist.index) {
         last_reg_index = cur_regist.index;
         cur_regist = exec.heap_at(cur_regist.index);
-    }
-
-    //If the cur_reg is a STR reg, we return the FUN reg
-    if(cur_regist.is_STR()) {
-        return cur_regist.index;
     }
 
     return last_reg_index;

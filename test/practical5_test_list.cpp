@@ -98,7 +98,7 @@ auto setup_org = [&](string query) {
         REQUIRE(answer->at(0).binding == "list(a,list(b,nil))");
     }
     SECTION("lappend") {
-        setup_org("lappend(list(a,list(b,nil)),nil, Z).");
+        setup_org("lappend(list(a,list(b, nil)),nil, Z).");
 
         auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());

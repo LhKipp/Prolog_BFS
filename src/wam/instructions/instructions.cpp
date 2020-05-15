@@ -17,9 +17,8 @@ void wam::put_eval_functor(executor &executor, int expr_index, size_t regist_ind
 #ifdef DEBUG
     std::cout << "put_eval_functor" << std::endl;
 #endif
-    executor.push_back_STR();
-    executor.registers.at(regist_index) = executor.heap_back();
     executor.push_back_EVAL_FUN(expr_index);
+    executor.registers.at(regist_index) = {heap_tag::STR, (int)executor.heap_size() - 1};
 }
 
 void wam::put_constant(wam::executor &executor, int constant_i, size_t regist_index) {
@@ -42,9 +41,8 @@ void wam::put_structure(wam::executor &executor, int functor_index, size_t regis
 #ifdef DEBUG
     std::cout << "put_structure" << std::endl;
 #endif
-    executor.push_back_STR();
-    executor.registers.at(regist_index) = executor.heap_back();
     executor.push_back_FUN(functor_index);
+    executor.registers.at(regist_index) = {heap_tag::STR, (int)executor.heap_size() - 1};
 }
 
 //void wam::put_list(wam::executor &executor, const size_t regist_index) {
@@ -87,7 +85,7 @@ void wam::get_constant(wam::executor &executor, int constant_i, size_t x_reg) {
     std::cout << "get_constant" << std::endl;
 #endif
     size_t heap_addr = wam::deref(executor, executor.registers.at(x_reg).get_heap_i());
-    heap_reg& reg = executor.heap_modify(heap_addr);
+    const heap_reg reg = executor.heap_at(heap_addr);
 
     switch (reg.type){
         case heap_tag::CONS:{
@@ -99,7 +97,7 @@ void wam::get_constant(wam::executor &executor, int constant_i, size_t x_reg) {
         case heap_tag::REF:{
             //We bind a var from the query to a int
             executor.push_back_cons(constant_i);
-            reg.bind_to((int)executor.heap_size() - 1);
+            executor.heap_modify(heap_addr).bind_to((int) executor.heap_size() -1);
         }
             break;
         case heap_tag::FUN:
@@ -114,12 +112,12 @@ void wam::get_int(wam::executor &executor, int value, size_t x_reg) {
     std::cout << "get_int" << std::endl;
 #endif
     size_t heap_addr = wam::deref(executor, executor.registers.at(x_reg).get_heap_i());
-    heap_reg& reg = executor.heap_modify(heap_addr);
+    const heap_reg reg = executor.heap_at(heap_addr);
 
     if (reg.is_REF()) {
         //We bind a var from the query to a int
         executor.push_back_int(value);
-        reg.bind_to((int)executor.heap_size() - 1);
+        executor.heap_modify(heap_addr).bind_to((int)executor.heap_size() - 1);
     } else if (reg.is_INT()) {
         if (reg.get_int_val() != value) {
             executor.set_failed();
@@ -138,11 +136,8 @@ void wam::get_eval_fun_structure(wam::executor &executor, int eval_fun_i, size_t
 
     if (reg.type == heap_tag::REF) {
         //We bind a var from the query to a functor
-        executor.push_back_STR();
         executor.push_back_EVAL_FUN(eval_fun_i);
-
-        //exe.heap.size - 2 == H. The newly created ref cell will be bound
-        wam::bind(executor, addr, executor.heap_size() - 2);
+        executor.heap_modify(addr).bind_to((int) executor.heap_size() -1);
         executor.read_or_write = wam::mode::WRITE;
 
     } else if (reg.type == heap_tag::EVAL_FUN) {
@@ -170,13 +165,10 @@ void wam::get_functor(wam::executor &executor, int functor, size_t x_reg) {
 
     if (reg.type == heap_tag::REF) {
         //We bind a var from the query to a functor
-        executor.push_back_STR();
         executor.push_back_FUN(functor);
-
         //exe.heap.size - 2 == H. The newly created ref cell will be bound
-        wam::bind(executor, addr, executor.heap_size() - 2);
+        executor.heap_modify(addr).bind_to((int)executor.heap_size() -1);
         executor.read_or_write = wam::mode::WRITE;
-
     } else if (reg.type == heap_tag::FUN) {
         if (reg.index == functor) {
             executor.S = addr + 1;
@@ -190,23 +182,6 @@ void wam::get_functor(wam::executor &executor, int functor, size_t x_reg) {
     } else {//Default case
         executor.set_failed();
     }
-}
-
-
-/*
- * See page 14 top
- */
-void wam::bind(executor &exec, size_t address_a, size_t address_b) {
-#ifdef DEBUG
-    std::cout << "bind" << std::endl;
-#endif
-    if (exec.heap_at(address_a).index == address_a) {//If register a is unbound
-        exec.heap_modify(address_a).index = address_b;
-    } else {
-        assert(exec.heap_at(address_b).index == address_b);
-        exec.heap_modify(address_b).index = address_a;
-    }
-
 }
 
 void wam::unify_constant(wam::executor &executor, int constant_i, size_t x_reg) {
@@ -247,6 +222,7 @@ void wam::unify_constant(wam::executor &executor, int constant_i, size_t x_reg) 
 
     ++executor.S;
 }
+
 void wam::unify_int(wam::executor &executor, int int_val, size_t x_reg) {
 #ifdef DEBUG
     std::cout << "unify_int" << std::endl;
@@ -405,11 +381,13 @@ void wam::unify(executor &executor, size_t addr_a, size_t addr_b) {
         size_t d2 = wam::deref(executor, PDL.top());
         PDL.pop();
         if (d1 != d2) {
-            const heap_reg &reg1 = executor.heap_at(d1);
-            const heap_reg &reg2 = executor.heap_at(d2);
+            const heap_reg reg1 = executor.heap_at(d1);
+            const heap_reg reg2 = executor.heap_at(d2);
 
-            if (reg1.is_REF() || reg2.is_REF()) {
-                bind(executor, d1, d2);
+            if (reg1.is_REF()) {
+                executor.heap_modify(d1).bind_to(d2);
+            }else if(reg2.is_REF()){
+                executor.heap_modify(d2).bind_to(d1);
             } else {
                 if(reg1.type != reg2.type){
                     executor.set_failed();
@@ -516,7 +494,6 @@ void wam::get_value(wam::executor &executor, size_t x_reg, size_t a_reg) {
 #ifdef DEBUG
     std::cout << "get_value" << std::endl;
 #endif
-    //feature/parser TODO should be swapped ???
     unify(executor, executor.registers.at(x_reg).get_heap_i(), executor.registers.at(a_reg).get_heap_i());
 }
 

@@ -147,6 +147,22 @@ auto setup_org = [&](string query) {
             REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
+    SECTION("Append list properly coded - append 4") {
+        program_code.emplace_back("append([], Xs, Xs).");
+        program_code.emplace_back("append([X| Xs], Ys, [X | Ns]) :- append(Xs, Ys, Ns).");
+
+        setup_org("append([a,b],[], Z).");
+
+        auto found_answer = org.get_answer().get_answer();
+
+        map<std::string, std::string> actual_substs;
+        actual_substs["Z"] = "[a,b]";
+        REQUIRE(found_answer.has_value());
+        REQUIRE(found_answer->size() == 1);
+        for (auto &subst : *found_answer) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
+        }
+    }
     SECTION("List of list") {
         program_code.emplace_back("f([[a]]).");
 
