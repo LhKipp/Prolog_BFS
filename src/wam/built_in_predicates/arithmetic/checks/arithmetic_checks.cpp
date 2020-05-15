@@ -3,7 +3,7 @@
 //
 
 #include "arithmetic_checks.h"
-#include <wam/compiler/built_in_predicates/predicates/arithmetic/util/arith_functor.h>
+#include <wam/built_in_predicates/arithmetic/util/arith_functor.h>
 
 void wam::arithmetic::check_and_throw_if_wrong_values(executor &executor, const heap_reg &func, const heap_reg& lhs, const heap_reg& rhs) {
     if((func.index == get_int_div_i() || func.index == get_div_i())

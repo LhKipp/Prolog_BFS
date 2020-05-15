@@ -6,7 +6,7 @@
 #include "instructions.h"
 #include "util/instructions_util.h"
 #include "../bfs_organizer/bfs_organizer.h"
-#include <wam/compiler/built_in_predicates/predicates/arithmetic/util/arith_functor.h>
+#include <wam/built_in_predicates/arithmetic/util/arith_functor.h>
 
 //#define DEBUG
 #ifdef DEBUG

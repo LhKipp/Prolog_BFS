@@ -5,7 +5,7 @@
 #include "substitution_util.h"
 #include <wam/instructions/util/instructions_util.h>
 #include <wam/visual/unification_tree/util/node_binding.h>
-#include <wam/compiler/built_in_predicates/predicates/arithmetic/util/arith_functor.h>
+#include <wam/built_in_predicates/arithmetic/util/arith_functor.h>
 
 
 node wam::node_representation_of(const wam::executor &exec, size_t index, const wam::storage &storage) {

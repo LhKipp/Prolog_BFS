@@ -2,7 +2,7 @@
 // Created by leonhard on 08.05.20.
 //
 
-#include <wam/compiler/built_in_predicates/predicates/arithmetic/util/expr_evaluator.h>
+#include <wam/built_in_predicates/arithmetic/util/expr_evaluator.h>
 #include <wam/instructions/util/instructions_util.h>
 #include "is.h"
 

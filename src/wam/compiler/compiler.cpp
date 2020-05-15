@@ -4,7 +4,7 @@
 
 #include <unordered_map>
 #include <numeric>
-#include <wam/compiler/built_in_predicates/predicates/equals.h>
+#include <wam/built_in_predicates/equals.h>
 #include "compiler.h"
 #include "util/node_iteration.h"
 #include "util/node_util.h"
@@ -17,7 +17,7 @@
 #include "../bfs_organizer/data/storage.h"
 
 #include <wam/compiler/built_in_pred_comp.h>
-#include <wam/compiler/built_in_predicates/predicates/arithmetic/util/arith_functor.h>
+#include <wam/built_in_predicates/arithmetic/util/arith_functor.h>
 #include <wam/compiler/checks/undefined_var.h>
 
 /*

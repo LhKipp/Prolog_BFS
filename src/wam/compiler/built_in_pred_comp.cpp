@@ -5,7 +5,7 @@
 #include "built_in_pred_comp.h"
 
 #include <utility>
-#include <wam/compiler/built_in_predicates/predicates/arithmetic/is.h>
+#include <wam/built_in_predicates/arithmetic/is.h>
 
 using namespace wam::preds;
 std::vector<binary_built_in_pred> wam::preds::compile_built_in_predicates() {

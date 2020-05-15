@@ -7,7 +7,7 @@
 #include <cmath>
 #include <wam/instructions/util/instructions_util.h>
 #include <wam/runtime_errors/err_handling.h>
-#include <wam/compiler/built_in_predicates/predicates/arithmetic/checks/arithmetic_checks.h>
+#include <wam/built_in_predicates/arithmetic/checks/arithmetic_checks.h>
 
 wam::heap_reg wam::arithmetic::eval_arithmetic_reg(executor &exec, size_t rhs_heap_i){
     rhs_heap_i = deref(exec, rhs_heap_i);

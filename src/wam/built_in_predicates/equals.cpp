@@ -4,7 +4,7 @@
 
 #include "equals.h"
 #include <wam/instructions/util/instructions_util.h>
-#include <wam/compiler/built_in_predicates/predicates/arithmetic/util/arith_functor.h>
+#include <wam/built_in_predicates/arithmetic/util/arith_functor.h>
 
 node wam::preds::equals_node_tree() {
     node pred{STORED_OBJECT_FLAG::FUNCTOR, "=="};
