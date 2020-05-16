@@ -6,20 +6,6 @@
 #include "not_equals.h"
 #include "equals.h"
 
-node wam::preds::not_equals_node_tree() {
-    node pred{STORED_OBJECT_FLAG::FUNCTOR, "\\=="};
-    node lhs{STORED_OBJECT_FLAG ::VARIABLE, "Lhs"};
-    node rhs{STORED_OBJECT_FLAG ::VARIABLE, "Rhs"};
-
-    pred.code_info.line_begin = 0;
-    pred.code_info.line_end = 0;
-    pred.code_info.value = "Lhs \\== Rhs";
-    pred.add_to_children(lhs);
-    pred.add_to_children(rhs);
-
-    return pred;
-}
-
 void wam::preds::not_equals_check(wam::executor &executor, size_t lhs_x_reg_i, size_t rhs_x_reg_i) {
 #ifdef DEBUG
     std::cout << "equals_check" << std::endl;

@@ -6,20 +6,6 @@
 #include <wam/instructions/util/instructions_util.h>
 #include <wam/built_in_predicates/arithmetic/util/arith_functor.h>
 
-node wam::preds::equals_node_tree() {
-    node pred{STORED_OBJECT_FLAG::FUNCTOR, "=="};
-    node lhs{STORED_OBJECT_FLAG ::VARIABLE, "Lhs"};
-    node rhs{STORED_OBJECT_FLAG ::VARIABLE, "Rhs"};
-
-    pred.code_info.line_begin = 0;
-    pred.code_info.line_end = 0;
-    pred.code_info.value = "Lhs == Rhs";
-    pred.add_to_children(lhs);
-    pred.add_to_children(rhs);
-
-    return pred;
-}
-
 /*
  * This method assumes that if lhs_heap_i or rhs_heap_i is ref, it cant be further dereferenced
  */

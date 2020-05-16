@@ -12,8 +12,6 @@
 #include <wam/instructions/instructions.h>
 
 namespace wam::preds {
-    node is_node_tree();
-
     void is(wam::executor &exec, size_t lhs_x_reg_i, size_t rhs_x_reg_i);
 }
 

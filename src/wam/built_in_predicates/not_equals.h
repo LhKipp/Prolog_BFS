@@ -10,7 +10,6 @@
 
 namespace wam{
     namespace preds{
-        node not_equals_node_tree();
         void not_equals_check(wam::executor& exec, size_t lhs_x_reg_i, size_t rhs_x_reg_i);
     }
 }

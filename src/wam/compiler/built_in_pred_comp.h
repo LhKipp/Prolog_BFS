@@ -10,20 +10,25 @@
 #include <wam/compiler/util/seen_register.h>
 #include <wam/bfs_organizer/data/storage.h>
 
+#include <utility>
 
-namespace wam{
+
+namespace compiler{
     namespace preds{
         struct binary_built_in_pred{
             std::function<void(wam::executor&, size_t, size_t)> func;
-            node tree_representation;
+            std::string name;
 
-            binary_built_in_pred(std::function<void(wam::executor &, size_t, size_t)> func,
-                                 node treeRepresentation);
+            binary_built_in_pred(
+                    std::function<void(wam::executor &, size_t, size_t)> func, std::string name) :
+                    func(std::move(func)), name(std::move(name)){}
         };
 
+        node get_binary_pred(const std::string& name);
 
-        std::vector<binary_built_in_pred>
-        compile_built_in_predicates();
+
+        std::unordered_map<wam::functor_view, std::vector<wam::rule>>
+        compile_built_in_predicates(wam::storage &storage);
     }
 }
 

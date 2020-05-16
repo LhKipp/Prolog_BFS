@@ -6,20 +6,6 @@
 #include <wam/instructions/util/instructions_util.h>
 #include "is.h"
 
-node wam::preds::is_node_tree() {
-    node pred{STORED_OBJECT_FLAG::FUNCTOR, "is"};
-    node lhs{STORED_OBJECT_FLAG ::VARIABLE, "Lhs"};
-    node rhs{STORED_OBJECT_FLAG ::VARIABLE, "Rhs_expr"};
-
-    pred.code_info.line_begin = 0;
-    pred.code_info.line_end = 0;
-    pred.code_info.value = "Lhs is Expr";
-    pred.add_to_children(lhs);
-    pred.add_to_children(rhs);
-
-    return pred;
-}
-
 void wam::preds::is(wam::executor &exec, size_t lhs_x_reg_i, size_t rhs_x_reg_i){
     const heap_reg& rhs_value = wam::arithmetic::eval_arithmetic_reg(exec,
                                                                      exec.registers[rhs_x_reg_i].get_heap_i());
