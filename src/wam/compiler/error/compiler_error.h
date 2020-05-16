@@ -22,7 +22,7 @@ namespace compiler{
               unsigned column = std::numeric_limits<int>::max()) : type(type), source_info(source_info), description(description), column{column} {
         }
 
-        std::string get_description()const{
+        std::string get_cause()const{
             return description;
         }
 
@@ -32,6 +32,10 @@ namespace compiler{
 
         bool exists()const{
             return type != ERROR_TYPE ::NONE;
+        }
+
+        bool is_parser_error()const{
+            return type == ERROR_TYPE::PARSER_ERROR;
         }
 
         unsigned get_row()const{

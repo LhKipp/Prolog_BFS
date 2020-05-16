@@ -13,6 +13,7 @@ EMSCRIPTEN_BINDINGS(error) {
                 .function("get_row", &compiler::error::get_row)
                 .function("get_col", &compiler::error::get_col)
                 .function("exists", &compiler::error::exists)
-                .function("get_expected", &compiler::error::get_description)
+                .function("is_parser_error", &compiler::error::is_parser_error)
+                .function("get_cause", &compiler::error::get_cause)
         ;
 }
