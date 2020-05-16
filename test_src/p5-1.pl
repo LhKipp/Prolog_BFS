@@ -15,10 +15,10 @@
 %program_code.push_back("startKeller(raute).");
 %program_code.push_back("sigma_stern(nil).");
 %program_code.push_back("sigma_stern(list(W, Rs) :- sigma(W), sigma_stern(Rs).");
-%program_code.push_back("lappend(nil, Xs, Xs).");
-%program_code.push_back("lappend(list(X, Rs), Xs, list(X, Ns)) :- lappend(Rs, Xs, Ns).");
-%program_code.push_back("es(Zustand, list(W, WRs) , list(G,GRs), ZNext, WRs, Stack_neu) :- delta(Zustand, W, G, ZNext, WriteBack), lappend(Wri%teBack, GRs, Stack_neu).");
-%program_code.push_back("es(Zustand, W, list(G, GRs), ZNext, W, Stack_neu) :- delta(Zustand, nix, G, ZNext, WriteBack), lappend(WriteBack, GRs%, Stack_neu).");
+%program_code.push_back("lappendl(nil, Xs, Xs).");
+%program_code.push_back("lappendl(list(X, Rs), Xs, list(X, Ns)) :- lappendl(Rs, Xs, Ns).");
+%program_code.push_back("es(Zustand, list(W, WRs) , list(G,GRs), ZNext, WRs, Stack_neu) :- delta(Zustand, W, G, ZNext, WriteBack), lappendl(Wri%teBack, GRs, Stack_neu).");
+%program_code.push_back("es(Zustand, W, list(G, GRs), ZNext, W, Stack_neu) :- delta(Zustand, nix, G, ZNext, WriteBack), lappendl(WriteBack, GRs%, Stack_neu).");
 %program_code.push_back("es_plus(Z0, W, G, Z1, WNeu, GNeu) :- es(Z0, W, G, Z1 , WNeu, GNeu).");
 %program_code.push_back("es_plus(Z0, W, G, ZNeu, WRs, Stack_neu) :- es(Z0, W, G, ZNext, WRest, Stack), es_plus(ZNext, WRest, Stack, ZNeu, WRs,% Stack_neu).");
 %program_code.push_back("lVonM(Ws) :- startZ(Z0), zustand(EndZ), startKeller(K) , es_plus(Z0, Ws, list(K,nil), EndZ, nil, nil).");
@@ -40,10 +40,10 @@ startZ(readSigma).
 startKeller(raute).
 sigma_stern(nil).
 sigma_stern(list(W, Rs)) :- sigma(W), sigma_stern(Rs).
-lappend(nil, Xs, Xs).
-lappend(list(X, Rs), Xs, list(X, Ns)) :- lappend(Rs, Xs, Ns).
-es(Zustand, list(W, WRs) , list(G,GRs), ZNext, WRs, Stack_neu) :- delta(Zustand, W, G, ZNext, WriteBack), lappend(WriteBack, GRs, Stack_neu).
-es(Zustand, W, list(G, GRs), ZNext, W, Stack_neu) :- delta(Zustand, nix, G, ZNext, WriteBack), lappend(WriteBack, GRs, Stack_neu).
+lappendl(nil, Xs, Xs).
+lappendl(list(X, Rs), Xs, list(X, Ns)) :- lappendl(Rs, Xs, Ns).
+es(Zustand, list(W, WRs) , list(G,GRs), ZNext, WRs, Stack_neu) :- delta(Zustand, W, G, ZNext, WriteBack), lappendl(WriteBack, GRs, Stack_neu).
+es(Zustand, W, list(G, GRs), ZNext, W, Stack_neu) :- delta(Zustand, nix, G, ZNext, WriteBack), lappendl(WriteBack, GRs, Stack_neu).
 es_plus(Z0, W, G, Z1, WNeu, GNeu) :- es(Z0, W, G, Z1 , WNeu, GNeu).
 es_plus(Z0, W, G, ZNeu, WRs, Stack_neu) :- es(Z0, W, G, ZNext, WRest, Stack), es_plus(ZNext, WRest, Stack, ZNeu, WRs, Stack_neu).
 lVonM(Ws) :- startZ(Z0), zustand(EndZ), startKeller(K) , es_plus(Z0, Ws, list(K,nil), EndZ, nil, nil).

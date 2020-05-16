@@ -84,9 +84,6 @@ auto setup_org = [&](string query) {
         }
     }
     SECTION("Append list properly coded - Empty list") {
-        program_code.emplace_back("append([X| Xs], Ys, [X | Rs]) :- append(Xs, Ys, Rs).");
-        program_code.emplace_back("append([], Xs, Xs).");
-
         setup_org("append(Z, [a], [a]).");
 
         auto found_answer = org.get_answer().get_answer();
@@ -100,9 +97,6 @@ auto setup_org = [&](string query) {
         }
     }
     SECTION("Append list properly coded - append") {
-        program_code.emplace_back("append([X| Xs], Ys, [X | Rs]) :- append(Xs, Ys, Rs).");
-        program_code.emplace_back("append([], Xs, Xs).");
-
         setup_org("append(Z, [b, c], [a, b, c]).");
 
         auto found_answer = org.get_answer().get_answer();
@@ -116,9 +110,6 @@ auto setup_org = [&](string query) {
         }
     }
     SECTION("Append list properly coded - append 2") {
-        program_code.emplace_back("append([X| Xs], Ys, [X | Rs]) :- append(Xs, Ys, Rs).");
-        program_code.emplace_back("append([], Xs, Xs).");
-
         setup_org("append([a],Z, [a,b]).");
 
         auto found_answer = org.get_answer().get_answer();
@@ -132,9 +123,6 @@ auto setup_org = [&](string query) {
         }
     }
     SECTION("Append list properly coded - append 3") {
-        program_code.emplace_back("append([X| Xs], Ys, [X | Rs]) :- append(Xs, Ys, Rs).");
-        program_code.emplace_back("append([], Xs, Xs).");
-
         setup_org("append([a,b,c],[d,e], Z).");
 
         auto found_answer = org.get_answer().get_answer();
@@ -148,9 +136,6 @@ auto setup_org = [&](string query) {
         }
     }
     SECTION("Append list properly coded - append 4") {
-        program_code.emplace_back("append([], Xs, Xs).");
-        program_code.emplace_back("append([X| Xs], Ys, [X | Ns]) :- append(Xs, Ys, Ns).");
-
         setup_org("append([a,b],[], Z).");
 
         auto found_answer = org.get_answer().get_answer();

@@ -48,8 +48,8 @@ invList(list(s(A), list(A, B))) :- invList(list(A, B)).
 head(list(A, Bs), A) :- natList(Bs).
 tail(list(A, Bs), Bs) :- natList(Bs).
  
-append(nil, As, As).
-append(list(D, As), Bs, list(D, Cs)) :- append(As, Bs, Cs).
+appendl(nil, As, As).
+appendl(list(D, As), Bs, list(D, Cs)) :- appendl(As, Bs, Cs).
  
 % Aufgabe 20
 % Die leere Liste hat keine Elemente

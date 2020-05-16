@@ -157,13 +157,17 @@ public:
         return false;
     }
 
-    inline wam::functor_view to_functor_view() const {
-        assert(is_constant() || is_functor());
-        if (is_constant()) {
-            return wam::functor_view{name, 0};
-        } else {
-            return wam::functor_view{name, (int) children->size()};
+    inline int get_arity()const{
+        assert(is_functor() || is_evaluable_functor() || is_constant());
+        if(is_constant() || is_int()){
+            return 0;
         }
+        return (int)children->size();
+
+    }
+    inline wam::functor_view to_functor_view() const {
+        assert(is_constant() || is_functor() || is_evaluable_functor());
+        return wam::functor_view{name, get_arity()};
     }
 
     explicit node(const STORED_OBJECT_FLAG type) : node(type, "") {};

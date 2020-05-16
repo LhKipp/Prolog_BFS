@@ -18,6 +18,7 @@
 #include <wam/compiler/built_in_pred_comp.h>
 #include <wam/built_in_predicates/arithmetic/util/arith_functor.h>
 #include <wam/compiler/checks/undefined_var.h>
+#include <wam/compiler/checks/redefinition_of_built_in_pred.h>
 
 /*
  * Assigns register to an functor (constant is also viable)
@@ -483,7 +484,7 @@ wam::compile_program(const std::string_view program_code, wam::storage& storage)
     return result;
 }
 
-std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<node>& atoms, wam::storage& storage) {
+std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<node>& atoms, wam::storage& storage, bool compilation_of_built_in_preds) {
     using namespace std::placeholders;
 
     const auto permanent_count = assign_permanent_registers(atoms, true);
@@ -495,6 +496,9 @@ std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<no
 
     //Assign the registers for head + first body combined
     node &head_atom = atoms.at(0);
+    if(!compilation_of_built_in_preds){
+        compiler::check_and_throw_redefinition_of_built_in_pred(head_atom);
+    }
     const wam::functor_view head_atom_functor = head_atom.to_functor_view();
     node *first_body_atom = atoms.size() > 1 ? &atoms[1] : nullptr;
     const int x_a_reg_count = assign_registers(head_atom, first_body_atom);
