@@ -152,4 +152,3 @@ node::node(const parser::finished_list &l): type{STORED_OBJECT_FLAG::FUNCTOR}, n
     cur_parent->children->push_back(*(l.children.end() - 1));
     cur_parent->children->push_back(l.end);
 }
-

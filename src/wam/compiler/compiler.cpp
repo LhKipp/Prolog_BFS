@@ -181,33 +181,47 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term,
 
 
         if(node->is_int()){
-            *out = std::bind(wam::put_int, _1, std::stoi(node->name), node->get_x_reg());
+            *out = std::bind(wam::put_structure, _1,
+                             heap_reg{heap_tag::INT, std::stoi(node->name), 0},
+                             node->get_x_reg());
             ++out;
             return;
         }else if(node->is_constant()){
             const functor_view functor_view = node->to_functor_view();
-            *out = std::bind(wam::put_constant, _1, storage.functor_index_of(functor_view), node->get_x_reg());
+            *out = std::bind(wam::put_structure, _1,
+                             heap_reg{heap_tag::CONS, storage.functor_index_of(functor_view), 0},
+                             node->get_x_reg());
             ++out;
             return;
         }else if(node->is_evaluable_functor()){
             compiler::check_and_throw_undefined_var(outer_functor, *node, seen_registers);
             const int arith_func_i = wam::arithmetic::to_index(node->name);
-            *out = std::bind(wam::put_eval_functor, _1, arith_func_i, node->get_x_reg());
+            const int arity = wam::arithmetic::arity_of(arith_func_i);
+            *out = std::bind(wam::put_structure, _1,
+                             heap_reg{heap_tag::EVAL_FUN, arith_func_i, (short)arity},
+                             node->get_x_reg());
             ++out;
         }else{
             const functor_view functor_view = node->to_functor_view();
-            *out = std::bind(wam::put_structure, _1, storage.functor_index_of(functor_view), node->get_x_reg());
+            const int func_i = storage.functor_index_of(functor_view);
+            *out = std::bind(wam::put_structure, _1,
+                             heap_reg{heap_tag::FUN, func_i, (short)functor_view.arity},
+                             node->get_x_reg());
             ++out;
         }
 
         for (auto &childs : *node->children) {
             if(childs.is_int()){
-                *out = std::bind(wam::put_int, _1, std::stoi(childs.name), childs.get_x_reg());
+                *out = std::bind(wam::put_structure, _1,
+                                 heap_reg{heap_tag::INT, std::stoi(childs.name),0},
+                                 childs.get_x_reg());
                 ++out;
                 continue;
             }else if(childs.is_constant()){
                 const functor_view functor_view = childs.to_functor_view();
-                *out = std::bind(wam::put_constant, _1, storage.functor_index_of(functor_view), childs.get_x_reg());
+                *out = std::bind(wam::put_structure, _1,
+                                 heap_reg{heap_tag::CONS, storage.functor_index_of(functor_view), 0},
+                                 childs.get_x_reg());
                 ++out;
                 continue;
             }
@@ -290,20 +304,29 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term,
 //        seen_registers[func_reg] = true;
 
         if(node->is_int()){
-            *out = std::bind(wam::get_int, _1, std::stoi(node->name), node->get_x_reg());
+            *out = std::bind(wam::get_structure, _1,
+                             heap_reg{heap_tag::INT, std::stoi(node->name), 0},
+                             node->get_x_reg());
             ++out;
             return;
         }else if(node->is_evaluable_functor()){
             const int arith_func_i = wam::arithmetic::to_index(node->name);
-            *out = std::bind(wam::get_eval_fun_structure, _1, arith_func_i, node->get_x_reg());
+            const int arity = wam::arithmetic::arity_of(arith_func_i);
+            *out = std::bind(wam::get_structure, _1,
+                             heap_reg{heap_tag::EVAL_FUN, arith_func_i, (short)arity},
+                             node->get_x_reg());
             ++out;
         }else if(node->is_functor()){//func or cons
             const functor_view functor_view = node->to_functor_view();
-            *out = std::bind(wam::get_functor, _1, storage.functor_index_of(functor_view), node->get_x_reg());
+            *out = std::bind(wam::get_structure, _1,
+                             heap_reg{heap_tag::FUN, storage.functor_index_of(functor_view), (short) functor_view.arity},
+                             node->get_x_reg());
             ++out;
         }else if(node->is_constant()){
             const functor_view functor_view = node->to_functor_view();
-            *out = std::bind(wam::get_constant, _1, storage.functor_index_of(functor_view), node->get_x_reg());
+            *out = std::bind(wam::get_structure, _1,
+                             heap_reg{heap_tag::CONS, storage.functor_index_of(functor_view), 0},
+                             node->get_x_reg());
             ++out;
             return;
         }
@@ -311,12 +334,16 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term,
         //If node is functor
         for (auto &childs : *node->children) {
             if(childs.is_int()){
-                *out = std::bind(wam::unify_int, _1, std::stoi(childs.name), childs.get_x_reg());
+                *out = std::bind(wam::unify_structure, _1,
+                                 heap_reg{heap_tag::INT, std::stoi(childs.name), 0},
+                                 childs.get_x_reg());
                 ++out;
                 continue;
             }else if(childs.is_constant()){
                 const auto& fn_view = childs.to_functor_view();
-                *out = std::bind(wam::unify_constant, _1, storage.functor_index_of(fn_view), childs.get_x_reg());
+                *out = std::bind(wam::unify_structure, _1,
+                                 heap_reg{heap_tag::CONS, storage.functor_index_of(fn_view), 0},
+                                 childs.get_x_reg());
                 ++out;
                 continue;
             }

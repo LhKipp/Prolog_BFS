@@ -8,13 +8,8 @@
 #include "../executor/executor.h"
 
 namespace wam {
-    void put_eval_functor(executor& executor, int expr_index, size_t regist_index);
-
-    void put_constant(wam::executor &executor, int constant_i, size_t regist_index);
-    void put_int(executor &executor, int value, size_t regist_index);
-    void put_structure(executor& executor, int functor_index, size_t regist_index);
-
-//    void put_list(executor& executor, const size_t regist_index);
+    void put_structure(executor& executor, heap_reg structure, size_t regist_index);
+    void get_structure(executor& executor, heap_reg structure, size_t x_reg);
 
     void set_variable(executor& executor , size_t x_reg, short var_index);
     void set_permanent_variable(executor& executor , size_t y_reg, short var_index);
@@ -33,9 +28,7 @@ namespace wam {
     void unify_value(executor& executor, size_t x_reg);
     void unify_permanent_value(executor& executor, size_t y_reg);
 
-    void unify_constant(wam::executor &executor, int constant_i, size_t x_reg);
-    void unify_int(wam::executor &executor, int int_val, size_t x_reg);
-
+    void unify_structure(wam::executor &executor, heap_reg structure, size_t x_reg);
     void unify(executor& executor, size_t addr_a, size_t addr_b);
 
     void put_variable(executor& executor, size_t x_reg, size_t a_reg, short var_index);
