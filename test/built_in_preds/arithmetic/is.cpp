@@ -50,7 +50,7 @@ TEST_CASE("Variable is assigment 2"){
     org.load_query("e(Y), X is Y");
     auto ans = org.get_answer().get_answer();
     REQUIRE(ans.has_value());
-    REQUIRE(ans->at(1).binding == "1 + 1");
+    REQUIRE(ans->at(1).binding == "(1 + 1)");
     REQUIRE(ans->at(0).binding == std::to_string(2));
 }
 
@@ -84,11 +84,42 @@ TEST_CASE("Expression builder"){
     auto ans = org.get_answer().get_answer();
     has_all_of_these(ans,
                      {"X" , "1",
-                      "A", "1 + 1",
-                      "B", "1 + 1 + 1",
-                      "C", "1 + 1 + 1 * 2",
-                      "D", "1 + 1 + 1 * 2 * 2",
-                      "E", "1 + 1 + 1 * 2 * 2 - 1",
-                      "R", "1 + 1 + 1 * 2 * 2 - 1 // 2",
+                      "A", "(1 + 1)",
+                      "B", "((1 + 1) + 1)",
+                      "C", "(((1 + 1) + 1) * 2)",
+                      "D", "((((1 + 1) + 1) * 2) * 2)",
+                      "E", "(((((1 + 1) + 1) * 2) * 2) - 1)",
+                      "R", "((((((1 + 1) + 1) * 2) * 2) - 1) // 2)",
                       "V", "5"});
+
+    auto tree = org.get_unification_tree();
+    REQUIRE(tree.get_query_as_str() == "add(X, A)");
+    auto cont = tree.get_children()[0];
+    auto q2 = cont.get_continuing_query();
+    REQUIRE(q2.get_query_as_str() == "add((X + 1), B)");
+    auto cont2 = q2.get_children()[0];
+    auto q3 = cont2.get_continuing_query();
+    REQUIRE(q3.get_query_as_str() == "double(((X + 1) + 1), C)");
+}
+
+TEST_CASE("Expression builder 2") {
+    bfs_organizer org;
+    const char *prog =
+            "add(X, X + 1)."
+            "min(X, X - 1)."
+            "double(X, X * 2)."
+            "div(X, X // 2).";
+    org.load_program(prog);
+    org.load_query("X is 3,"
+                   "double(X, R),"
+                   "add(R, R2),"
+                   "div(R2, R3),"
+                   "Y is R3");
+    auto ans = org.get_answer().get_answer();
+    has_all_of_these(ans,
+                     {"X", "3",
+                      "R", "(3 * 2)",
+                      "R2", "((3 * 2) + 1)",
+                      "R3", "(((3 * 2) + 1) // 2)",
+                      "Y", "3"});
 }

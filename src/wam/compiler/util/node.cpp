@@ -59,11 +59,14 @@ std::string node::to_string() const {
     }
     if(is_evaluable_functor()){//
         switch(children->size()){
+            //TODO output without nodes without outer brackets if not needed
+            //E.g. (1 + 1) + 1 -> 1 + 1 + 1
+            //But  (1 + 1) * 2 -> (1 + 1) * 2 as brackets have meaning
             case 1:{
-                return name + '(' + children->at(0).to_string() + ')';
+                return '(' + name + '(' + children->at(0).to_string() + ')' + ')';
             }
             case 2:
-                return children->at(0).to_string() + ' ' +  name + ' ' + children->at(1).to_string();
+                return '(' + children->at(0).to_string() + ' ' +  name + ' ' + children->at(1).to_string() + ')';
             default:
                 //Never happens
                 assert(false);

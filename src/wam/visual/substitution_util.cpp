@@ -10,16 +10,13 @@
 
 node wam::node_representation_of(const wam::executor &exec, size_t index, const wam::storage &storage) {
     using namespace wam;
-    heap_reg reg = exec.heap_at((index));
-    if(reg.is_REF()){
-        index = wam::deref(exec, reg);
-        reg = exec.heap_at((index));
-    }
+    const size_t heap_i = wam::deref(exec, index);
+    heap_reg reg = exec.heap_at(heap_i);
 
     if(reg.is_REF()){
         //Unbound ref cell
-        node var_node{STORED_OBJECT_FLAG ::VARIABLE, storage.variables[reg.var_index].name};
-        var_node.set_heap_index(index);
+        node var_node{STORED_OBJECT_FLAG ::VARIABLE, storage.variables[reg.get_var_i()].name};
+        var_node.set_heap_index(heap_i);
         return var_node;
     }
 
@@ -29,42 +26,32 @@ node wam::node_representation_of(const wam::executor &exec, size_t index, const 
         return int_node;
     }
 
-    if (reg.is_STR()) {
-        index = reg.index;
-    }
-
-    //At this point the register will be an FUN cell
-    reg = exec.heap_at(index);
-    const functor_view &functor = storage.functors[reg.index];
-
-    if(functor.is_constant()){
+    if(reg.is_CONS()){
+        const functor_view &functor = storage.functors[reg.get_cons_i()];
         return node{STORED_OBJECT_FLAG ::CONSTANT, functor.name};
     }
     //If the functor is the empty list, we return only "[]" if it is not end-marker for another list.
     // e.g. [a|[]] should be outputed as [a]
-    if (functor.is_empty_list()) {
-        return node{STORED_OBJECT_FLAG ::FUNCTOR, "["};
+    if (reg.is_FUN()) {
+        const functor_view &functor = storage.functors[reg.get_fun_i()];
+        node func{STORED_OBJECT_FLAG ::FUNCTOR, functor.name};
+        for (int i = 0; i < functor.arity ; ++i) {
+            func.children->emplace_back(node_representation_of(exec, heap_i + i + 1, storage));
+        }
+        return func;
     }
 
-    if (functor.is_append_functor()) {
-        node append_func{STORED_OBJECT_FLAG ::FUNCTOR, "|"};
-        append_func.children->emplace_back(node_representation_of(exec, index + 1, storage));
+    if(reg.is_EVAL_FUN()){
+        const functor_view &functor = wam::arithmetic::functor_of(reg.get_eval_fun_i());
+        node func{STORED_OBJECT_FLAG ::EVALUABLE_FUNCTOR, functor.name};
+        for (int i = 0; i < functor.arity ; ++i) {
+            func.children->emplace_back(node_representation_of(exec, heap_i + i + 1, storage));
+        }
+        return func;
     }
 
-    //If the functor is a list
-    if (functor.is_list()) {
-        node list{STORED_OBJECT_FLAG ::FUNCTOR, "["};
-        list.children->emplace_back(node_representation_of(exec, index + 1, storage));
-        list.children->emplace_back(node_representation_of(exec, index + 2, storage));
-        return list;
-    }
-
-    //The functor is a normal functor
-    node func_node{STORED_OBJECT_FLAG ::FUNCTOR, functor.name};
-    for (int i = 1; i <= functor.arity ; ++i) {
-        func_node.children->emplace_back(node_representation_of(exec, index + i, storage));
-    }
-    return func_node;
+    //Assert everything handled
+    assert(false);
 }
 
 //TODO recursive function, could be optimized through use of stack
@@ -142,13 +129,13 @@ wam::string_representation_of(const executor &executor,
             const auto functor = wam::arithmetic::functor_of(reg.get_eval_fun_i());
             std::string result;
             if(functor.arity == 2){
-                return string_representation_of(executor, index + 1, storage)
+                return '(' + string_representation_of(executor, index + 1, storage)
                 + ' ' + functor.name + ' '
-                + string_representation_of(executor, index + 2, storage);
+                + string_representation_of(executor, index + 2, storage) + ')';
             }else if(functor.arity == 1){
-                return functor.name + '('
+                return '(' + functor.name + '('
                 + string_representation_of(executor, index + 1, storage)
-                + ')';
+                + "))";
             }else{
                 assert(false);
             }

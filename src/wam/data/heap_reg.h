@@ -67,6 +67,11 @@ namespace wam {
             this->index = index;
         }
 
+        inline int get_var_i(){
+            assert(is_REF());
+            return var_index;
+        }
+
         std::string type_as_str();
 
         /*
