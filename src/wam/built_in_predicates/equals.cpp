@@ -4,14 +4,9 @@
 
 #include "equals.h"
 #include <wam/instructions/util/instructions_util.h>
-#include <wam/built_in_predicates/arithmetic/util/arith_functor.h>
 
-/*
- * This method assumes that if lhs_heap_i or rhs_heap_i is ref, it cant be further dereferenced
- */
-
-bool wam::preds::functor_equals(const executor& exec, const functor_view &fn_view, size_t lhs, size_t rhs) {
-    for (int i = 0; i < fn_view.arity; ++i) {
+bool wam::preds::functor_equals(const executor& exec, int arity, size_t lhs, size_t rhs) {
+    for (int i = 0; i < arity; ++i) {
         if(!heap_reg_equals(exec,
                             lhs + 1 + i,
                             rhs + 1 + i)) {
@@ -26,30 +21,20 @@ bool wam::preds::heap_reg_equals(const wam::executor& executor, size_t lhs_heap_
     rhs_heap_i = wam::deref(executor, rhs_heap_i);
     const heap_reg lhs = executor.heap_at(lhs_heap_i);
     const heap_reg rhs = executor.heap_at(rhs_heap_i);
-    if(lhs.type != rhs.type){
+    //shallow check
+    if(lhs != rhs){
         return false;
     }
-    switch (lhs.type){
-        case heap_tag::REF:
-            return lhs_heap_i == rhs_heap_i;
-        case heap_tag::CONS:
-            return lhs.get_cons_i() == rhs.get_cons_i();
-        case heap_tag::INT:
-            return lhs.get_int_val() == rhs.get_int_val();
-        case heap_tag::FUN:{
-            if(lhs.get_fun_i() != rhs.get_fun_i()) return false;
-            const functor_view &functor = executor.functor_of(Storage_FUN_index {lhs.index});
-            return functor_equals(executor, functor, lhs_heap_i, rhs_heap_i);
-        }
-        case heap_tag::EVAL_FUN: {
-            if (lhs.get_eval_fun_i() == rhs.get_eval_fun_i()) return false;
-            const functor_view &functor = wam::arithmetic::functor_of(lhs.get_eval_fun_i());
-            return functor_equals(executor, functor, lhs_heap_i, rhs_heap_i);
-        }
-        case heap_tag::STR:
-        default:
-            assert(false);
+    //for refs assert heap_i equals also
+    if(lhs.is_REF()){
+        return lhs_heap_i == rhs_heap_i;
     }
+    //For functors we also check the children
+    if(lhs.is_EVAL_FUN() || lhs.is_FUN()){
+        return functor_equals(executor, lhs.get_arity(), lhs_heap_i, rhs_heap_i);
+    }
+
+    return true;
 }
 
 void wam::preds::equals_check(wam::executor &executor, size_t lhs_x_reg_i, size_t rhs_x_reg_i) {

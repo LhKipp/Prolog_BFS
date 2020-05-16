@@ -253,8 +253,7 @@ void wam::unify(executor &executor, size_t addr_a, size_t addr_b) {
                             executor.set_failed();
                             return;
                         }
-                        const functor_view &functor1 = executor.functor_of(Storage_FUN_index{reg1.get_fun_i()});
-                        for (int i = 1; i <= functor1.arity; ++i) {
+                        for (int i = 1; i <= reg1.get_arity(); ++i) {
                             PDL.push(d1 + i);
                             PDL.push(d2 + i);
                         }
@@ -265,8 +264,7 @@ void wam::unify(executor &executor, size_t addr_a, size_t addr_b) {
                             executor.set_failed();
                             return;
                         }
-                        int arity = wam::arithmetic::arity_of(reg1.get_eval_fun_i());
-                        for (int i = 1; i <= arity; ++i) {
+                        for (int i = 1; i <= reg1.get_arity(); ++i) {
                             PDL.push(d1 + i);
                             PDL.push(d2 + i);
                         }

@@ -14,7 +14,7 @@ namespace wam{
 
         bool heap_reg_equals(const wam::executor& exec, size_t lhs, size_t rhs);
 
-        bool functor_equals(const wam::executor& exec, const functor_view &fn_view, size_t lhs, size_t rhs);
+        bool functor_equals(const wam::executor& exec, int arity, size_t lhs, size_t rhs);
 
     }
 }
