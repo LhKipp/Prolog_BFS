@@ -100,3 +100,26 @@ window.onbeforeunload = function () {
 setInterval(function () {
     autosave();
 }, autosaveInterval);
+
+/*
+ * Make all Bootstrap modals draggable. Specifically helpful when moving the
+ * tree view away, so you can still see query or program code.
+ * Source: https://stackoverflow.com/questions/12571922/make-bootstrap-twitter-dialog-modal-draggable 
+ */
+$(".modal-header").on("mousedown", function(mousedownEvt) {
+    var $draggable = $(this);
+    var x = mousedownEvt.pageX - $draggable.offset().left,
+        y = mousedownEvt.pageY - $draggable.offset().top;
+    $("body").on("mousemove.draggable", function(mousemoveEvt) {
+        $draggable.closest(".modal-content").offset({
+            "left": mousemoveEvt.pageX - x,
+            "top": mousemoveEvt.pageY - y
+        });
+    });
+    $("body").one("mouseup", function() {
+        $("body").off("mousemove.draggable");
+    });
+    $draggable.closest(".modal").one("bs.modal.hide", function() {
+        $("body").off("mousemove.draggable");
+    });
+});
