@@ -99,8 +99,9 @@ class InterpreterHandler {
                 return result.getError().getExplanation();
             }
         } catch (err) {
-            alert.show("Error getting result. Probably ran out of memory (infinite loop).");
+            alert.show("Error getting result. Probably ran out of memory (infinite loop). Please refresh the page.");
             console.log(err);
+            return "Error getting result. Probably ran out of memory (infinite loop). Please refresh the page.";
         }
     }
     
@@ -139,7 +140,9 @@ class InterpreterHandler {
      */
     kill() {
         this.interpreter.clear();
+        delete this.interpreter;
         this.resultDiv.destroy();
+        console.log("Clearing instanace " + this.instanceid);
     }
     
 }

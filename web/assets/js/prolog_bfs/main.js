@@ -65,7 +65,12 @@ function onRunClicked() {
     var inputQuery = ace.edit("query").getValue();
 
     //load program to the interpreter and run it
-    instances[instanceid].tryExecute(inputProgram, inputQuery);
+    try {
+        instances[instanceid].tryExecute(inputProgram, inputQuery);
+    } catch (err) {
+        alert.show("Error getting result. Probably ran out of memory (infinite loop). Please refresh the page.");
+        console.log(err);
+    }
     
     // make sure result is visible
     scrollResultsToBottom();
