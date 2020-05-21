@@ -10,11 +10,12 @@ using namespace wam;
 
 
 class PrologBFSWasmWrapper{
-    wam::bfs_organizer bfs_organizer;
+    wam::bfs_organizer *bfs_organizer = new wam::bfs_organizer;
 public:
 
     void clear(){
-        bfs_organizer.clear();
+        bfs_organizer->clear();
+        delete bfs_organizer;
     }
 
     /**
@@ -22,7 +23,7 @@ public:
  the code to validate
      */
     compiler::error validateProgramCode(std::string code){
-        return bfs_organizer.validate_program(code);
+        return bfs_organizer->validate_program(code);
     }
 
     /**
@@ -30,23 +31,23 @@ public:
  the code to validate
      */
     compiler::error validateQueryCode(std::string code){
-        return bfs_organizer.validate_query(code);
+        return bfs_organizer->validate_query(code);
     }
 
     compiler::error loadProgram(std::string prog) {
-        return bfs_organizer.load_program(prog);
+        return bfs_organizer->load_program(prog);
     }
 
     compiler::error loadQuery(std::string query) {
-        return bfs_organizer.load_query(query);
+        return bfs_organizer->load_query(query);
     }
 
     wam::result getAnswer() {
-        return bfs_organizer.get_answer();
+        return bfs_organizer->get_answer();
     }
 
     wam::query_node getUnificationTree() const{
-        return bfs_organizer.get_unification_tree();
+        return bfs_organizer->get_unification_tree();
     }
 };
 
