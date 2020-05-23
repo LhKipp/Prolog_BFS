@@ -25,9 +25,11 @@ namespace wam{
         using base = base_grammar<Iterator, _query_grammar::result_t(), Skipper>;
         query_grammar() : query_grammar::base_grammar(query) {
             namespace phoenix = boost::phoenix;
+            using boost::spirit::repository::qi::iter_pos;
 
-            query = (qi::eps > base::atom % ',' > qi::lit('.'))
-                   [phoenix::bind(&make_to_query, phoenix::ref(qi::_val), qi::_1)];
+            query = (iter_pos > (base::atom % ',') > qi::no_skip[iter_pos] > qi::lit('.'))
+                   [phoenix::bind(&add_source_code_info<Iterator>, phoenix::ref(qi::_val), qi::_1, qi::_3),
+                   phoenix::bind(&make_to_query, phoenix::ref(qi::_val), qi::_2)];
 
             query.name("query");
 
