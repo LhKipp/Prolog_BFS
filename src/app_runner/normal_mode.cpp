@@ -43,7 +43,13 @@ namespace app_runner {
 
             interpreter.load_query(cur_input);
 
-            auto answer = interpreter.get_answer();
+            auto result = interpreter.get_answer();
+            if(result.is_error()){
+                //TODO Better error handling
+                std::cout << "error: " << result.get_error().explanation << std::endl;
+                continue;
+            }
+            auto answer = result.get_answer();
             if(!answer){
                 std::cout << "false" << endl;
             }
@@ -60,7 +66,12 @@ namespace app_runner {
                 std::string more_answer_request;
                 getline(std::cin, more_answer_request);
                 if(more_answer_request  == ";"){
-                    answer = interpreter.get_answer();
+                    result = interpreter.get_answer();
+                    if(result.is_error()){
+                        //TODO better error handling
+                        std::cout << "Error: " << result.get_error().explanation << std::endl;
+                    }
+                    answer = result.get_answer();
                     if(!answer){
                         std::cout << "false"<<std::endl;
                         break;

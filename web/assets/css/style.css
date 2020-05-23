@@ -68,3 +68,8 @@ html, body {
     border: 1px solid lightgray;
     margin-bottom: 1em;
 }
+
+/* Indicate that modals can be moved, see https://stackoverflow.com/questions/12571922/make-bootstrap-twitter-dialog-modal-draggable */
+.modal-header {
+    cursor: move;
+}

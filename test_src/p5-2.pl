@@ -23,8 +23,8 @@ deltaf(z1,nix,c,z2,[]).
 start(z0).
 kellersymbol(c).
  
-append([],Xs,Xs).
-append([X|Xs] , Ys, [X|Rs]) :- append(Xs, Ys, Rs).
+appendl([],Xs,Xs).
+appendl([X|Xs] , Ys, [X|Rs]) :- appendl(Xs, Ys, Rs).
 %abbildung 7.2 
 sigma_stern([]).
 sigma_stern([X|Ws]):-sigma(X),sigma_stern(Ws).
@@ -36,5 +36,5 @@ lVonM(Ws):-start(S),kellersymbol(Boden),zustand(NewState),es_plus(S,Ws,[Boden],N
 es_plus(S,Ws,Stacks,NeuS,WNs,NeuStacks):-es(S,Ws,Stacks,NeuS,WNs,NeuStacks).
 es_plus(S,Ws,Stacks,NeuerZu,WNs,NeuStacks):-es(S, Ws, Stacks, NeuS, Wes, NeuStackess),es_plus(NeuS,Wes,NeuStackess,NeuerZu,WNs,NeuStacks).
 %definition 9.4
-es(S,[A|W],[Top|Stacks],NeuS,W,NeuStacks):-deltaf(S, A, Top, NeuS, AufStack),append(AufStack, Stacks, NeuStacks).
-es(S,W,[Top|Stacks],NeuS,W,NeuStacks):-deltaf(S,nix,Top, NeuS, AufStack),append(AufStack, Stacks, NeuStacks).
+es(S,[A|W],[Top|Stacks],NeuS,W,NeuStacks):-deltaf(S, A, Top, NeuS, AufStack),appendl(AufStack, Stacks, NeuStacks).
+es(S,W,[Top|Stacks],NeuS,W,NeuStacks):-deltaf(S,nix,Top, NeuS, AufStack),appendl(AufStack, Stacks, NeuStacks).

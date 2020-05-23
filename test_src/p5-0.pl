@@ -18,18 +18,18 @@ delta(za, nix, s, za, [b, s, b]).
 startz(za).
 kellerboden(s).
 
-append([], Xs,Xs).
-append([X|Xs], Ys,[X | Rs]) :- append(Xs, Ys , Rs).
+appendl([], Xs,Xs).
+appendl([X|Xs], Ys,[X | Rs]) :- appendl(Xs, Ys , Rs).
 
 % aufgabe b
 % einzelschrittrelation (9.4)
 es(Zakt, [A | Ws], [Kpop | Kbleibt], Zneu, Ws, Kapp) :-
     delta(Zakt, A, Kpop, Zneu, Kpush),
-    append(Kpush, Kbleibt, Kapp).
+    appendl(Kpush, Kbleibt, Kapp).
 
 es(Zakt, Ws, [Kpop | Kbleibt], Zneu, Ws, Kapp) :-
     delta(Zakt, nix, Kpop, Zneu, Kpush),
-    append(Kpush, Kbleibt, Kapp).
+    appendl(Kpush, Kbleibt, Kapp).
 
 % transitiver abschluss - mehrere Schritte
 es_plus(Zakt, W, K, Zneu, Wneu, Kneu)

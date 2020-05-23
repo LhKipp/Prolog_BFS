@@ -24,7 +24,7 @@ auto setup_org = [&](string query) {
 
         setup_org("p([A,B], [A,b,C], Z).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["A"] = "a";
@@ -43,7 +43,7 @@ auto setup_org = [&](string query) {
 
         setup_org("append([a,b]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["Z"] = "b";
@@ -58,7 +58,7 @@ auto setup_org = [&](string query) {
 
         setup_org("append([a,b,c]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         REQUIRE(found_answer.has_value());
@@ -73,7 +73,7 @@ auto setup_org = [&](string query) {
 
         setup_org("f([a| B ]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["B"] = "[b]";
@@ -84,12 +84,9 @@ auto setup_org = [&](string query) {
         }
     }
     SECTION("Append list properly coded - Empty list") {
-        program_code.emplace_back("append([X| Xs], Ys, [X | Rs]) :- append(Xs, Ys, Rs).");
-        program_code.emplace_back("append([], Xs, Xs).");
-
         setup_org("append(Z, [a], [a]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["Z"] = "[]";
@@ -100,15 +97,12 @@ auto setup_org = [&](string query) {
         }
     }
     SECTION("Append list properly coded - append") {
-        program_code.emplace_back("append([X| Xs], Ys, [X | Rs]) :- append(Xs, Ys, Rs).");
-        program_code.emplace_back("append([], Xs, Xs).");
+        setup_org("append(Z, [b, c], [a, b, c]).");
 
-        setup_org("append(Z, [c], [a,b,c]).");
-
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
-        actual_substs["Z"] = "[a,b]";
+        actual_substs["Z"] = "[a]";
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
@@ -116,15 +110,12 @@ auto setup_org = [&](string query) {
         }
     }
     SECTION("Append list properly coded - append 2") {
-        program_code.emplace_back("append([X| Xs], Ys, [X | Rs]) :- append(Xs, Ys, Rs).");
-        program_code.emplace_back("append([], Xs, Xs).");
+        setup_org("append([a],Z, [a,b]).");
 
-        setup_org("append([a],Z, [a,b,c]).");
-
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
-        actual_substs["Z"] = "[b,c]";
+        actual_substs["Z"] = "[b]";
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
@@ -132,15 +123,25 @@ auto setup_org = [&](string query) {
         }
     }
     SECTION("Append list properly coded - append 3") {
-        program_code.emplace_back("append([X| Xs], Ys, [X | Rs]) :- append(Xs, Ys, Rs).");
-        program_code.emplace_back("append([], Xs, Xs).");
-
         setup_org("append([a,b,c],[d,e], Z).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["Z"] = "[a,b,c,d,e]";
+        REQUIRE(found_answer.has_value());
+        REQUIRE(found_answer->size() == 1);
+        for (auto &subst : *found_answer) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
+        }
+    }
+    SECTION("Append list properly coded - append 4") {
+        setup_org("append([a,b],[], Z).");
+
+        auto found_answer = org.get_answer().get_answer();
+
+        map<std::string, std::string> actual_substs;
+        actual_substs["Z"] = "[a,b]";
         REQUIRE(found_answer.has_value());
         REQUIRE(found_answer->size() == 1);
         for (auto &subst : *found_answer) {
@@ -152,7 +153,7 @@ auto setup_org = [&](string query) {
 
         setup_org("f([A]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["A"] = "[a]";
@@ -167,7 +168,7 @@ auto setup_org = [&](string query) {
 
         setup_org("f([A, B | C]).");
 
-        auto found_answer = org.get_answer();
+        auto found_answer = org.get_answer().get_answer();
 
         map<std::string, std::string> actual_substs;
         actual_substs["A"] = "[a]";
@@ -179,4 +180,70 @@ auto setup_org = [&](string query) {
             REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
+
+    SECTION("Var to list1") {
+        std::string code = "r([a, b, c]).";
+        bfs_organizer org;
+        org.load_program(code);
+        org.load_query("r(Z).");
+        auto found_answer = org.get_answer().get_answer();
+        REQUIRE(found_answer.has_value());
+    }
+
+    SECTION("Var to list2") {
+        std::string code = "g([[a,b], [a,Y] | X]).";
+        bfs_organizer org;
+        org.load_program(code);
+        org.load_query("g(Z).");
+        auto found_answer = org.get_answer().get_answer();
+        REQUIRE(found_answer.has_value());
+    }
+    SECTION("Var to list3") {
+        std::string code = "r(f(a)) :- g(H)."
+                           "g(d).";
+        bfs_organizer org;
+        org.load_program(code);
+        org.load_query("r(Z).");
+        auto found_answer = org.get_answer().get_answer();
+        REQUIRE(found_answer.has_value());
+    }
+
+    SECTION("Var to list3") {
+        std::string code = "r([a, b, c]) :- g(H)."
+//                           ", h(Y), c(Z)."
+                           "g([[d,e], [f, Y ] | X]).";
+//                           "h([])."
+//                           "c([X, Y]).";
+
+        bfs_organizer org;
+        org.load_program(code);
+        org.load_query("r(Z).");
+        auto found_answer = org.get_answer().get_answer();
+
+        map<std::string, std::string> actual_substs;
+        actual_substs["Z"] = "[a,b,c]";
+        REQUIRE(found_answer.has_value());
+        REQUIRE(found_answer->size() == 1);
+        for (auto &subst : *found_answer) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
+        }
+    }
+
+    SECTION("Var to list2") {
+        std::string code = "g([[a,Y]]).";
+
+        bfs_organizer org;
+        org.load_program(code);
+        org.load_query("g(Z).");
+        auto found_answer = org.get_answer().get_answer();
+        REQUIRE(found_answer.has_value());
+
+        map<std::string, std::string> actual_substs;
+        actual_substs["Z"] = "[[a,Y]]";
+        REQUIRE(found_answer->size() == 1);
+        for (auto &subst : *found_answer) {
+            REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
+        }
+    }
 }
+

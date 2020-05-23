@@ -6,6 +6,8 @@
 #define PROLOG_BFS_SEEN_REGISTER_H
 
 #include <cstddef>
+#include "node.h"
+
 namespace wam::helper {
     enum class register_type {
         Y_REG,
@@ -27,6 +29,8 @@ namespace wam::helper {
         seen_register& operator=(const seen_register&)=default;
         seen_register& operator=(seen_register&&)=default;
 
+        seen_register(const node& var_node);
+
         bool is_a_reg()const{
             return type == register_type ::A_REG;
         }
@@ -43,6 +47,7 @@ namespace wam::helper {
             return !(rhs == *this);
         }
     };
+
 
 }
 namespace std{

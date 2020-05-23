@@ -15,12 +15,12 @@ TEST_CASE("p3-1 test") {
 
     SECTION("[]") {
         org.load_query("lvonM([]).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
     }
     SECTION("[a]") {
         org.load_query("lvonM([a]).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
     }
     SECTION("lVonM") {
@@ -292,11 +292,11 @@ TEST_CASE("p3-1 test") {
         solutions.push_back("[b,b,nix,b,b,b,b,b]");
         solutions.push_back("[b,b,nix,b,a,b,b,b]");
 
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
 
         for (int i = 0; i < 25; i++) {
-            answer = org.get_answer();
+            answer = org.get_answer().get_answer();
             REQUIRE(answer.has_value());
             for (auto &elem : *answer) {
                 auto found = std::find(solutions.begin(), solutions.end(), elem.binding);

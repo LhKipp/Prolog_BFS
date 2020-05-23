@@ -40,19 +40,20 @@ void wam::point_node_to_heap(node &n, const wam::executor& executor) {
     assert(n.is_variable());
     if(n.is_permanent()){
         assert(executor.environments.back().permanent_registers.size() > n.get_y_reg());
-        n.set_heap_index(executor.environments.back().permanent_registers.at(n.get_y_reg()).index);
+        n.set_heap_index(executor.environments.back().permanent_registers.at(n.get_y_reg()).get_heap_i());
     }else{
         assert(executor.registers.size() > n.get_x_reg());
-        n.set_heap_index(executor.registers.at(n.get_x_reg()).index);
+        n.set_heap_index(executor.registers.at(n.get_x_reg()).get_heap_i());
     }
 }
 node wam::point_node_to_heap(const node &n, const wam::executor& executor) {
+    //Just because n is a variable doesnt mean the reg of n is also a REF!!!
     assert(n.is_variable());
     node copy{n};
     if(n.is_permanent()){
-        copy.set_heap_index(executor.environments.back().permanent_registers.at(n.get_y_reg()).index);
+        copy.set_heap_index(executor.environments.back().permanent_registers.at(n.get_y_reg()).get_heap_i());
     }else{
-        copy.set_heap_index(executor.registers.at(n.get_x_reg()).index);
+        copy.set_heap_index(executor.registers.at(n.get_x_reg()).get_heap_i());
     }
     return copy;
 }

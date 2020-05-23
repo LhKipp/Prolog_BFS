@@ -6,7 +6,7 @@
 #define PROLOG_BFS_EXECUTOR_H
 
 
-#include "../data/regist.h"
+#include "wam/data/heap_reg.h"
 #include "../data/functor_view.h"
 #include "util/mode.h"
 #include "../data/var_reg_substitution.h"
@@ -23,6 +23,7 @@
 #include <cassert>
 #include <iostream>
 #include <variant>
+#include <wam/bfs_organizer/data/error/runtime_error.h>
 
 namespace wam {
 
@@ -35,6 +36,9 @@ namespace wam {
     };
     using FUN_index = NamedType<int, FUN_Parameter>;
     using STR_index = NamedType<int, STR_Parameter>;
+    using Storage_FUN_index = NamedType<int, struct Storage_FUN_index_s>;
+    using Storage_Var_index = NamedType<int, struct Storage_Var_index_s>;
+
 
     struct executor {
 
@@ -56,11 +60,13 @@ namespace wam {
 
         //Every child may need to overwrite some parts of the heap of the parent. As many Childs rely on one heap
         //a particular child is not allowed to write in parent heap. So we need to store local changes
-        std::unordered_map<size_t, regist> changes_to_parent{};
+        std::unordered_map<size_t, heap_reg> changes_to_parent{};
 
-        std::vector<regist> heap{};
+        std::vector<heap_reg> heap{};
 
         std::vector<std::unique_ptr<executor>> children;
+
+        wam::runtime_error runtime_error;
 
     public:
         //We also need to keep track whether this exec is from an original user entered query
@@ -71,7 +77,7 @@ namespace wam {
             return term_codes.back()->is_from_original_query();
         }
 
-        std::vector<regist> registers;
+        std::vector<heap_reg> registers;
 
         mode read_or_write;
 
@@ -92,7 +98,7 @@ namespace wam {
 
         executor(size_t term_codes_size): term_codes{term_codes_size}{}
 
-        inline std::vector<wam::regist>& cur_permanent_registers(){
+        inline std::vector<wam::heap_reg>& cur_permanent_registers(){
             assert(!environments.empty());
             return environments.back().permanent_registers;
         }
@@ -101,41 +107,51 @@ namespace wam {
             return organizer;
         }
 
-        inline functor_view &functor_of(STR_index STR_index) {
-            return functor_of(FUN_index{heap_at(STR_index.get()).index});
-        }
+        const functor_view& functor_of(Storage_FUN_index storage_fun_index)const;
+        functor_view& functor_of(Storage_FUN_index storage_fun_index);
 
-        inline const functor_view &functor_of(STR_index STR_index) const {
-            return functor_of(FUN_index{heap_at(STR_index.get()).index});
-        }
+        std::string var_name_of(Storage_Var_index var_index);
 
         functor_view &functor_of(FUN_index FUN_index);
 
         const functor_view &functor_of(FUN_index FUN_index) const;
 
-        size_t index_of(const functor_view &functor)const;
+        size_t storage_index_of(const functor_view &functor)const;
 
-        inline void push_back(const regist& regist){
+        inline void push_back(const heap_reg& regist){
             heap.push_back(regist);
+        }
+
+        inline void push_back_STR(int index){
+            heap.emplace_back(heap_tag::STR,index);
         }
         inline void push_back_STR(){
             heap.emplace_back(heap_tag::STR,(int)  heap_size() + 1);
         }
-        inline void push_back_FUN(const functor_view & functor){
-            heap.emplace_back(heap_tag::FUN, (int) index_of(functor));
+        inline void push_back_FUN(int functor_index, short arity){
+            heap.emplace_back(heap_tag::FUN, functor_index, arity);
+        }
+        inline void push_back_EVAL_FUN(int eval_func_index, short arity){
+            heap.emplace_back(heap_tag::EVAL_FUN, eval_func_index, arity);
         }
         inline void push_back_unbound_REF(short var_index) {
-            heap.emplace_back((int) heap_size(), var_index);
+            heap.emplace_back(heap_tag::REF, (int) heap_size(), var_index);
+        }
+        inline void push_back_cons(int constant_i){
+            heap.emplace_back(heap_tag::CONS, constant_i);
+        }
+        inline void push_back_int(int value){
+            heap.emplace_back(heap_tag::INT, value);
         }
         inline size_t heap_size()const{
             return heap_start_index + heap.size();
         }
 
-        regist heap_back()const;
+        heap_reg heap_back()const;
 
-        regist& heap_modify(size_t index);
+        heap_reg& heap_modify(size_t index);
 
-        regist heap_at(size_t index)const;
+        heap_reg heap_at(size_t index)const;
 
         inline void move_from_parent(executor& parent){
             this->parent = &parent;
@@ -214,6 +230,10 @@ namespace wam {
             }
         }
 
+        inline void set_state(EXEC_STATE s){
+            state = s;
+        }
+
         inline void set_archived(){
             state = EXEC_STATE ::ARCHIVED;
         }
@@ -234,11 +254,10 @@ namespace wam {
 
         void inline set_failed(){
             state = EXEC_STATE::FAIL;
-            clear();
         }
 
         bool inline failed()const{
-            return state == EXEC_STATE::FAIL;
+            return state == EXEC_STATE::FAIL || error_occured();
         }
 
         bool is_leaf()const{
@@ -270,6 +289,26 @@ namespace wam {
         bool inline is_running()const{
             return state == EXEC_STATE ::RUNNING;
         }
+
+        bool inline error_occured()const{
+            return state == EXEC_STATE ::RUNTIME_EXCEPTION_FAIL;
+        }
+
+        void inline set_runtime_error_flag(){
+            set_state(EXEC_STATE::RUNTIME_EXCEPTION_FAIL);
+        }
+
+        void inline set_runtime_error(const wam::runtime_error& err){
+            set_runtime_error_flag();
+            runtime_error = err;
+        }
+
+        wam::runtime_error inline get_runtime_err()const{
+            assert(error_occured());
+            return runtime_error;
+        }
+
+
     };
 }
 

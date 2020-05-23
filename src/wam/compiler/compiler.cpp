@@ -2,9 +2,9 @@
 // Created by leonhard on 05.07.19.
 //
 
+#include "compiler.h"
 #include <unordered_map>
 #include <numeric>
-#include "compiler.h"
 #include "util/node_iteration.h"
 #include "util/node_util.h"
 
@@ -14,6 +14,11 @@
 #include "parser/parser.h"
 #include "../data/rule.h"
 #include "../bfs_organizer/data/storage.h"
+
+#include <wam/compiler/built_in_pred_comp.h>
+#include <wam/built_in_predicates/arithmetic/util/arith_functor.h>
+#include <wam/compiler/checks/undefined_var.h>
+#include <wam/compiler/checks/redefinition_of_built_in_pred.h>
 
 /*
  * Assigns register to an functor (constant is also viable)
@@ -117,7 +122,7 @@ std::vector<const node *> wam::flatten_program(const node &outer_functor) {
     }
     bfs_order(outer_functor, true, [&](const node *node) {
         if (node->is_functor()
-            || node->is_constant()
+            || node->is_evaluable_functor()
             || node->is_argument()) {
             result.push_back(node);
         }
@@ -170,20 +175,57 @@ wam::to_query_instructions(const std::vector<const node *> &flattened_term,
             }
             return;
         }
-
-        //The node is a functor or constant
+        //The node is a functor or constant or int or eval_func
         //Shouldnt be needed
         const seen_register func_reg{register_type::X_REG, node->get_x_reg()};
         seen_registers[func_reg] = true;
 
-        const functor_view functor_view = node->to_functor_view();
-        *out = std::bind(wam::put_structure, _1, functor_view, node->get_x_reg());
-        ++out;
 
-        if (node->is_constant()) {//No need to process any children
+        if(node->is_int()){
+            *out = std::bind(wam::put_structure, _1,
+                             heap_reg{heap_tag::INT, std::stoi(node->name), 0},
+                             node->get_x_reg());
+            ++out;
             return;
+        }else if(node->is_constant()){
+            const functor_view functor_view = node->to_functor_view();
+            *out = std::bind(wam::put_structure, _1,
+                             heap_reg{heap_tag::CONS, storage.functor_index_of(functor_view), 0},
+                             node->get_x_reg());
+            ++out;
+            return;
+        }else if(node->is_evaluable_functor()){
+            compiler::check_and_throw_undefined_var(outer_functor, *node, seen_registers);
+            const int arith_func_i = wam::arithmetic::to_index(node->name);
+            const int arity = wam::arithmetic::arity_of(arith_func_i);
+            *out = std::bind(wam::put_structure, _1,
+                             heap_reg{heap_tag::EVAL_FUN, arith_func_i, (short)arity},
+                             node->get_x_reg());
+            ++out;
+        }else{
+            const functor_view functor_view = node->to_functor_view();
+            const int func_i = storage.functor_index_of(functor_view);
+            *out = std::bind(wam::put_structure, _1,
+                             heap_reg{heap_tag::FUN, func_i, (short)functor_view.arity},
+                             node->get_x_reg());
+            ++out;
         }
+
         for (auto &childs : *node->children) {
+            if(childs.is_int()){
+                *out = std::bind(wam::put_structure, _1,
+                                 heap_reg{heap_tag::INT, std::stoi(childs.name),0},
+                                 childs.get_x_reg());
+                ++out;
+                continue;
+            }else if(childs.is_constant()){
+                const functor_view functor_view = childs.to_functor_view();
+                *out = std::bind(wam::put_structure, _1,
+                                 heap_reg{heap_tag::CONS, storage.functor_index_of(functor_view), 0},
+                                 childs.get_x_reg());
+                ++out;
+                continue;
+            }
             const seen_register child_reg{register_type::X_REG, childs.get_x_reg()};
 
             if (childs.is_permanent()) {
@@ -258,21 +300,56 @@ wam::to_program_instructions(const std::vector<const node *> &flattened_term,
             return;
         }
 
-        //The node is a functor or constant
-        //x and a reg will be the same
-        //Shouldnt be needed right :)?
-        const seen_register func_reg{register_type::X_REG, node->get_x_reg()};
-        seen_registers[func_reg] = true;
+        //Not needed because in a program term, an outer functor wont repeat as an inner functor again
+//        const seen_register func_reg{register_type::X_REG, node->get_x_reg()};
+//        seen_registers[func_reg] = true;
 
-        const functor_view functor_view = node->to_functor_view();
-        *out = std::bind(wam::get_structure, _1, functor_view, node->get_x_reg());
-        ++out;
-
-        if (node->is_constant()) {//no need to process children if node is constant
+        if(node->is_int()){
+            *out = std::bind(wam::get_structure, _1,
+                             heap_reg{heap_tag::INT, std::stoi(node->name), 0},
+                             node->get_x_reg());
+            ++out;
+            return;
+        }else if(node->is_evaluable_functor()){
+            const int arith_func_i = wam::arithmetic::to_index(node->name);
+            const int arity = wam::arithmetic::arity_of(arith_func_i);
+            *out = std::bind(wam::get_structure, _1,
+                             heap_reg{heap_tag::EVAL_FUN, arith_func_i, (short)arity},
+                             node->get_x_reg());
+            ++out;
+        }else if(node->is_functor()){//func or cons
+            const functor_view functor_view = node->to_functor_view();
+            *out = std::bind(wam::get_structure, _1,
+                             heap_reg{heap_tag::FUN, storage.functor_index_of(functor_view), (short) functor_view.arity},
+                             node->get_x_reg());
+            ++out;
+        }else if(node->is_constant()){
+            const functor_view functor_view = node->to_functor_view();
+            *out = std::bind(wam::get_structure, _1,
+                             heap_reg{heap_tag::CONS, storage.functor_index_of(functor_view), 0},
+                             node->get_x_reg());
+            ++out;
             return;
         }
+
         //If node is functor
         for (auto &childs : *node->children) {
+            if(childs.is_int()){
+                *out = std::bind(wam::unify_structure, _1,
+                                 heap_reg{heap_tag::INT, std::stoi(childs.name), 0},
+                                 childs.get_x_reg());
+                ++out;
+                continue;
+            }else if(childs.is_constant()){
+                const auto& fn_view = childs.to_functor_view();
+                *out = std::bind(wam::unify_structure, _1,
+                                 heap_reg{heap_tag::CONS, storage.functor_index_of(fn_view), 0},
+                                 childs.get_x_reg());
+                ++out;
+                continue;
+            }
+            //else its a var
+
             const seen_register child_reg{register_type::X_REG, childs.get_x_reg()};
             if (seen_registers[child_reg]) {
                 if (childs.is_permanent()) {
@@ -357,12 +434,11 @@ void wam::compile_query_atom(node &&atom, std::unordered_map<wam::helper::seen_r
     const int x_a_reg_counts = assign_registers(atom);
 
     const std::vector<const node *> flattened_form = flatten_query(atom);
-
     to_query_instructions(flattened_form,
-            atom,
-            std::back_inserter(instructions),
-            seen_registers,
-            storage);
+                          atom,
+                          std::back_inserter(instructions),
+                          seen_registers,
+                          storage);
 
     rule.add_atom(x_a_reg_counts,
                             instructions,
@@ -408,7 +484,7 @@ wam::compile_program(const std::string_view program_code, wam::storage& storage)
     return result;
 }
 
-std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<node>& atoms, wam::storage& storage) {
+std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<node>& atoms, wam::storage& storage, bool compilation_of_built_in_preds) {
     using namespace std::placeholders;
 
     const auto permanent_count = assign_permanent_registers(atoms, true);
@@ -420,6 +496,9 @@ std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<no
 
     //Assign the registers for head + first body combined
     node &head_atom = atoms.at(0);
+    if(!compilation_of_built_in_preds){
+        compiler::check_and_throw_redefinition_of_built_in_pred(head_atom);
+    }
     const wam::functor_view head_atom_functor = head_atom.to_functor_view();
     node *first_body_atom = atoms.size() > 1 ? &atoms[1] : nullptr;
     const int x_a_reg_count = assign_registers(head_atom, first_body_atom);
@@ -433,6 +512,20 @@ std::pair<wam::functor_view, wam::rule> wam::compile_program_term(std::vector<no
 
     std::unordered_map<wam::helper::seen_register, bool> seen_registers;
     to_program_instructions(flattened_form, std::back_inserter(instructions), seen_registers, storage);
+
+    //This is not necessary because if the head is a constant, it has x_reg = 0, and only a var
+    //could have a x_reg of 0 if it would be of atom level --> not possible
+//    if(head_atom.is_constant()){
+//        seen_registers.erase({helper::register_type::X_REG, head_atom.get_x_reg()});
+//    }
+    //We need to erase seen functor regs, because those shall not interfere with var regs
+    if(!head_atom.is_constant()){
+        bfs_order(head_atom, true, [&](node* n){
+            if(n->is_functor() || n->is_constant()){
+                seen_registers.erase({helper::register_type::X_REG, n->get_x_reg()});
+            }
+        });
+    }
 
     //Build the head
     rule.add_atom(
@@ -593,3 +686,9 @@ int wam::assign_permanent_registers(std::vector<node>& nodes, bool program_term)
 
     return y_reg_index;
 }
+
+std::unordered_map<wam::functor_view, std::vector<wam::rule>> wam::get_build_in_predicates(wam::storage &storage) {
+    return compiler::preds::compile_built_in_predicates(storage);
+}
+
+

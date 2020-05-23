@@ -15,12 +15,12 @@ TEST_CASE("p5-1 test") {
 
     SECTION("[]") {
         org.load_query("lVonM(list(nix,nil)).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
     }
     SECTION("[a]") {
         org.load_query("lVonM( list(a,nil)).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(!answer.has_value());
     }
     SECTION("lVonM") {
@@ -56,7 +56,7 @@ TEST_CASE("p5-1 test") {
         org.load_query("lVonM(Z).");
 
         for (int i = 0; i < 26; i++) {
-            auto answer = org.get_answer();
+            auto answer = org.get_answer().get_answer();
             REQUIRE(answer.has_value());
             for (auto &elem : *answer) {
 //                std::cout << elem<< endl;

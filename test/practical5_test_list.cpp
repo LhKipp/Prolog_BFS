@@ -56,7 +56,7 @@ auto setup_org = [&](string query) {
     SECTION("start") {
         setup_org("startZ(Z).");
 
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
         map<std::string, std::string> actual_substs;
         actual_substs["Z"] = "readSigma";
@@ -70,12 +70,12 @@ auto setup_org = [&](string query) {
         setup_org("zustand(Z).");
 
         map<std::string, int> actual_substs;
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
         for (auto &subst : *answer) {
             actual_substs[subst.binding]++;
         }
-        auto next_answer = org.get_answer();
+        auto next_answer = org.get_answer().get_answer();
         REQUIRE(next_answer.has_value());
         for (auto &subst : *next_answer) {
             actual_substs[subst.binding]++;
@@ -86,34 +86,34 @@ auto setup_org = [&](string query) {
     SECTION("lappend") {
         setup_org("lappend(list(a,list(b,list(c,nil))),list(d,list(e,list(f,nil))),Z).");
 
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
         REQUIRE(answer->at(0).binding == "list(a,list(b,list(c,list(d,list(e,list(f,nil))))))");
     }
     SECTION("lappend") {
         setup_org("lappend(nil, list(a,list(b,nil)),Z).");
 
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
         REQUIRE(answer->at(0).binding == "list(a,list(b,nil))");
     }
     SECTION("lappend") {
-        setup_org("lappend(list(a,list(b,nil)),nil, Z).");
+        setup_org("lappend(list(a,list(b, nil)),nil, Z).");
 
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
         REQUIRE(answer->at(0).binding == "list(a,list(b,nil))");
     }
     SECTION("es") {
         setup_org("es(readSigma, list(a,nil), list(raute,nil), ZN, nil,list(a,list(raute,nil))).");
         map<std::string, int> actual_substs;
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
         while (answer) {
             for (auto &subst : *answer) {
                 actual_substs[subst.binding]++;
             }
-            answer = org.get_answer();
+            answer = org.get_answer().get_answer();
         }
         REQUIRE(actual_substs["readSigma"] == 1);
     }
@@ -121,25 +121,25 @@ auto setup_org = [&](string query) {
         setup_org("es_plus(readSigma, list(a,list(b,nil)), list(raute,nil), dele, nil,nil).");
 
         map<std::string, int> actual_substs;
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
         while (answer) {
             for (auto &subst : *answer) {
                 actual_substs[subst.binding]++;
             }
-            answer = org.get_answer();
+            answer = org.get_answer().get_answer();
         }
     }
     SECTION("lappend") {
         setup_org("lVonM(Z).");
         //Manually checked works
 
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
         while (answer) {
             for (auto &elem : *answer) {
             }
-//            answer = org.get_answer();
+//            answer = org.get_answer().get_answer();
             break;
         }
     }

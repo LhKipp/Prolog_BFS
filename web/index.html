@@ -4,19 +4,20 @@
         <meta charset="UTF-8">
         <title>Prolog BFS</title>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link rel="stylesheet" href="/assets/css/style.css">
+        <link rel="stylesheet" href="assets/css/style.css">
         
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         
-        <script src="/build/prolog_bfs.js"></script>
+        <script src="build/prolog_bfs.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script> <!-- https://github.com/js-cookie/js-cookie-->
+
         <script src="https://pagecdn.io/lib/ace/1.4.8/ace.js"></script> <!-- editor -->
-        <script src="/assets/js/hotkeys.min.js"></script>
+        <script src="assets/js/hotkeys.min.js"></script>
         
         <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-        <script src="http://code.iamkate.com/javascript/queues/Queue.js"></script>
+        <script src="assets/js/Queue.js"></script>
         
     </head>
     <body>
@@ -31,7 +32,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" data-toggle="modal" data-target="#modal_limitations" href="#">Limitations / About</a>
+                        <a class="nav-link" data-toggle="modal" data-target="#modal_limitations" href="#">Limitations / Help</a>
                     </li>
 
                     <li class="nav-item">
@@ -114,6 +115,15 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <h4>Basic usage</h4>
+                        <p>Usage is very similar to <a href="http://swish.swi-prolog.org">SWISH</a>, an online version of SWI Prolog.</p>
+                        <p>In the left editor you put your program (see supported syntax below). Put your query in the bottom right editor.
+                        By clicking on "Run!" the interpreter will run the query against your program and try to give a first answer, which will
+                        appear on the top right. If you need more answers, you may click "next" below the answers. Each gray box
+                        keeps the program and query code and is not influenced by changes in the two editors.</p>
+                        <p>Program and query code are saved in a cookie every minute and upon closing of the browser / tab. However, you
+                        should still save the code yourself and not rely on the cookie.</p>
+                        
                         <h4>Known limitations</h4>
                         <p>This is a very limited subset of Prolog! Don't get fooled by the syntax highlighting; it might provide highlighting
                         for features that are not actually supported, because we didn't write the editor specifically for this
@@ -121,21 +131,26 @@
                         <p>These are the limitations:</p>
                         <ul>
                             <li>
-                                Any kind of <strong>arithmetic is not supported</strong>. You may use o for 0, s(o) for 1, s(s(o)) for 2, ...
+                                Only integer arithmetic is supported.
                             </li>
                             <li>
                                 Variables / constant names <strong>starting</strong> with an <strong>underscore</strong>
-                                are <strong>not supported</strong>. They must only contain characters of the english alphabet.
+                                are <strong>not supported</strong>. This especially includes anonymous variables ("_").
                             </li>
                             <li>
-                                There are <strong>no built-in predicates</strong>.
+                                The only supported built in predicates are ==, \==, is/2 and append/3.
                             </li>
                             <li>
                                 The memory limit is 500MB. If that is not enough, you might want to check out
                                 the offline version on Github. You may free some memory by closing results.
                             </li>
+                            <li>
+                                If you supply an infinite program (e.G.: a(x) :- a(X).; ? a(o). ),
+                                the site will freeze and eventually run out of memory. Any kind of occur check is not implemented.
+                            </li>
                         </ul>
-                        
+                        <p>The Prolog subset understood by the program can be viewed as a grammar <a  target="_blank" rel="noopener noreferrer" href="https://github.com/LhKipp/Prolog_BFS/blob/master/FAQ.md">here.</a></p>
+
                         <h4>What's special about it? Isn't it just another Prolog interpreter?</h4>
                         <p>It is one of the few, if not the only Prolog interpreters that does a <em>breadth-first-search</em>
                             as its <a href="https://en.wikipedia.org/wiki/SLD_resolution#SLD_resolution_strategies">SLD resolution strategy</a>.
@@ -156,18 +171,37 @@
                         
                         <h4>Is the source code available?</h4>
                         <p>Yes. The project is hosted on <a href="https://github.com/LhKipp/Prolog_BFS">Github</a>.</p>
+                        
+                        <h4>System requirements</h4>
+                        <ul>
+                            <li>Operating System: independent</li>
+                            <li>Browser:
+                                <ul>
+                                    <li>We use <a href="http://webassembly.org">WebAssembly</a> to create this software, which is a relatively new technology.
+                                    That means, it's evolving fast and at the same time not fully supported by many older browser versions.
+                                    Therefore, it is highly recommended to always use the latest release of your preferred browser. Otherwise, the software
+                                    might not work as expected or even be fully broken.</li>
+                                    <li>Tested on Firefox and Chrome</li>
+                                    <li>Edge, Opera and Safari should work. They are not explicitly tested.</li>
+                                    <li>Internet Explorer is not and will not be supported due to lacking WebAssembly support.</li>
+                                </ul>
+                            </li>
+                            <li>Network: once loaded, the software can be without offline as long as the browser tab remains open.</li>
+                            <li>Cookies: you may disable cookies in your browser. In that case, automatic saving of your program and query code will not work though.</li>
+                            <li>JavaScript: required.</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
         
-        <script src="/assets/js/prolog_bfs/config.js"></script>
-        <script src="/assets/js/prolog_bfs/classes/Alert.js"></script>
-        <script src="/assets/js/prolog_bfs/classes/SyntaxError.js"></script>
-        <script src="/assets/js/prolog_bfs/classes/Result.js"></script>
-        <script src="/assets/js/prolog_bfs/classes/TreeView.js"></script>
-        <script src="/assets/js/prolog_bfs/classes/InterpreterHandler.js"></script>
-        <script src="/assets/js/prolog_bfs/main.js"></script>
-        <script src="/assets/js/prolog_bfs/ace_editor_setup.js"></script>
+        <script src="assets/js/prolog_bfs/config.js"></script>
+        <script src="assets/js/prolog_bfs/classes/Alert.js"></script>
+        <script src="assets/js/prolog_bfs/classes/SyntaxError.js"></script>
+        <script src="assets/js/prolog_bfs/classes/Result.js"></script>
+        <script src="assets/js/prolog_bfs/classes/TreeView.js"></script>
+        <script src="assets/js/prolog_bfs/classes/InterpreterHandler.js"></script>
+        <script src="assets/js/prolog_bfs/main.js"></script>
+        <script src="assets/js/prolog_bfs/ace_editor_setup.js"></script>
     </body>
 </html>

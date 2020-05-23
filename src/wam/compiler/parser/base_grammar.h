@@ -8,37 +8,69 @@
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/repository/include/qi_iter_pos.hpp>
 #include <boost/phoenix/phoenix.hpp>
-#include "../util/node.h"
-#include "util/util.h"
-#include "util/error_handler.h"
-#include "parser_error.h"
 
+#include <wam/compiler/parser/parsed_helper_types/binary_arithmetic_predicate.h>
+#include <wam/compiler/parser/parsed_helper_types/expressions.h>
+#include <wam/compiler/parser/parsed_helper_types/prolog_data_types.h>
+#include <wam/compiler/error/compiler_error.h>
+#include <wam/compiler/parser/util/parser_util.h>
+#include <wam/compiler/parser/util/error_handler.h>
+
+BOOST_FUSION_ADAPT_STRUCT(
+        node,
+        (STORED_OBJECT_FLAG, type)
+        (std::string, name)
+)
 
 namespace wam{
     namespace qi = boost::spirit::qi;
 
+
     template<typename Iterator, typename Base_Value, typename Skipper>
     struct base_grammar : qi::grammar<Iterator, Base_Value, Skipper> {
     public:
-
         error_handler<> handler;
-        parser_error error;
+        compiler::error error;
+
+        qi::rule<Iterator, node(), Skipper> built_in_pred;
+        qi::rule<Iterator, parser::binary_arithmetic_predicate(), Skipper> built_in_equals;
+        qi::rule<Iterator, parser::binary_arithmetic_predicate(), Skipper> built_in_not_equals;
+        qi::rule<Iterator, parser::binary_arithmetic_predicate(), Skipper> built_in_is;
 
         qi::rule<Iterator, node(), Skipper> constant;
-        qi::rule<Iterator, std::string(), Skipper> constant_name;
         qi::rule<Iterator, node(), Skipper> functor;
-        qi::rule<Iterator, std::string(), Skipper> functor_name;
+        qi::rule<Iterator, parser::functor(), Skipper> functor_helper;
+        qi::rule<Iterator, parser::functor(), Skipper> empty_list_t;
+        qi::rule<Iterator, node(), Skipper> empty_list;
+        qi::rule<Iterator, parser::normal_list(), Skipper> normal_list_t;
+        qi::rule<Iterator, node(), Skipper> normal_list;
+        qi::rule<Iterator, parser::finished_list(), Skipper> finished_list_t;
+        qi::rule<Iterator, node(), Skipper> finished_list;
         qi::rule<Iterator, node(), Skipper> list;
         qi::rule<Iterator, node(), Skipper> variable;
-        qi::rule<Iterator, std::string(), Skipper> variable_name;
         qi::rule<Iterator, void(), Skipper> comment;
         qi::rule<Iterator, node(), Skipper> prolog_element;
         qi::rule<Iterator, node(), Skipper> atom;
 
+        qi::rule<Iterator, node(), Skipper> expression;
+        qi::rule<Iterator, parser::chained_value(), Skipper> chained_sum;
+        qi::rule<Iterator, parser::chained_value(), Skipper> chained_prod;
+        qi::rule<Iterator, parser::chained_value(), Skipper> chained_pow;
+        qi::rule<Iterator, parser::chained_expr(), Skipper> sum;
+        qi::rule<Iterator, node(), Skipper> product;
+        qi::rule<Iterator, parser::chained_expr(), Skipper> product_helper;
+        qi::rule<Iterator, node(), Skipper> power;
+        qi::rule<Iterator, parser::chained_expr(), Skipper> power_helper;
+        qi::rule<Iterator, node(), Skipper> value;
+        qi::rule<Iterator, node(), Skipper> number;
+
         base_grammar(qi::rule<Iterator, Base_Value, Skipper> &start) : base_grammar::base_type(start) {
             namespace phoenix = boost::phoenix;
+            namespace bf = boost::fusion;
+            using qi::attr;
             using qi::_val;
             using qi::lit;
+            using qi::string;
             using qi::lexeme;
             using qi::char_;
             using qi::on_error;
@@ -46,51 +78,58 @@ namespace wam{
             //Comments start with %
             comment = lexeme['%' > *(char_ - lit('\n')) > '\n'];
 
-            constant_name %= (lexeme[char_("a-z") > *char_("a-zA-Z_0-9")]);
-            constant = (constant_name)
-            [phoenix::bind(&make_to_cons, qi::_1, phoenix::ref(_val))];
-
-            functor_name %= lexeme[char_("a-z") >> *(char_("a-zA-Z_0-9")) >> '('];
-            functor = functor_name
-                      [phoenix::bind(&make_to_func, qi::_1, phoenix::ref(_val))]
-                      //Append each upcoming child to result node
+            functor_helper = lexeme[char_("a-z") >> *(char_("a-zA-Z_0-9")) >> '(']
                       > prolog_element
-                        [phoenix::bind(&node::add_to_children, phoenix::ref(_val), qi::_1)]
-                        % ','
-                      > ')';
-
-            variable_name %= (lexeme[char_("A-Z") > *char_("a-zA-Z_0-9")]);
-            variable = variable_name
-            [phoenix::bind(&make_to_var, qi::_1, phoenix::ref(_val))];
+                      % ','
+                      > lit(')');
+            functor = functor_helper;
+            constant = attr(STORED_OBJECT_FLAG::CONSTANT) >> lexeme[char_("a-z") > *char_("a-zA-Z_0-9")];
+            variable = attr(STORED_OBJECT_FLAG::VARIABLE) >> (lexeme[char_("A-Z") > *char_("a-zA-Z_0-9")]);
+            number = attr(STORED_OBJECT_FLAG::INT) >> (lexeme[-char_("-") >> +char_("0-9")]);
 
             //Every list is of type: list(X,Xs) or nil
             //Where X is an value (const, func, list) and Xs is the rest list
             //nil is represented as an empty list (list node without children)
-            list = char_('[')
-                   [phoenix::bind(&make_to_list, qi::_1, phoenix::ref(_val))]
-                   //Append each upcoming list element to results children
-                   > (
-                           (prolog_element
-                            [phoenix::bind(&node::add_to_children, phoenix::ref(_val), qi::_1)]
-                            % ','
-                            //Every list may end with concatenation of rest list.
-                            //Rest list may be actual list or var
-                            > -(char_('|')
-                                [phoenix::bind(&set_list_finished, qi::_1, phoenix::ref(_val))]
-                                > (variable | list)
-                                [phoenix::bind(&node::add_to_children, phoenix::ref(_val), qi::_1)]
-                           )
-                            > char_(']')
-                            [phoenix::bind(&childs_to_list, phoenix::ref(_val), qi::_1)]
-                           ) | char_(']'));
+            empty_list_t = string("[") >> "]" >> attr(std::vector<node>());
+            empty_list = empty_list_t;
+            normal_list_t = lit("[") >> prolog_element % ',' >> lit("]");
+            finished_list_t = "[" >> prolog_element % ',' >> '|' >> (variable | list) >> "]";
+            normal_list = normal_list_t;
+            finished_list = finished_list_t;
+            list = empty_list | normal_list | finished_list;
 
-            prolog_element %= functor | constant | variable | list;
+            prolog_element %= functor | constant | list | expression;
 
             using boost::spirit::repository::qi::iter_pos;
-            atom = (iter_pos >> (functor | constant) >> qi::no_skip[iter_pos])
+            atom = (iter_pos >> (built_in_pred | functor | constant) >> qi::no_skip[iter_pos])
             [phoenix::bind(&add_source_code_info<Iterator>, phoenix::ref(qi::_2), qi::_1, qi::_3),
              qi::_val = qi::_2];
 
+
+            value = variable | number | (lit('(') > expression > lit(')'));
+            chained_pow = char_("^") > value;
+            power_helper = value >> -chained_pow;
+            power = power_helper;
+            chained_prod = (char_("*") > power)
+                           |(qi::string("//") > power);
+            product_helper = power >> *chained_prod;
+            product = product_helper;
+            chained_sum = (char_("+") > product)
+                            | (char_("-") > product);
+            sum = product >> *chained_sum;
+            expression = sum;
+
+            //Built in predicates definitions
+            built_in_equals = prolog_element >> string("==") >> prolog_element;
+            built_in_not_equals = prolog_element >> string("\\==") >> prolog_element;
+            //Built in arithmetic binary predicates
+            built_in_is = prolog_element >> string("is") >> expression;
+            built_in_pred = built_in_equals
+                    | built_in_not_equals
+                    | built_in_is;
+
+            built_in_equals.name("==");
+            built_in_not_equals.name("\\==");
             comment.name("comment");
             variable.name("variable");
             functor.name("functor");
@@ -98,9 +137,26 @@ namespace wam{
             constant.name("constant");
             prolog_element.name("prolog_element");
 
+            expression.name("Expression");
+            sum.name("sum");
+            chained_sum.name("sum");
+            product.name("product");
+            product_helper.name("product");
+            chained_prod.name("product");
+            power.name("power");
+            power_helper.name("power");
+            chained_pow.name("power");
+            value.name("value");
+            number.name("integer");
+
+
 
 #ifdef BOOST_SPIRIT_DEBUG
-            BOOST_SPIRIT_DEBUG_NODES((comment)(variable)(functor)(list)(constant)(prolog_element))
+            BOOST_SPIRIT_DEBUG_NODES(
+                    (comment)(variable)(functor)(list)(constant)(prolog_element)
+                    (expression)(sum)(product)(power)(value)(number)
+                    (built_in_pred)(built_in_equals)(built_in_not_equals)
+                    )
 #endif
         }
 

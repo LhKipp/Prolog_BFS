@@ -50,7 +50,7 @@ class Result {
                 + ' <button type="button" class="close" aria-label="Close" onclick="instances[' + this.instanceid + '].kill()"> \
                                <span aria-hidden="true">&times;</span> \
                            </button> \
-                           <button type="button" class="btn btn-light btn-sm" onclick="instances[' + this.instanceid + '].onNextClicked()">Next</button> \
+                           <button type="button" class="btn btn-light btn-sm" onclick="instances[' + this.instanceid + '].onNextClicked()" id="resultalert_'+this.instanceid+'_next">Next</button> \
                            <button type="button" class="btn btn-light btn-sm" onclick="instances[' + this.instanceid + '].onShowTreeViewClicked()">Show tree view</button> \
                        </div>';
         this.isInitialized = true;
@@ -62,5 +62,19 @@ class Result {
     */
     destroy() {
        document.getElementById('resultalert_' + this.instanceid).remove();
+    }
+    
+    /*
+     * Disable the next button, so it can't be clicked anymore and doesn't look
+     * like it can be clicked
+     */
+    disableNext() {
+        let button = document.getElementById('resultalert_' + this.instanceid+'_next');
+        
+        // disable clicking and make it look disabled
+        button.setAttribute('disabled', '');
+        
+        // add tooltip
+        button.setAttribute('title', 'There are no more answers.');
     }
 }

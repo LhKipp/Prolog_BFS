@@ -14,12 +14,12 @@ TEST_CASE("p5-2 test") {
 
     SECTION("[]") {
         org.load_query("lVonM([a,b]).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
     }
     SECTION("[a]") {
         org.load_query("lVonM([b,a,b,a]).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(!answer.has_value());
     }
     SECTION("lVonM") {
@@ -54,7 +54,7 @@ TEST_CASE("p5-2 test") {
         org.load_query("lVonM(Z).");
 
         for (int i = 0; i < 25; i++) {
-            auto answer = org.get_answer();
+            auto answer = org.get_answer().get_answer();
             REQUIRE(answer.has_value());
             for (auto &elem : *answer) {
 //                std::cout << elem<< endl;

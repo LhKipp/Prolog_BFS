@@ -39,7 +39,7 @@ auto setup_org = [&](string query) {
     SECTION("Easy Chain"){
         setup_org("p(X,Y).");
 
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
 
         map<std::string, std::string> actual_substs;
@@ -53,7 +53,7 @@ auto setup_org = [&](string query) {
     }
     SECTION("Deep easy Chain"){
         setup_org("a(A,B).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
 
         map<std::string, std::string> actual_substs;
@@ -68,7 +68,7 @@ auto setup_org = [&](string query) {
     SECTION("Deep hard Chain"){
 //        program_code.push_back("h(g(f(A),X),f(b),f(g(h(X,Y,B),c))) :- c(c,d), a(A,B), p(X,Y),e(E,F).");
         setup_org("h(g(f(A),X),f(b),f(F)).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
 
         map<std::string, std::string> actual_substs;
@@ -84,7 +84,7 @@ auto setup_org = [&](string query) {
     SECTION("Multiple Queries in once"){
 //        program_code.push_back("h(g(f(A),X),f(b),f(g(h(X,Y,B),c))) :- c(c,d), a(A,B), p(X,Y),e(E,F).");
         setup_org("h(g(f(A),X),f(b),f(F)), p(X,Y), a(A,B).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
 
         map<std::string, std::string> actual_substs;
@@ -101,7 +101,7 @@ auto setup_org = [&](string query) {
     }
     SECTION("Many Queries in once"){
         setup_org("h(g(f(A),X),f(b),f(F)), p(X,Y), a(A,B),p(X,Y), a(A,B).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
 
         map<std::string, std::string> actual_substs;
@@ -118,7 +118,7 @@ auto setup_org = [&](string query) {
     }
     SECTION("Many Queries in once with constants"){
         setup_org("h(g(f(A),X),f(b),f(F)), a, p(X,Y),b, a(A,B),p(X,Y), c,a(A,B),d.");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
 
         map<std::string, std::string> actual_substs;
@@ -135,7 +135,7 @@ auto setup_org = [&](string query) {
     }
     SECTION("Many Queries in once with constants"){
         setup_org("a,d ,h(g(f(A),X),f(b),f(F)), a, p(X,Y),b, a(A,B),p(X,Y), c,a(A,B),d.");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
 
         map<std::string, std::string> actual_substs;
@@ -152,7 +152,7 @@ auto setup_org = [&](string query) {
     }
     SECTION("Many Queries in once with constants"){
         setup_org("a,d ,h(g(f(A),X),f(b),f(F)), a,fault, p(X,Y),b, a(A,B),p(X,Y), c,a(A,B),d.");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(!answer.has_value());
     }
 }

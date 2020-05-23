@@ -122,8 +122,11 @@ public:
     }
 
     std::string get_final_var_bindings_as_str()const{
-        std::stringstream result;
         auto& bindings = get_final_var_bindings();
+        if(bindings.empty()){
+            return "true";
+        }
+        std::stringstream result;
         std::copy(bindings.begin(),
                   bindings.end(),
                   std::ostream_iterator<wam::var_binding>(result, " "));
@@ -158,7 +161,7 @@ public:
 
     /**
      *
-     * @return the called facts code line_begin number (0 based).
+     * @return the called facts code line_begin number.
      * Note: If the fact stretches over multiple lines, the first line_begin is returned.
      */
     size_t get_fact_code_line()const{

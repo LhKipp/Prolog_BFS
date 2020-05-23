@@ -13,12 +13,12 @@ TEST_CASE("p4-1 test") {
 
     SECTION("[]") {
         org.load_query("lvongbb([b,a]).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
     }
     SECTION("[a]") {
         org.load_query("lvongbb([b,b,b,a]).");
-        auto answer = org.get_answer();
+        auto answer = org.get_answer().get_answer();
         REQUIRE(answer.has_value());
     }
     SECTION("lvongbb") {
@@ -28,7 +28,7 @@ TEST_CASE("p4-1 test") {
         org.load_query("lvongbb(Z).");
 
 //        for (int i = 0; i < 10; i++) {
-//            auto answer = org.get_answer();
+//            auto answer = org.get_answer().get_answer();
 //            REQUIRE(answer.has_value());
 //            for (auto &elem : *answer) {
 //                /* std::cout << elem<< endl; */

@@ -10,6 +10,8 @@ namespace wam{
     enum class EXEC_STATE{
         //If the exec failed
         FAIL,
+        //If on exception a runtime exception occured
+        RUNTIME_EXCEPTION_FAIL,
         //If the exec finished the unification process and a final var binding could be found
         SUCCESS,
         //If the exec is to be continued

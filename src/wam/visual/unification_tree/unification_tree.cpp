@@ -47,16 +47,26 @@ wam::query_node wam::make_tree(const wam::executor &top_exec, const wam::storage
     return result;
 }
 
+/*
+ * The query exec must not be running so that the reg.heap_i can be retrieved
+ */
 void wam::resolve_query_node_name(wam::query_node& query_node, const wam::storage& storage){
+    if(query_node.is_to_be_continued()){
+        query_node.set_name(node{STORED_OBJECT_FLAG ::CONSTANT, "cant determine name yet"});
+        return;
+    }
+    assert(!query_node.is_to_be_continued());
     node query_name = query_node.get_atom().get_parsed_atom();
     //atom outer is always functor
 
-    std::vector<node*> vars = find_vars_in(query_name);
-    for(node* var : vars){
-        point_node_to_heap(*var , query_node.get_exec());
-        *var = node_representation_of(query_node.get_exec(), var->get_heap_index(), storage);
+    std::unordered_map<std::string, std::vector<node *>> vars = find_all_vars_in(query_name);
+    for(auto& var_vec : vars){
+        node pointed_to_heap = point_node_to_heap((const node&) *var_vec.second[0], query_node.get_exec());
+        node var_representation = node_representation_of(query_node.get_exec(), pointed_to_heap.get_heap_index(), storage);
+        for(node* var : var_vec.second){
+            *var = var_representation;
+        }
     }
-
     query_node.set_name(query_name);
 };
 
@@ -84,8 +94,8 @@ void wam::resolve_parent(wam::query_node &parent, wam::var_binding_node& binding
     assert(!(parent.is_to_be_continued() || parent.failed()));
     assert(!(binding_node.failed() || binding_node.is_to_be_continued()));
 
-    std::vector<const node*> f_vars = find_vars_in(binding_node.get_atom().get_parsed_atom());
-    std::vector<const node*> q_vars = find_vars_in(parent.get_name());
+    std::vector<const node*> f_vars = find_unique_vars_in(binding_node.get_atom().get_parsed_atom());
+    std::vector<const node*> q_vars = find_unique_vars_in(parent.get_name());
 
     std::vector<node> f_heap_vars{f_vars.size()};
     std::transform(f_vars.begin(), f_vars.end(),
@@ -130,6 +140,7 @@ void wam::resolve_parent(wam::query_node &parent, wam::var_binding_node& binding
 
     //binding node continues
     query_node& following_query = binding_node.get_continuing_query();
+
     resolve_query_node_name(following_query, storage);
 
     if(following_query.failed() || following_query.is_to_be_continued()){

@@ -55,6 +55,10 @@ namespace wam {
             return _id;
         }
 
+        bool is_oom_node()const{
+            return exec == nullptr && _id == 0 && children->empty();
+        }
+
         /**
          * @return true if there is no fact with similar most outer functor as this query has,
          * and therefore the unification process failed.
@@ -98,7 +102,7 @@ namespace wam {
 
         /**
          *
-         * @return the query code line_begin (0 based), if this query is from a rule (program code).
+         * @return the query code line_begin, if this query is from a rule (program code).
          * Otherwise it throws an error.
          * Note: If the query stretches over multiple lines, the first line_begin is returned
          */
@@ -119,6 +123,10 @@ namespace wam {
             query_name = std::move(name);
             resolved_query_name = query_name.to_string();
         }
+        void set_resolved_name(std::string resolved_name){
+            this->resolved_query_name = std::move(resolved_name);
+        }
+
         const node& get_name()const{
             return query_name;
         }

@@ -13,18 +13,29 @@
 #include <cassert>
 #include <ostream>
 #include "data_enums.h"
-#include "../../data/regist.h"
+#include "wam/data/heap_reg.h"
 #include "../../data/source_code_info.h"
 #include "../../data/functor_view.h"
+
+using namespace wam;
+
+namespace parser{
+    struct binary_arithmetic_predicate;
+    struct chained_expr;
+    struct opt_chained_value;
+    struct functor;
+    struct normal_list;
+    struct finished_list;
+}
 
 struct node {
 private:
     size_t x_reg = std::numeric_limits<size_t>::max();
     size_t a_reg = std::numeric_limits<size_t>::max();
     size_t y_reg = std::numeric_limits<size_t>::max();
-    STORED_OBJECT_FLAG type = STORED_OBJECT_FLAG ::NONE;
 
 public:
+    STORED_OBJECT_FLAG type = STORED_OBJECT_FLAG ::NONE;
 
     wam::source_code_info code_info;
 
@@ -81,6 +92,10 @@ public:
         return type == STORED_OBJECT_FLAG::CONSTANT;
     }
 
+    inline bool is_int() const {
+        return type == STORED_OBJECT_FLAG::INT;
+    }
+
     inline bool is_variable() const {
         return type == STORED_OBJECT_FLAG::VARIABLE;
     }
@@ -88,6 +103,11 @@ public:
     inline bool is_functor() const {
         return type == STORED_OBJECT_FLAG::FUNCTOR;
     }
+
+    inline bool is_evaluable_functor() const {
+        return type == STORED_OBJECT_FLAG::EVALUABLE_FUNCTOR;
+    }
+
     inline bool is_list() const {
         return name == "[";
     }
@@ -137,18 +157,22 @@ public:
         return false;
     }
 
-    inline wam::functor_view to_functor_view() const {
-        if (is_constant()) {
-            return wam::functor_view{name, 0};
-        } else {
-            return wam::functor_view{name, (int) children->size()};
+    inline int get_arity()const{
+        assert(is_functor() || is_evaluable_functor() || is_constant());
+        if(is_constant() || is_int()){
+            return 0;
         }
-    }
+        return (int)children->size();
 
+    }
+    inline wam::functor_view to_functor_view() const {
+        assert(is_constant() || is_functor() || is_evaluable_functor());
+        return wam::functor_view{name, get_arity()};
+    }
 
     explicit node(const STORED_OBJECT_FLAG type) : node(type, "") {};
     node(const STORED_OBJECT_FLAG type, const std::string name) : name(name), type(type) {
-        if (type == STORED_OBJECT_FLAG::FUNCTOR) {
+        if (is_functor() || is_evaluable_functor()) {
             children = std::make_unique<std::vector<node>>();
         } else {
             children = nullptr;
@@ -169,6 +193,7 @@ public:
             children = std::make_unique<std::vector<node>>(*other.children);
         }
     }
+
 
     node &operator=(const node &other) {
         this->name = other.name;
@@ -191,6 +216,13 @@ public:
     }
 
     std::string to_string()const;
+
+    node(const parser::binary_arithmetic_predicate& p);
+    node(const parser::chained_expr& p);
+    node(const parser::opt_chained_value& p);
+    node(const parser::functor& f);
+    node(const parser::normal_list& l);
+    node(const parser::finished_list& l);
 };
 
 
