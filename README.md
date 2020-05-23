@@ -29,7 +29,7 @@ git clone https://github.com/LhKipp/Prolog_BFS.git
 cd Prolog_BFS
 ./build_xxx.sh
 ```
-There are 2 different build scripts. "build_native" builds the cli applicationand "build_wasm" builds the WebAssembly files.
+There are 2 different build scripts. "build_native" builds the cli application and "build_wasm" builds the WebAssembly files.
 If you first build wasm, then native (or the other way around) make sure to delete the `CMakeCache.txt` file! Otherwise the build might fail.
 
 ## Building native
