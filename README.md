@@ -9,7 +9,7 @@ Suppose your executable is named "prolog_bfs",
 type "prolog_bfs program_file" and it will run.
 WebAssembly: run "start_server.sh" and go to http://localhost:8080/
 
-#Install Instructions
+# Install Instructions
 ## Prerequisites
 Dependencies:
 

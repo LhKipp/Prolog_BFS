@@ -99,9 +99,8 @@ class InterpreterHandler {
                 return result.getError().getExplanation();
             }
         } catch (err) {
-            alert.show("Error getting result. Probably ran out of memory (infinite loop). Please refresh the page.");
             console.log(err);
-            return "Error getting result. Probably ran out of memory (infinite loop). Please refresh the page.";
+            return "Error getting result. Probably ran out of memory (infinite loop?).<br>Please close some answers (gray boxes) using the X on the top right to free up memory.";
         }
     }
     
