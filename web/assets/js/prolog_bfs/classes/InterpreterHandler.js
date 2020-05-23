@@ -45,7 +45,7 @@ class InterpreterHandler {
         var program_error = this.interpreter.loadProgram(program);
         if (program_error.exists()) { // check if there is a syntax error
             if(program_error.is_parser_error()){
-                syntaxError.show("program", program_error.get_row(), program_error.get_col() );
+                syntaxError.show("program", program_error.get_row() - 1, program_error.get_col() - 1);
                 alert.show("Syntax error in program line " + (program_error.get_row()) + ". Expected: " + program_error.get_cause(), 0);
             }else{//Real compiler error
                 syntaxError.show("program", program_error.get_row() - 1, program_error.get_col() - 1);
@@ -58,7 +58,7 @@ class InterpreterHandler {
         var query_error = this.interpreter.loadQuery(query);
         if (query_error.exists()) {
             if(query_error.is_parser_error()){
-                syntaxError.show("query", query_error.get_row() , query_error.get_col());
+                syntaxError.show("query", query_error.get_row() - 1, query_error.get_col() - 1);
                 alert.show("Syntax error in query line " + (query_error.get_row()) + ". Expected: " + query_error.get_cause(), 0);
             }else{
                 syntaxError.show("query", query_error.get_row() - 1, query_error.get_col() - 1);
