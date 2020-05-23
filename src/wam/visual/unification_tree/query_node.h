@@ -92,11 +92,14 @@ namespace wam {
             return *children;
         }
 
+        const std::string& get_unresolved_query_as_str()const{
+            return get_atom().get_code_info().value;
+        }
         /**
          *
-         * @return the query as string
+         * @return the resolved query as string
          */
-        const std::string& get_query_as_str() const{
+        const std::string& get_resolved_query_as_str() const{
             return resolved_query_name;
         }
 
@@ -107,7 +110,6 @@ namespace wam {
          * Note: If the query stretches over multiple lines, the first line_begin is returned
          */
         size_t get_query_code_line()const{
-            assert(!exec->is_from_user_entered_query());
             return get_atom().get_code_info().line_begin;
         }
 

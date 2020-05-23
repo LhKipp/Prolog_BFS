@@ -93,13 +93,13 @@ TEST_CASE("Expression builder"){
                       "V", "5"});
 
     auto tree = org.get_unification_tree();
-    REQUIRE(tree.get_query_as_str() == "add(X, A)");
+    REQUIRE(tree.get_resolved_query_as_str() == "add(X, A)");
     auto cont = tree.get_children()[0];
     auto q2 = cont.get_continuing_query();
-    REQUIRE(q2.get_query_as_str() == "add((X + 1), B)");
+    REQUIRE(q2.get_resolved_query_as_str() == "add((X + 1), B)");
     auto cont2 = q2.get_children()[0];
     auto q3 = cont2.get_continuing_query();
-    REQUIRE(q3.get_query_as_str() == "double(((X + 1) + 1), C)");
+    REQUIRE(q3.get_resolved_query_as_str() == "double(((X + 1) + 1), C)");
 }
 
 TEST_CASE("Expression builder 2") {

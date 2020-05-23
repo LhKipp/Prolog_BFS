@@ -19,7 +19,7 @@ TEST_CASE("Tree mult") {
     auto ans = org.get_answer().get_answer();
     query_node t = org.get_unification_tree();
 
-    REQUIRE(t.get_query_as_str() == "mult(s(o), s(s(s(o))), Z)");
+    REQUIRE(t.get_resolved_query_as_str() == "mult(s(o), s(s(s(o))), Z)");
     REQUIRE(!t.failed());
 
     std::vector<var_binding_node>& facts = t.get_children();
@@ -50,7 +50,7 @@ TEST_CASE("Tree mult") {
 
     const auto& q2 = continuation.get_continuing_query();
     REQUIRE(!q2.failed());
-    REQUIRE(q2.get_query_as_str() == "mult(o, s(s(s(o))), D)");
+    REQUIRE(q2.get_resolved_query_as_str() == "mult(o, s(s(s(o))), D)");
     REQUIRE(q2.get_children().size() == 2);
 
     auto& failed_2 = q2.get_children()[1];
@@ -124,12 +124,12 @@ TEST_CASE("Tree additional var"){
     expected = {"X", "Y"};
     REQUIRE(pXChild.get_var_bindings().at(0) == expected);
     query_node& addVarX = pXChild.get_continuing_query();
-    REQUIRE(addVarX.get_query_as_str() == "addVar(Y)");
+    REQUIRE(addVarX.get_resolved_query_as_str() == "addVar(Y)");
     var_binding_node& addVarSY = addVarX.get_children().at(0);
     REQUIRE(addVarSY.get_var_bindings()[0] == var_binding{"Y", "s(Y)"});
     REQUIRE(addVarSY.get_var_bindings().size() == 1);
     query_node& unifyVar = addVarSY.get_continuing_query();
-    REQUIRE(unifyVar.get_query_as_str() == "unifyVar(s(Y))");
+    REQUIRE(unifyVar.get_resolved_query_as_str() == "unifyVar(s(Y))");
     var_binding_node& unifyVarSSO = unifyVar.get_children()[0];
     REQUIRE(unifyVarSSO.get_var_bindings()[0] == var_binding{"Y", "s(o)"});
 }
@@ -154,7 +154,7 @@ TEST_CASE("Tree to be continued node"){
     REQUIRE(pXChild.get_var_bindings()[0] == substitutions[0]);
     auto & toBeCont = pXChild.get_continuing_query();
     //Cant get the name of a to_be_continued query_node
-//    REQUIRE(toBeCont.get_query_as_str() == "p(Z)");
+//    REQUIRE(toBeCont.get_resolved_query_as_str() == "p(Z)");
     REQUIRE(toBeCont.is_to_be_continued());
 
     auto& finalChild = childr[1];

@@ -17,7 +17,8 @@ EMSCRIPTEN_BINDINGS(query_node) {
             .function("isOOMNode", &wam::query_node::is_oom_node)
             .function("failed", &wam::query_node::failed)
             .function("getChildren", &wam::query_node::get_children_wasm)
-            .function("getQueryAsString", &wam::query_node::get_query_as_str)
+            .function("getUnresolvedQueryAsString", &wam::query_node::get_unresolved_query_as_str)
+            .function("getResolvedQueryAsString", &wam::query_node::get_resolved_query_as_str)
             .function("getQueryCodeLine", &wam::query_node::get_query_code_line)
 
     ;
