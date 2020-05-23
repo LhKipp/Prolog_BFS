@@ -14,7 +14,7 @@ std::string vec_to_string(const std::vector <std::string> &vec) {
                            });
 }
 
-bool has_all_of_these(std::optional<std::vector<wam::var_binding>> ans, std::initializer_list<std::string> substs) {
+void has_all_of_these(std::optional<std::vector<wam::var_binding>> ans, std::initializer_list<std::string> substs) {
     REQUIRE(ans.has_value());
     REQUIRE(ans->size() == substs.size() / 2);
 

@@ -68,7 +68,7 @@ function onRunClicked() {
     try {
         instances[instanceid].tryExecute(inputProgram, inputQuery);
     } catch (err) {
-        alert.show("Error getting result. Probably ran out of memory (infinite loop). Please refresh the page.");
+        alert.show("Error getting result. Probably ran out of memory (infinite loop?). Please close some answers (gray boxes) using the X on the top right to free up memory.");
         console.log(err);
     }
     
