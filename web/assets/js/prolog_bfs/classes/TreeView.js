@@ -127,7 +127,23 @@ class TreeView {
         
         var nodes = [];
         var edges = [];
-        
+
+        if(tree.isOOMNode()){
+            nodes.push( { id: 0,
+                label: "Not enough memory to generate the tree",
+                color: {
+                    hover: {
+                        background: "lightred",
+                        border: "black"
+                    }
+                }
+            });
+            return {
+                nodes: new vis.DataSet(nodes),
+                edges: new vis.DataSet(edges)
+            };
+        }
+
         var queue = new Queue(); // queue of query_nodes
         queue.enqueue(tree);
         

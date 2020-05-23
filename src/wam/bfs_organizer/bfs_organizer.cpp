@@ -157,7 +157,13 @@ compiler::error wam::bfs_organizer::validate_query(const std::string_view code) 
 }
 
 wam::query_node wam::bfs_organizer::get_unification_tree() const{
-    return wam::make_tree(init_executor, storage);
+    try{
+        return wam::make_tree(init_executor, storage);
+    }catch(const std::bad_alloc& e){
+        auto err_node = wam::query_node{nullptr, 0, 0};
+        err_node.set_resolved_name("Not enough memory to generate the tree");
+        return err_node;
+    }
 }
 
 wam::bfs_organizer::bfs_organizer() : built_in_preds{get_build_in_predicates(storage)}{
