@@ -22,11 +22,10 @@ namespace wam {
 
         template<typename Iter, typename String>
         void operator()(compiler::error &err, Iter begin, Iter end, Iter error_pos, String what) const {
-            //row and col are not 0 based in boost spirit, thats why -1
             err.type = compiler::ERROR_TYPE::PARSER_ERROR;
-            err.source_info.line_begin = boost::spirit::get_line(error_pos) -1;
-            err.source_info.line_end = boost::spirit::get_line(error_pos) -1;
-            err.column = boost::spirit::get_column(begin, error_pos) -1;
+            err.source_info.line_begin = boost::spirit::get_line(error_pos);
+            err.source_info.line_end = boost::spirit::get_line(error_pos);
+            err.column = boost::spirit::get_column(begin, error_pos);
             std::stringstream ss{};
             ss << what;
             err.description = ss.str();
