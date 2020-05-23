@@ -19,8 +19,8 @@ TEST_CASE("Validate correct program Code", "[validate]") {
 TEST_CASE("Validate wrong program Code", "[validate]") {
     bfs_organizer org;
     auto r = org.validate_program("f(a) :- f(b) X.\nf(a) :- f(b), f(c)");
-    REQUIRE(r.get_row() == 0);
-    REQUIRE(r.get_col() == 13);
+    REQUIRE(r.get_row() == 1);
+    REQUIRE(r.get_col() == 14);
     REQUIRE(r.exists());
 }
 
@@ -28,14 +28,14 @@ TEST_CASE("Parser program aa).", "[validate]") {
     bfs_organizer org;
     auto r = org.validate_program("aa).");
     REQUIRE(r.exists());
-    REQUIRE(r.get_row() == 0);
-    REQUIRE(r.get_col() == 2);
+    REQUIRE(r.get_row() == 1);
+    REQUIRE(r.get_col() == 3);
 }
 
 TEST_CASE("Parser program JOKES_AND_STUFF.", "[validate]") {
     bfs_organizer org;
     auto r = org.validate_program("JOKES_AND_STUFF.");
     REQUIRE(r.exists());
-    REQUIRE(r.get_row() == 0);
-    REQUIRE(r.get_col() == 0);
+    REQUIRE(r.get_row() == 1);
+    REQUIRE(r.get_col() == 1);
 }

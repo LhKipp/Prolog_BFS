@@ -34,7 +34,7 @@ std::vector<node> wam::preds::get_append_node_tree() {
     clause_head.children->emplace_back(result_list);
 
     node body_atom{STORED_OBJECT_FLAG ::FUNCTOR, "append"};
-    body_atom.code_info = code_info_for_built_in("append(Xs, Ys, Rs)")
+    body_atom.code_info = code_info_for_built_in("append(Xs, Ys, Rs)");
     body_atom.children->emplace_back(STORED_OBJECT_FLAG::VARIABLE, "Xs");
     body_atom.children->emplace_back(STORED_OBJECT_FLAG::VARIABLE, "Ys");
     body_atom.children->emplace_back(STORED_OBJECT_FLAG::VARIABLE, "Rs");

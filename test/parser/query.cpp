@@ -15,8 +15,8 @@ TEST_CASE("Validate wrong query Code", "[validate]") {
     bfs_organizer org;
     auto r = org.validate_query("DFS, LKJ, f(b), d.");
     REQUIRE(r.exists());
-    REQUIRE(r.get_row() == 0);
-    REQUIRE(r.get_col() == 0);
+    REQUIRE(r.get_row() == 1);
+    REQUIRE(r.get_col() == 1);
 }
 
 TEST_CASE("Validate correct query Code", "[validate]") {
@@ -29,6 +29,6 @@ TEST_CASE("Parser query aa).", "[validate]") {
     bfs_organizer org;
     auto r = org.validate_query("aa).");
     REQUIRE(r.exists());
-    REQUIRE(r.get_row() == 0);
-    REQUIRE(r.get_col() == 2);
+    REQUIRE(r.get_row() == 1);
+    REQUIRE(r.get_col() == 3);
 }
