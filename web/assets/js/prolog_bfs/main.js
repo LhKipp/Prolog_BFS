@@ -76,6 +76,11 @@ function onRunClicked() {
     scrollResultsToBottom();
 }
 
+function runTests() {
+    // c++ unit tests
+    (new emscriptenModuleInstance.Tests()).runCatch();
+}
+
 /**
  * Automatically store the program code to prevent
  * data loss when the browser crashes.
