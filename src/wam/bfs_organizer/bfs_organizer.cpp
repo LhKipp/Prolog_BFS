@@ -57,7 +57,18 @@ wam::result wam::bfs_organizer::get_answer() {
 }
 
 wam::result wam::bfs_organizer::exec_executors(){
+    using namespace std::chrono;
+    system_clock::time_point start_time = system_clock::now();
+
     while (!executors.empty()) {
+
+        //Check that time_limit is not exceeded
+        auto elapsed_time = system_clock::now() - start_time;
+        if(elapsed_time > this->time_limit){
+            return wam::result{wam::runtime_error{ERROR_TYPE::OUT_OF_TIME, "Time limit exceeded"}};
+        }
+
+
         executor* next_exec = executors.front();
         executors.pop_front();
 
@@ -121,16 +132,20 @@ compiler::error wam::bfs_organizer::load_query(const std::string &query_line) {
 }
 
 void wam::bfs_organizer::clear_memory(){
-    //Clear all the executors
-    std::vector<std::unique_ptr<executor>>().swap(init_executor.children);
-    //Remove them from execution list
-    executors.clear();
-
+    //Clearing in a tree, calls all destructor in dfs order (?).
+    //That takes a lot of memory depending on the depth
+    //So we clear all objects which in the destructor do not call that many other
+    //destructors first.
     //clear other global storage
     storage.clear_memory();
+    std::list<executor*>().swap(executors);
+
+    std::vector<compiled_atom>().swap(current_query_code.atoms());
     std::unordered_map<functor_view, std::vector<rule>>().swap(program_code);
     std::unordered_map<functor_view, std::vector<rule>>().swap(built_in_preds);
-    std::vector<compiled_atom>().swap(current_query_code.atoms());
+
+    //Clear all the executors
+    std::vector<std::unique_ptr<executor>>().swap(init_executor.children);
 }
 
 compiler::error wam::bfs_organizer::validate_program(const std::string_view code) {
@@ -168,5 +183,9 @@ wam::query_node wam::bfs_organizer::get_unification_tree() const{
 
 wam::bfs_organizer::bfs_organizer() : built_in_preds{get_build_in_predicates(storage)}{
     program_code = built_in_preds;
+}
+
+void bfs_organizer::set_time_limit(const std::chrono::microseconds &timeLimit) {
+    this->time_limit = timeLimit;
 }
 

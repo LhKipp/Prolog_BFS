@@ -6,6 +6,8 @@
 #define PROLOG_BFS_RUNTIME_ERROR_TYPE_H
 
 enum class ERROR_TYPE{
+    //Error thrown if no result has been found withing a given time_frame
+    OUT_OF_TIME,
     NONE,
     OUT_OF_MEMORY,
     DIV_BY_0,

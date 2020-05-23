@@ -4,6 +4,7 @@
 #include <vector>
 #include <wam/bfs_organizer/bfs_organizer.h>
 #include <emscripten/bind.h>
+#include <chrono>
 
 using namespace emscripten;
 using namespace wam;
@@ -12,6 +13,10 @@ using namespace wam;
 class PrologBFSWasmWrapper{
     wam::bfs_organizer *bfs_organizer = new wam::bfs_organizer;
 public:
+
+    void setTimeLimit(size_t microseconds){
+        bfs_organizer->set_time_limit(std::chrono::microseconds{microseconds});
+    }
 
     void clear(){
         bfs_organizer->clear_memory();

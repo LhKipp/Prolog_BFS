@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <vector>
 #include <list>
+#include <chrono>
 #include "../data/functor_view.h"
 #include "../data/var_binding.h"
 #include "../data/compiled_atom.h"
@@ -36,6 +37,8 @@ namespace wam {
         //Queue of executors, to execute
         std::list<executor*> executors;
 
+        std::chrono::microseconds time_limit{100'000};
+
         wam::storage storage;
         //functor to multiple term_codes
         std::unordered_map<functor_view, std::vector<rule>> program_code;
@@ -45,6 +48,7 @@ namespace wam {
         compiler::error load_term_lines(std::string_view term_lines);
         wam::result exec_executors();
     public:
+        void set_time_limit(const std::chrono::microseconds &timeLimit);
 
         bfs_organizer();
         void clear_memory();
