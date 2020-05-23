@@ -43,10 +43,11 @@ namespace wam {
         wam::rule current_query_code;
 
         compiler::error load_term_lines(std::string_view term_lines);
+        wam::result exec_executors();
     public:
 
         bfs_organizer();
-        void clear();
+        void clear_memory();
 
         compiler::error validate_program(std::string_view code);
         compiler::error validate_query(std::string_view code);
@@ -70,6 +71,7 @@ namespace wam {
         }
 
         void merge_program_and_built_in_preds();
+
     };
 
 

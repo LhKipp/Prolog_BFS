@@ -48,6 +48,14 @@ namespace wam{
             expressions.push_back(expr);
             return (int)expressions.size() -1;
         }
+
+        void inline clear_memory() {
+            //Global storage for all executors
+            std::unordered_map<functor_view, size_t>().swap(functor_index_map);
+            std::vector<functor_view>().swap(functors);
+            std::vector<var>().swap(variables);
+            std::vector<node>().swap(expressions);
+        }
     };
 }
 #endif //PROLOG_BFS_STORAGE_H

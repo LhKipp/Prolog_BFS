@@ -14,7 +14,7 @@ class PrologBFSWasmWrapper{
 public:
 
     void clear(){
-        bfs_organizer->clear();
+        bfs_organizer->clear_memory();
         delete bfs_organizer;
     }
 

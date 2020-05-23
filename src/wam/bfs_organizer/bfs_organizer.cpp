@@ -48,6 +48,15 @@ compiler::error wam::bfs_organizer::load_term_lines(const std::string_view code)
 
 
 wam::result wam::bfs_organizer::get_answer() {
+    try{
+        return exec_executors();
+    }catch(const std::bad_alloc& err){
+        clear_memory();
+        return wam::result(wam::runtime_error{ERROR_TYPE::OUT_OF_MEMORY, "Memory exhausted."});
+    }
+}
+
+wam::result wam::bfs_organizer::exec_executors(){
     while (!executors.empty()) {
         executor* next_exec = executors.front();
         executors.pop_front();
@@ -82,7 +91,7 @@ wam::result wam::bfs_organizer::get_answer() {
     }
 
     //no more executor
-    return wam::result{std::nullopt};
+    return result{std::nullopt};
 }
 
 
@@ -111,12 +120,17 @@ compiler::error wam::bfs_organizer::load_query(const std::string &query_line) {
     return compiler::error{};
 }
 
-void wam::bfs_organizer::clear(){
+void wam::bfs_organizer::clear_memory(){
+    //Clear all the executors
+    std::vector<std::unique_ptr<executor>>().swap(init_executor.children);
+    //Remove them from execution list
     executors.clear();
-    storage.functor_index_map.clear();
-    storage.functors.clear();
-    program_code.clear();
-    current_query_code.atoms().clear();
+
+    //clear other global storage
+    storage.clear_memory();
+    std::unordered_map<functor_view, std::vector<rule>>().swap(program_code);
+    std::unordered_map<functor_view, std::vector<rule>>().swap(built_in_preds);
+    std::vector<compiled_atom>().swap(current_query_code.atoms());
 }
 
 compiler::error wam::bfs_organizer::validate_program(const std::string_view code) {

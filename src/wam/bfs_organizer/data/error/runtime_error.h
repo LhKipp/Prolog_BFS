@@ -18,6 +18,8 @@ namespace wam{
 
         runtime_error(): err_code{ERROR_TYPE::NONE} {}
 
+        runtime_error(ERROR_TYPE err_type, std::string explanation): err_code{err_type},
+            explanation{std::move(explanation)}{}
         runtime_error(ERROR_TYPE errCode, const source_code_info &atomWithErr, std::string_view explanation)
                 : err_code(errCode), atom_with_err(atomWithErr), explanation(explanation) {}
 

@@ -7,6 +7,7 @@
 
 enum class ERROR_TYPE{
     NONE,
+    OUT_OF_MEMORY,
     DIV_BY_0,
     ARGUMENTS_NOT_SUFF_INSTANCIATED,
 
