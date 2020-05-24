@@ -27,11 +27,10 @@ namespace wam{
             return err_code != ERROR_TYPE ::NONE;
         }
 
-        std::string get_type_as_str()const{
-            return ((const char *[]) {
-                    "DIV BY 0",
-            }[static_cast<size_t>(err_code)]);
+        ERROR_TYPE get_err_type()const{
+            return err_code;
         }
+
         int get_err_line()const{
             return atom_with_err.line_begin;
         }
