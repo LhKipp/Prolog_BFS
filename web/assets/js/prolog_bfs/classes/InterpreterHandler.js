@@ -77,6 +77,13 @@ class InterpreterHandler {
         this.getAnswer((result) => {
             // show answer
             this.resultDiv.addAnswer(result);
+            
+            // enable buttons. If the result is false, there is no need to
+            // enable the next button because we can't get more results.
+            if (result != 'false') {
+                this.resultDiv.setNextButtonEnabled(true);
+            }
+            this.resultDiv.setTreeViewButtonEnabled(true);
         });
         
         // tell TreeViews they need an update
@@ -92,6 +99,13 @@ class InterpreterHandler {
     getAnswer(callback) {
         try {
             let runOnce = () => {
+                // it might happen sometimes that the process was killed by the
+                // user, just after setTimeout was set for this function again.
+                // In that case, just skip it because we don't need it anymore.
+                if (typeof this.interpreter == 'undefined') {
+                    return;
+                }
+                
                 let result = this.interpreter.getAnswer();
 
                 if (result.isAnswer()) {
@@ -146,7 +160,7 @@ class InterpreterHandler {
             // check whether there might be more answers. If not, disable the next button
             // let tree = this.interpreter.getUnificationTree();
             if (result == 'false') {
-                this.resultDiv.disableNext();
+                this.resultDiv.setNextButtonEnabled(false);
             }
         });
 
