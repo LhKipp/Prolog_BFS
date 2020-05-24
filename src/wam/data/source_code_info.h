@@ -6,6 +6,7 @@
 #define PROLOG_BFS_SOURCE_CODE_INFO_H
 
 #include <string>
+#include <wam/config/config.h>
 namespace wam{
 
     struct source_code_info {
@@ -21,8 +22,8 @@ namespace wam{
     };
 
     inline source_code_info code_info_for_built_in(std::string built_in_pred){
-        return source_code_info{std::numeric_limits<unsigned>::max(),
-                                std::numeric_limits<unsigned>::max(),
+        return source_code_info{wam::config::BUILT_IN_PREDICATES_LINE_NUMBER,
+                                wam::config::BUILT_IN_PREDICATES_LINE_NUMBER,
                                 built_in_pred};
     }
 }
