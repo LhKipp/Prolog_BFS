@@ -18,7 +18,9 @@ class InterpreterHandler {
             return;
         }
         this.interpreter = new emscriptenModuleInstance.PrologBFSWasmWrapper();
-        this.interpreter.setTimeLimit(100000);
+        
+        // give the interpreter 100ms to respond 
+        this.interpreter.setTimeLimit(100000); // unit: µs
         
         this.resultDiv = new Result(this.instanceid);
         this.treeView = new TreeView(this.instanceid);
@@ -135,20 +137,24 @@ class InterpreterHandler {
     }
     
     onNextClicked() {
-        var result = this.getAnswer();
-        
-        this.resultDiv.addAnswer(result);
+        this.getAnswer((result) => {
+            // stop trying to get answers
+            window.clearInterval(this.answerInterval);
+            
+            // show answer
+            this.resultDiv.addAnswer(result);
+            
+            // check whether there might be more answers. If not, disable the next button
+            // let tree = this.interpreter.getUnificationTree();
+            if (result == 'false') {
+                this.resultDiv.disableNext();
+            }
+        });
 
         scrollResultsToBottom();
         
         // tell TreeViews they need an update
         TreeView.newest_drawing_id++;
-        
-        // check whether there might be more answers. If not, disable the next button
-        // let tree = this.interpreter.getUnificationTree();
-        if (result == 'false') {
-            this.resultDiv.disableNext();
-        }
     }
     
     onShowTreeViewClicked() {
