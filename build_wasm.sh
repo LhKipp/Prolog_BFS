@@ -9,14 +9,14 @@ cp CMakeLists.txt.wasm CMakeLists.txt
 emcmake cmake CMakeLists.txt
 
 case $1 in
-    ""|"prod") echo "Running production built"
-            emmake make prolog_bfs_prod
+    "prod") echo "Running production built"
+            emmake make -j 12 prolog_bfs_prod
         ;;
-    "dev") echo "Running development built"
-            emmake make prolog_bfs_dev
+    ""|"dev") echo "Running development built"
+            emmake make -j 12 prolog_bfs_dev
         ;;
     "test") echo "Running testing built"
-            emmake make prolog_bfs_test
+            emmake make -j 12 prolog_bfs_test
         ;;
     *|"help") echo "Allowed options: prod, dev, test. e.g. build_wasm.sh prod"
 esac
