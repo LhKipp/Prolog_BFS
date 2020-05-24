@@ -123,9 +123,11 @@ setInterval(function () {
  * Refresh memory usage bar in navbar
  */
 window.setInterval(() => {
-    let usage_percent = emscriptenModuleInstance.getMemoryUsage() / memoryLimit * 100; // 500MB max
+    let usageBytes = emscriptenModuleInstance.getMemoryUsage();
+    let usagePercent = usageBytes / memoryLimit * 100;
     let bar = document.getElementById('memory_usage_bar');
-    bar.style = "width: " + usage_percent + "%";
+    bar.style = "width: " + usagePercent + "%";
+    bar.innerText = Math.round(usageBytes / 1024 / 1024) + " MiB";
 }, 500);
 
 /*
