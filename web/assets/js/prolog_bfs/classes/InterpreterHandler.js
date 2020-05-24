@@ -75,9 +75,6 @@ class InterpreterHandler {
         
         // get the answer and call back, when it's there
         this.getAnswer((result) => {
-            // stop trying to get answers
-            window.clearInterval(this.answerInterval);
-            
             // show answer
             this.resultDiv.addAnswer(result);
         });
@@ -94,7 +91,7 @@ class InterpreterHandler {
      */
     getAnswer(callback) {
         try {
-            let intervalFunction = () => {
+            let runOnce = () => {
                 let result = this.interpreter.getAnswer();
 
                 if (result.isAnswer()) {
@@ -120,13 +117,13 @@ class InterpreterHandler {
                         return;
                     }
                 }
+                // run immediately again with next event loop.
+                // not doing a while loop prevents the browser form freezing.
+                window.setTimeout(runOnce, 0); 
             };
             
-            this.answerInterval = window.setInterval(intervalFunction, 100);
-            
-            // execute immediately. An interval starts with the delay before
-            // excecuting the first time. we don't want to wait for that.
-            intervalFunction(); 
+            // run a first time and let the function decide, whether it should run another time
+            runOnce(); 
         } catch (err) {
             console.log(err);
             callback("Error getting result. Probably ran out of memory (infinite loop?).<br>Please close some answers (gray boxes) using the X on the top right to free up memory.");
@@ -143,9 +140,6 @@ class InterpreterHandler {
     
     onNextClicked() {
         this.getAnswer((result) => {
-            // stop trying to get answers
-            window.clearInterval(this.answerInterval);
-            
             // show answer
             this.resultDiv.addAnswer(result);
             
