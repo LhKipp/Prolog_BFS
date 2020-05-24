@@ -110,6 +110,8 @@ compiler::error wam::bfs_organizer::load_query(const std::string &query_line) {
     auto query = append_dot_if_not_present(query_line);
     //Clear the old executors
     executors.clear();
+    //Clear the old statistics
+    runtime_stats = wam::runtime_statistics{};
     //parse the query and save the results
     try{
         current_query_code = compile_query(query, storage);

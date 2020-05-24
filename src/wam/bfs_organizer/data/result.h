@@ -11,11 +11,17 @@
 #include <wam/data/var_binding.h>
 #include <wam/bfs_organizer/data/error/runtime_error.h>
 #include <cassert>
+#include "runtime_statistics.h"
 
 namespace wam{
     struct result{
 
         std::variant<std::optional<std::vector<wam::var_binding>>, wam::runtime_error> data;
+        wam::runtime_statistics statistics;
+
+        const wam::runtime_statistics& get_statistics()const{
+            return statistics;
+        }
 
         bool is_error()const{
             return std::holds_alternative<wam::runtime_error>(data);

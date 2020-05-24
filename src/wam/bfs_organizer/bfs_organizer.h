@@ -21,6 +21,7 @@
 #include "data/storage.h"
 #include <wam/bfs_organizer/data/result.h>
 #include <wam/compiler/error/compiler_error.h>
+#include <wam/bfs_organizer/data/runtime_statistics.h>
 
 
 namespace wam {
@@ -33,6 +34,7 @@ namespace wam {
     private:
 
         executor init_executor;
+        wam::runtime_statistics runtime_stats;
 
         //Queue of executors, to execute
         std::list<executor*> executors;

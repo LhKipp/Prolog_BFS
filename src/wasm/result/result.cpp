@@ -9,6 +9,7 @@ using namespace emscripten;
 EMSCRIPTEN_BINDINGS(result) {
         class_<wam::result>("result")
                 //.constructor()
+                .function("getRuntimeStatistics", &wam::result::get_statistics)
                 .function("isError", &wam::result::is_error)
                 .function("isAnswer", &wam::result::is_answer)
                 .function("getError", &wam::result::get_error)

@@ -348,6 +348,8 @@ void wam::call(wam::executor &old_executor, const functor_view &functor) {
     std::cout << "call to: " << functor.name << std::endl;
 #endif
     bfs_organizer *organizer = old_executor.get_organizer();
+    //Everytime we call, we nearby finished the query. so we can inc the count
+    organizer->runtime_stats.inc_queries_asked_count();
 
     if (!organizer->has_code_for(functor)) {
 #ifdef DEBUG

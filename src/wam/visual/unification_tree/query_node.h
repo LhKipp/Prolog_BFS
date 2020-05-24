@@ -125,6 +125,7 @@ namespace wam {
             query_name = std::move(name);
             resolved_query_name = query_name.to_string();
         }
+
         void set_resolved_name(std::string resolved_name){
             this->resolved_query_name = std::move(resolved_name);
         }
