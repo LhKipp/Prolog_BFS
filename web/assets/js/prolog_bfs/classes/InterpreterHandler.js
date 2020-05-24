@@ -94,8 +94,7 @@ class InterpreterHandler {
      */
     getAnswer(callback) {
         try {
-            //while (true) {
-            this.answerInterval = window.setInterval( () => {
+            let intervalFunction = () => {
                 let result = this.interpreter.getAnswer();
 
                 if (result.isAnswer()) {
@@ -121,7 +120,13 @@ class InterpreterHandler {
                         return;
                     }
                 }
-            }, 100);
+            };
+            
+            this.answerInterval = window.setInterval(intervalFunction, 100);
+            
+            // execute immediately. An interval starts with the delay before
+            // excecuting the first time. we don't want to wait for that.
+            intervalFunction(); 
         } catch (err) {
             console.log(err);
             callback("Error getting result. Probably ran out of memory (infinite loop?).<br>Please close some answers (gray boxes) using the X on the top right to free up memory.");
