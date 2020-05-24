@@ -15,9 +15,10 @@ class InterpreterHandler {
     constructor() {
         if (runtimeInitialized === false) {
             alert("Please wait until Prolog BFS is loaded and try again. This might take a second.");
-        } else {
-            this.interpreter = new emscriptenModuleInstance.PrologBFSWasmWrapper();
+            return;
         }
+        this.interpreter = new emscriptenModuleInstance.PrologBFSWasmWrapper();
+        this.interpreter.setTimeLimit(100000);
         
         this.resultDiv = new Result(this.instanceid);
         this.treeView = new TreeView(this.instanceid);
@@ -69,7 +70,15 @@ class InterpreterHandler {
         
         // create a result box with the answer in it.
         this.resultDiv.initialize(this.queryCode);
-        this.resultDiv.addAnswer(this.getAnswer());
+        
+        // get the answer and call back, when it's there
+        this.getAnswer((result) => {
+            // stop trying to get answers
+            window.clearInterval(this.answerInterval);
+            
+            // show answer
+            this.resultDiv.addAnswer(result);
+        });
         
         // tell TreeViews they need an update
         TreeView.newest_drawing_id++;
@@ -81,26 +90,40 @@ class InterpreterHandler {
      * Get the next answer from the interpreter and return it.
      * @returns {string} answer
      */
-    getAnswer() {
+    getAnswer(callback) {
         try {
-            let result = this.interpreter.getAnswer();
-            
-            if (result.isAnswer()) {
-                // no parsing error, no runtime error
-                return result.getAnswerAsString();
-            } else {
-                // no parsing error, got runtime error
-                /*
-                console.log(result.getError().getTypeAsString());
-                console.log(result.getError().getErrorLine());
-                console.log(result.getError().getErrorAtomAsString());
-                console.log(result.getError().getExplanation());
-                */
-                return result.getError().getExplanation();
-            }
+            //while (true) {
+            this.answerInterval = window.setInterval( () => {
+                let result = this.interpreter.getAnswer();
+
+                if (result.isAnswer()) {
+                    // no parsing error, no runtime error
+                    callback(result.getAnswerAsString());
+                    return;
+                } else {
+                    let error = result.getError();
+                    // no parsing error, got runtime error
+                    /*
+                    console.log(result.getError().getType());
+                    console.log(result.getError().getErrorLine());
+                    console.log(result.getError().getErrorAtomAsString());
+                    console.log(result.getError().getExplanation());
+                    */
+                    if (error.getType() == emscriptenModuleInstance.ERROR_TYPE.OUT_OF_TIME) {
+                        if (isMemoryLimitReached()) {
+                            callback("Soft memory limit reached. Please close some results.");
+                            return;
+                        }
+                    } else {
+                        callback(result.getError().getExplanation());
+                        return;
+                    }
+                }
+            }, 100);
         } catch (err) {
             console.log(err);
-            return "Error getting result. Probably ran out of memory (infinite loop?).<br>Please close some answers (gray boxes) using the X on the top right to free up memory.";
+            callback("Error getting result. Probably ran out of memory (infinite loop?).<br>Please close some answers (gray boxes) using the X on the top right to free up memory.");
+            return;
         }
     }
     
@@ -138,6 +161,9 @@ class InterpreterHandler {
      * Do memory cleanup and remove the result box
      */
     kill() {
+        // don't try to get further answers
+        window.clearInterval(this.answerInterval);
+        
         this.interpreter.clear();
         delete this.interpreter;
         this.resultDiv.destroy();
