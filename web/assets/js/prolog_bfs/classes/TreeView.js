@@ -132,10 +132,8 @@ class TreeView {
             nodes.push( { id: 0,
                 label: "Not enough memory to generate the tree",
                 color: {
-                    hover: {
-                        background: "lightred",
-                        border: "black"
-                    }
+                    background: "#dc3545",
+                    border: "red"
                 }
             });
             return {
@@ -164,7 +162,12 @@ class TreeView {
             var current_query_node_id = current_query_node.getNodeID();
 
             // add current query_node as node to vis network
-            nodes.push({ id: current_query_node_id, label: current_query_node.getQueryAsString() });
+            nodes.push({ 
+                id: current_query_node_id, 
+                label: current_query_node.getResolvedQueryAsString(),
+                title: "Line "+current_query_node.getQueryCodeLine() + ": " +
+                        current_query_node.getUnresolvedQueryAsString()
+            });
 
             // query_node TO BE CONTINUED, we don't know its children yet
             if (current_query_node.isToBeContinued()) {
@@ -220,8 +223,6 @@ class TreeView {
                     }
                     // var_binding_node FAILED, reached end
                     else if (var_binding_nodes.get(i).failed()) {
-                        /** @todo */
-                            //Der Fassbender baum lässt manche failed nodes weg... Deshalb hier an jeder edge die rule line
                         nodes.push( { 
                             id: additional_node_counter, 
                             label: "not unifiable",
