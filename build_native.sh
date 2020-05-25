@@ -11,4 +11,4 @@
 cp CMakeLists.txt.native CMakeLists.txt
 
 cmake CMakeLists.txt
-make prolog_bfs
+make prolog_bfs -j $(($(nproc) + 1)) 
