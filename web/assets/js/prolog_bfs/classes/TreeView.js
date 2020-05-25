@@ -132,10 +132,8 @@ class TreeView {
             nodes.push( { id: 0,
                 label: "Not enough memory to generate the tree",
                 color: {
-                    hover: {
-                        background: "lightred",
-                        border: "black"
-                    }
+                    background: "#dc3545",
+                    border: "red"
                 }
             });
             return {
@@ -160,11 +158,25 @@ class TreeView {
         var additional_node_counter = -1;
 
         while (!queue.isEmpty()) {
-            var current_query_node = queue.dequeue();
-            var current_query_node_id = current_query_node.getNodeID();
+            let current_query_node = queue.dequeue();
+            let current_query_node_id = current_query_node.getNodeID();
+
+            /*
+             * We need to treat a special case here. If the line number is
+             * 1696969, then that means it's a built in predicate. As it is not
+             * in the program code, we can't give a line number.
+             */
+            let current_query_node_line_string =
+                    current_query_node.getQueryCodeLine() == 1696969
+                    ? "built-in predicate"
+                    : "Line " + current_query_node.getQueryCodeLine();
 
             // add current query_node as node to vis network
-            nodes.push({ id: current_query_node_id, label: current_query_node.getQueryAsString() });
+            nodes.push({ 
+                id: current_query_node_id, 
+                label: current_query_node.getResolvedQueryAsString(),
+                title: current_query_node_line_string + ": " + current_query_node.getUnresolvedQueryAsString()
+            });
 
             // query_node TO BE CONTINUED, we don't know its children yet
             if (current_query_node.isToBeContinued()) {
@@ -201,6 +213,16 @@ class TreeView {
                 // Add children to the queue
                 // Differentiate 4 states a var_binding_node can have
                 for (var i = 0; i < var_binding_nodes.size(); i++) {
+                    /*
+                     * We need to treat a special case here. If the line number is
+                     * 1696969, then that means it's a built in predicate. As it is not
+                     * in the program code, we can't give a line number.
+                     */
+                    let current_fact_line_string = 
+                            var_binding_nodes.get(i).getFactCodeLine() == 1696969
+                            ? "built-in predicate"
+                            : "Line " + var_binding_nodes.get(i).getFactCodeLine();
+                    
                     // var_binding_node CONTINUES
                     if (var_binding_nodes.get(i).continues()) {
                         // only go deeper in the tree if a new query follows.
@@ -212,7 +234,7 @@ class TreeView {
                         edges.push( {
                             from: current_query_node_id, 
                             to: var_binding_nodes.get(i).getContinuingQuery().getNodeID(),
-                            title: "Line " + var_binding_nodes.get(i).getFactCodeLine()
+                            title: current_fact_line_string
                                     + ": " + var_binding_nodes.get(i).getFactAsString() + "<br>"
                                     + var_binding_nodes.get(i).getVarBindingsAsString()
                         });
@@ -220,8 +242,6 @@ class TreeView {
                     }
                     // var_binding_node FAILED, reached end
                     else if (var_binding_nodes.get(i).failed()) {
-                        /** @todo */
-                            //Der Fassbender baum lässt manche failed nodes weg... Deshalb hier an jeder edge die rule line
                         nodes.push( { 
                             id: additional_node_counter, 
                             label: "not unifiable",
@@ -233,7 +253,7 @@ class TreeView {
                         edges.push( {
                             from: current_query_node_id,
                             to: additional_node_counter,
-                            title: "Line " + var_binding_nodes.get(i).getFactCodeLine()
+                            title: current_fact_line_string
                                     + ": " + var_binding_nodes.get(i).getFactAsString(),
                             color: {
                                 color: "gray"
@@ -255,7 +275,7 @@ class TreeView {
                             from: current_query_node_id,
                             to: additional_node_counter,
                             //The edge still shows the immediate var_bindings and with which rule unific. happend
-                            title: "Line " + var_binding_nodes.get(i).getFactCodeLine()
+                            title: current_fact_line_string
                                     + ": " + var_binding_nodes.get(i).getFactAsString() + "<br>"
                                     + var_binding_nodes.get(i).getVarBindingsAsString(),
                             color: {
@@ -266,7 +286,6 @@ class TreeView {
                     }
                     // var_binding_node TO BE CONTINUED, we don't know its children yet
                     else {
-                        this.to_be_continued_node_ids.push(additional_node_counter);
                         nodes.push( { id: additional_node_counter,
                             label: "*continue search*",
                             color: { 
