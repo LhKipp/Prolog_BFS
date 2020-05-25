@@ -13,11 +13,11 @@ using namespace wam;
 TEST_CASE("Out of time tests") {
     bfs_organizer org;
 
-    org.load_program_from_file("test_src/arithmetic.pl");
+    org.load_program_from_file("test_src/p5-2.pl");
 
     SECTION("a") {
         org.set_time_limit(std::chrono::microseconds{0});
-        org.load_query("mult(s(o),s(s(s(o))),Z).");
+        org.load_query("lVonM(Ws).");
         auto ans = org.get_answer();
         REQUIRE(ans.is_error());
         auto err = ans.get_error();
