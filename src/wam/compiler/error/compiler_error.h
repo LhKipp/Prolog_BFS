@@ -6,6 +6,7 @@
 #define PROLOG_BFS_COMPILER_ERROR_H
 
 #include <wam/data/source_code_info.h>
+#include <limits>
 #include "compiler_error_type.h"
 
 namespace compiler{
