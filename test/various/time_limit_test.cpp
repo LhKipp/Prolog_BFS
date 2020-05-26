@@ -17,7 +17,7 @@ TEST_CASE("Out of time tests") {
 
     SECTION("a") {
         org.set_time_limit(std::chrono::microseconds{0});
-        org.load_query("lVonM(Ws).");
+        org.load_query("lVonM([a,a,a,a,b,b,b,b]).");
         auto ans = org.get_answer();
         REQUIRE(ans.is_error());
         auto err = ans.get_error();

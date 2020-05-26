@@ -43,8 +43,8 @@ namespace wam{
         
         std::string get_answer_as_str() const;
 
-        result(const std::optional<std::vector<wam::var_binding>> &ans) : data(ans) {}
-        result(const wam::runtime_error& err) : data(err) {}
+        result(const std::optional<std::vector<wam::var_binding>> &ans, const wam::runtime_statistics& stats) : data(ans), statistics{stats} {}
+        result(const wam::runtime_error& err, const wam::runtime_statistics& stats) : data(err), statistics{stats}{}
     };
 }
 

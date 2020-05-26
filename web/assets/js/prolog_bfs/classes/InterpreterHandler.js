@@ -15,9 +15,12 @@ class InterpreterHandler {
     constructor() {
         if (runtimeInitialized === false) {
             alert("Please wait until Prolog BFS is loaded and try again. This might take a second.");
-        } else {
-            this.interpreter = new emscriptenModuleInstance.PrologBFSWasmWrapper();
+            return;
         }
+        this.interpreter = new emscriptenModuleInstance.PrologBFSWasmWrapper();
+        
+        // give the interpreter 100ms to respond 
+        this.interpreter.setTimeLimit(100000); // unit: µs
         
         this.resultDiv = new Result(this.instanceid);
         this.treeView = new TreeView(this.instanceid);
@@ -69,7 +72,19 @@ class InterpreterHandler {
         
         // create a result box with the answer in it.
         this.resultDiv.initialize(this.queryCode);
-        this.resultDiv.addAnswer(this.getAnswer());
+        
+        // get the answer and call back, when it's there
+        this.getAnswer((result) => {
+            // show answer
+            this.resultDiv.addAnswer(result);
+            
+            // enable buttons. If the result is false, there is no need to
+            // enable the next button because we can't get more results.
+            if (result != 'false') {
+                this.resultDiv.setNextButtonEnabled(true);
+            }
+            this.resultDiv.setTreeViewButtonEnabled(true);
+        });
         
         // tell TreeViews they need an update
         TreeView.newest_drawing_id++;
@@ -81,26 +96,52 @@ class InterpreterHandler {
      * Get the next answer from the interpreter and return it.
      * @returns {string} answer
      */
-    getAnswer() {
+    getAnswer(callback) {
         try {
-            let result = this.interpreter.getAnswer();
+            let runOnce = () => {
+                // it might happen sometimes that the process was killed by the
+                // user, just after setTimeout was set for this function again.
+                // In that case, just skip it because we don't need it anymore.
+                if (typeof this.interpreter == 'undefined') {
+                    return;
+                }
+                
+                let result = this.interpreter.getAnswer();
+
+                if (result.isAnswer()) {
+                    // no parsing error, no runtime error
+                    callback(result.getAnswerAsString());
+                    return;
+                } else {
+                    let error = result.getError();
+                    // no parsing error, got runtime error
+                    /*
+                    console.log(result.getError().getType());
+                    console.log(result.getError().getErrorLine());
+                    console.log(result.getError().getErrorAtomAsString());
+                    console.log(result.getError().getExplanation());
+                    */
+                    if (error.getType() == emscriptenModuleInstance.ERROR_TYPE.OUT_OF_TIME) {
+                        if (isMemoryLimitReached()) {
+                            callback("Soft memory limit reached. Please close some results.");
+                            return;
+                        }
+                    } else {
+                        callback(result.getError().getExplanation());
+                        return;
+                    }
+                }
+                // run immediately again with next event loop.
+                // not doing a while loop prevents the browser form freezing.
+                window.setTimeout(runOnce, 0); 
+            };
             
-            if (result.isAnswer()) {
-                // no parsing error, no runtime error
-                return result.getAnswerAsString();
-            } else {
-                // no parsing error, got runtime error
-                /*
-                console.log(result.getError().getTypeAsString());
-                console.log(result.getError().getErrorLine());
-                console.log(result.getError().getErrorAtomAsString());
-                console.log(result.getError().getExplanation());
-                */
-                return result.getError().getExplanation();
-            }
+            // run a first time and let the function decide, whether it should run another time
+            runOnce(); 
         } catch (err) {
             console.log(err);
-            return "Error getting result. Probably ran out of memory (infinite loop?).<br>Please close some answers (gray boxes) using the X on the top right to free up memory.";
+            callback("Error getting result. Probably ran out of memory (infinite loop?).<br>Please close some answers (gray boxes) using the X on the top right to free up memory.");
+            return;
         }
     }
     
@@ -112,20 +153,21 @@ class InterpreterHandler {
     }
     
     onNextClicked() {
-        var result = this.getAnswer();
-        
-        this.resultDiv.addAnswer(result);
+        this.getAnswer((result) => {
+            // show answer
+            this.resultDiv.addAnswer(result);
+            
+            // check whether there might be more answers. If not, disable the next button
+            // let tree = this.interpreter.getUnificationTree();
+            if (result == 'false') {
+                this.resultDiv.setNextButtonEnabled(false);
+            }
+        });
 
         scrollResultsToBottom();
         
         // tell TreeViews they need an update
         TreeView.newest_drawing_id++;
-        
-        // check whether there might be more answers. If not, disable the next button
-        // let tree = this.interpreter.getUnificationTree();
-        if (result == 'false') {
-            this.resultDiv.disableNext();
-        }
     }
     
     onShowTreeViewClicked() {
@@ -138,6 +180,9 @@ class InterpreterHandler {
      * Do memory cleanup and remove the result box
      */
     kill() {
+        // don't try to get further answers
+        window.clearInterval(this.answerInterval);
+        
         this.interpreter.clear();
         delete this.interpreter;
         this.resultDiv.destroy();

@@ -50,8 +50,8 @@ class Result {
                 + ' <button type="button" class="close" aria-label="Close" onclick="instances[' + this.instanceid + '].kill()"> \
                                <span aria-hidden="true">&times;</span> \
                            </button> \
-                           <button type="button" class="btn btn-light btn-sm" onclick="instances[' + this.instanceid + '].onNextClicked()" id="resultalert_'+this.instanceid+'_next">Next</button> \
-                           <button type="button" class="btn btn-light btn-sm" onclick="instances[' + this.instanceid + '].onShowTreeViewClicked()">Show tree view</button> \
+                           <button type="button" class="btn btn-light btn-sm" onclick="instances[' + this.instanceid + '].onNextClicked()" id="resultalert_'+this.instanceid+'_next" disabled>Next</button> \
+                           <button type="button" class="btn btn-light btn-sm" onclick="instances[' + this.instanceid + '].onShowTreeViewClicked()" id="resultalert_'+this.instanceid+'_treeview" disabled>Show tree view</button> \
                        </div>';
         this.isInitialized = true;
     }
@@ -65,16 +65,32 @@ class Result {
     }
     
     /*
-     * Disable the next button, so it can't be clicked anymore and doesn't look
-     * like it can be clicked
+     * Disable/Enable the next button. Disable will make it unclickable
+     * and also look like it can't be clicked.
+     * @param boolean isEnabled true, if it should be enabled
      */
-    disableNext() {
+    setNextButtonEnabled(isEnabled) {
         let button = document.getElementById('resultalert_' + this.instanceid+'_next');
         
-        // disable clicking and make it look disabled
-        button.setAttribute('disabled', '');
+        if (isEnabled == true) {
+            button.removeAttribute('disabled');
+        } else {
+            button.setAttribute('disabled', '');
+        }
+    }
+    
+    /*
+     * Disable/Enable the tree view button. Disable will make it unclickable
+     * and also look like it can't be clicked.
+     * @param boolean isEnabled true, if it should be enabled
+     */
+    setTreeViewButtonEnabled(isEnabled) {
+        let button = document.getElementById('resultalert_' + this.instanceid + '_treeview');
         
-        // add tooltip
-        button.setAttribute('title', 'There are no more answers.');
+        if (isEnabled == true) {
+            button.removeAttribute('disabled');
+        } else {
+            button.setAttribute('disabled', '');
+        }
     }
 }

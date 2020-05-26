@@ -82,6 +82,14 @@ function runTests() {
 }
 
 /**
+ * Decide, whether we are running out of memory we can continue working
+ * @returns boolean
+ */
+function isMemoryLimitReached() {
+    return (emscriptenModuleInstance.getMemoryUsage() > memoryLimit);  // 450
+}
+
+/**
  * Automatically store the program code to prevent
  * data loss when the browser crashes.
  */
@@ -110,6 +118,17 @@ window.onbeforeunload = function () {
 setInterval(function () {
     autosave();
 }, autosaveInterval);
+
+/**
+ * Refresh memory usage bar in navbar
+ */
+window.setInterval(() => {
+    let usageBytes = emscriptenModuleInstance.getMemoryUsage();
+    let usagePercent = usageBytes / memoryLimit * 100;
+    let bar = document.getElementById('memory_usage_bar');
+    bar.style = "width: " + usagePercent + "%";
+    bar.innerText = Math.round(usageBytes / 1024 / 1024) + " MiB";
+}, 500);
 
 /*
  * Make all Bootstrap modals draggable. Specifically helpful when moving the

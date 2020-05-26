@@ -52,7 +52,7 @@ wam::result wam::bfs_organizer::get_answer() {
         return exec_executors();
     }catch(const std::bad_alloc& err){
         clear_memory();
-        return wam::result(wam::runtime_error{ERROR_TYPE::OUT_OF_MEMORY, "Memory exhausted."});
+        return wam::result(wam::runtime_error{ERROR_TYPE::OUT_OF_MEMORY, "Memory exhausted."}, runtime_stats);
     }
 }
 
@@ -65,7 +65,7 @@ wam::result wam::bfs_organizer::exec_executors(){
         //Check that time_limit is not exceeded
         auto elapsed_time = system_clock::now() - start_time;
         if(elapsed_time > this->time_limit){
-            return wam::result{wam::runtime_error{ERROR_TYPE::OUT_OF_TIME, "Time limit exceeded"}};
+            return wam::result{wam::runtime_error{ERROR_TYPE::OUT_OF_TIME, "Time limit exceeded"}, runtime_stats};
         }
 
 
@@ -87,7 +87,7 @@ wam::result wam::bfs_organizer::exec_executors(){
                 instruction(*next_exec);
             }catch(ERROR_TYPE runtime_err){
                 next_exec->clear();
-                return wam::result{next_exec->get_runtime_err()};
+                return wam::result{next_exec->get_runtime_err(), runtime_stats};
             }
             //if the executor fails we stop executing
             if (next_exec->failed()) {
@@ -97,12 +97,12 @@ wam::result wam::bfs_organizer::exec_executors(){
         }
 
         if(next_exec->succeeded()){
-            return wam::result{find_substitutions_from_orig_query(*next_exec, storage)};
+            return wam::result{find_substitutions_from_orig_query(*next_exec, storage), runtime_stats};
         }
     }
 
     //no more executor
-    return result{std::nullopt};
+    return result{std::nullopt, runtime_stats};
 }
 
 

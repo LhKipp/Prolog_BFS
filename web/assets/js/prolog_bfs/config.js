@@ -4,6 +4,9 @@ var autosaveInterval = 60000;
 // how long to store the autosaved code in a cookie; in days
 var autosaveCookieLifetime = 7;
 
+// soft memory limit in bytes
+var memoryLimit = 450 * 1024 * 1024;
+
 /*
  * Hotkey config
  */

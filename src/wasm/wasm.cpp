@@ -60,6 +60,7 @@ public:
 EMSCRIPTEN_BINDINGS(PrologBFSWasmWrapper) {
         class_<PrologBFSWasmWrapper>("PrologBFSWasmWrapper")
                 .constructor()
+                .function("setTimeLimit", &PrologBFSWasmWrapper::setTimeLimit)
                 .function("clear", &PrologBFSWasmWrapper::clear)
                 .function("validateQueryCode", &PrologBFSWasmWrapper::validateQueryCode)
                 .function("validateProgramCode", &PrologBFSWasmWrapper::validateProgramCode)
