@@ -57,4 +57,4 @@ You may omit <env>, resulting in a dev build.
 
 
 # Contributors
-- Martin Weber (https://github.com/askuri). Created the web version, tested the program, gave constructive feedback, found some bugs. Big thanks.
+- Martin Weber (https://github.com/askuri). Created the web version, tested the program, created documentation, gave constructive feedback, found some bugs. Big thanks.
