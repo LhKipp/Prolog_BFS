@@ -9,8 +9,8 @@ class InterpreterHandler {
     programCode;
     queryCode;
     
-    resultDiv;
-    treeView;
+    //resultDiv;
+    //treeView;
     
     constructor() {
         if (runtimeInitialized === false) {
@@ -182,12 +182,11 @@ class InterpreterHandler {
      * Do memory cleanup and remove the result box
      */
     kill() {
-        // don't try to get further answers
-        window.clearInterval(this.answerInterval);
-        
         this.interpreter.clear();
         delete this.interpreter;
+        
         this.resultDiv.destroy();
+        
         console.log("Clearing instanace " + this.instanceid);
     }
     
