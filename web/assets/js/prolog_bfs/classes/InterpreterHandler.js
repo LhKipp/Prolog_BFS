@@ -94,6 +94,8 @@ class InterpreterHandler {
     
     /**
      * Get the next answer from the interpreter and return it.
+     * @param {callback} callback Called when answer is available.
+     *  Callback function must have one parameter: string with the result 
      * @returns {string} answer
      */
     getAnswer(callback) {
