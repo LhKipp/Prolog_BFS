@@ -13,6 +13,7 @@ EMSCRIPTEN_BINDINGS(query_node) {
     //class_<wam::var_binding_node>("VarBindingNode");
     class_<wam::query_node>("QueryNode")
             .function("getNodeID", &wam::query_node::get_node_id)
+            .function("clearMemory", &wam::query_node::clear_memory)
             .function("isToBeContinued", &wam::query_node::is_to_be_continued)
             .function("isOOMNode", &wam::query_node::is_oom_node)
             .function("failed", &wam::query_node::failed)

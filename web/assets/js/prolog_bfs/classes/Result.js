@@ -61,6 +61,7 @@ class Result {
     * from the list and kill the instance behind it.
     */
     destroy() {
+        console.log("in result.destroy()");
        document.getElementById('resultalert_' + this.instanceid).remove();
     }
     

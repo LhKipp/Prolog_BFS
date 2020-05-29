@@ -58,9 +58,10 @@ class TreeView {
     }
     
     draw(tree) {
-        // needs redrawing?
+        // // needs redrawing?
         if (this.drawing_id === TreeView.newest_drawing_id) {
             // no re-drawing needed, do nothing
+            tree.clearMemory();
             return;
         }
         // re-drawing needed
@@ -71,7 +72,9 @@ class TreeView {
 
         // provide the data in the vis format
         var data = this.convertToVisNetwork(tree);
-        
+        //Clear the memory
+        tree.clearMemory();
+
         var options = {
             layout: {
                 improvedLayout: false, // makes performance a little bit better
@@ -94,7 +97,9 @@ class TreeView {
                 font: {align: "horizontal"}
             },
             nodes: {
-                
+                shapeProperties: {
+                    interpolation: false
+                }
             }
         };
 

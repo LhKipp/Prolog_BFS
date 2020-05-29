@@ -25,6 +25,12 @@ namespace wam {
     public:
         query_node() = default;
 
+        void clear_memory(){
+            children.reset();
+            query_name = node();
+            resolved_query_name = "";
+        }
+
         query_node(const executor *query,
                 const size_t children_count,
                 const int node_id) :

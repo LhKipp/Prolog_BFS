@@ -184,7 +184,12 @@ class InterpreterHandler {
     kill() {
         this.interpreter.clear();
         delete this.interpreter;
-        
+        this.treeView.network.off();
+        this.treeView.network.destroy();
+        delete this.treeView.network;
+        delete this.treeView;
+        console.log("Hi again");
+
         this.resultDiv.destroy();
         
         console.log("Clearing instanace " + this.instanceid);
