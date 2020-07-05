@@ -286,6 +286,7 @@ class TreeView {
                     }
                     // var_binding_node TO BE CONTINUED, we don't know its children yet
                     else {
+                        this.to_be_continued_node_ids.push(additional_node_counter);
                         nodes.push( { id: additional_node_counter,
                             label: "*continue search*",
                             color: { 
