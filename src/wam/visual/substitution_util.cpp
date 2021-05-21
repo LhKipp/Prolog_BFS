@@ -3,6 +3,8 @@
 //
 
 #include "substitution_util.h"
+#include <map>
+#include <iostream>
 #include <wam/instructions/util/instructions_util.h>
 #include <wam/visual/unification_tree/util/node_binding.h>
 #include <wam/built_in_predicates/arithmetic/util/arith_functor.h>
@@ -63,13 +65,22 @@ wam::string_representation_of(const executor &executor,
         //Need to negate part of the logic
                               bool is_contigous_list) {
     using namespace wam;
-    index = deref(executor, index);
-    heap_reg reg = executor.heap_at(index);
+    auto derefed_index = deref(executor, index);
+    heap_reg reg = executor.heap_at(derefed_index);
+
+    std::string var;
 
     //If the register is still a ref it is an unbound ref cell
+    /* std::cout << "reg type is ref: " << (reg.type == heap_tag::REF ? "true" : "false") << std::endl; */
     switch(reg.type){
         case heap_tag::REF:
-            return storage.variables[reg.var_index].name;
+            var = storage.variables[reg.var_index].name;
+            std::cout << "REF: " << var << " index: " << index << " derefed_index: " <<derefed_index << std::endl;
+            if(index == derefed_index){var += std::to_string(reg.index);}
+            /* std::cout << "Reg type is ref. Orig index: "<< index << std::endl; */
+            //use variable first index as number
+            /* return storage.variables[reg.var_index].name + std::to_string(index); */
+            return var;
         case heap_tag::INT:
             return std::to_string(reg.get_int_val());
         case heap_tag::CONS:{
@@ -107,8 +118,8 @@ wam::string_representation_of(const executor &executor,
                 if (!is_contigous_list) {
                     result = "[";
                 }
-                result += string_representation_of(executor, index + 1, storage, false) + ",";
-                result += string_representation_of(executor, index + 2, storage, true);
+                result += string_representation_of(executor, derefed_index + 1, storage, false) + ",";
+                result += string_representation_of(executor, derefed_index + 2, storage, true);
 
                 //If the list has been completly built, replace the last "," with an "]"
                 if (!is_contigous_list) {
@@ -121,20 +132,20 @@ wam::string_representation_of(const executor &executor,
             result += functor.name + '(';
             //-1 for correct formatting of the ,
             for (int i = 1; i <= functor.arity - 1; ++i) {
-                result += string_representation_of(executor, index + i, storage) + ',';
+                result += string_representation_of(executor, derefed_index + i, storage) + ',';
             }
-            return result + string_representation_of(executor, index + functor.arity, storage) + ")";
+            return result + string_representation_of(executor, derefed_index + functor.arity, storage) + ")";
         }
         case heap_tag::EVAL_FUN: {
             const auto functor = wam::arithmetic::functor_of(reg.get_eval_fun_i());
             std::string result;
             if(functor.arity == 2){
-                return '(' + string_representation_of(executor, index + 1, storage)
+                return '(' + string_representation_of(executor, derefed_index + 1, storage)
                 + ' ' + functor.name + ' '
-                + string_representation_of(executor, index + 2, storage) + ')';
+                + string_representation_of(executor, derefed_index + 2, storage) + ')';
             }else if(functor.arity == 1){
                 return '(' + functor.name + '('
-                + string_representation_of(executor, index + 1, storage)
+                + string_representation_of(executor, derefed_index + 1, storage)
                 + "))";
             }else{
                 assert(false);
@@ -144,7 +155,11 @@ wam::string_representation_of(const executor &executor,
         case heap_tag::STR:
             //unreachable
             assert(false);
+            return "";
     }
+    //unreachable
+    assert(false);
+    return "";
 }
 
 std::vector<wam::var_heap_substitution>

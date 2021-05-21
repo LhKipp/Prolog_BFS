@@ -22,7 +22,7 @@ TEST_CASE("Visual: Vars don't have index appended") {
     auto ans = org.get_answer().get_answer();
     org.get_unification_tree();
     has_all_of_these(ans, {
-            "Z1", "Z23",
+            "Z1", "Z21",
             "Z2", "Z1"
     });
     org.get_unification_tree();

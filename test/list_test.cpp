@@ -58,3 +58,28 @@ TEST_CASE("len of list tests") {
             "R", "4"
     });
 }
+
+TEST_CASE("istdrin") {
+    bfs_organizer org;
+
+    const char * prog =
+        "istdrin(X, [X|Xs])."
+        "istdrin(X, [Y|Xs]) :- istdrin(X, Xs).";
+    org.load_program(prog);
+    org.load_query("istdrin(a, Zs)");
+    auto ans = org.get_answer().get_answer();
+    org.get_unification_tree();
+    has_all_of_these(ans, {
+        "Zs", "[a,Xs]"
+    });
+    ans = org.get_answer().get_answer();
+    org.get_unification_tree();
+    has_all_of_these(ans, {
+        "Zs", "[Y3,a,Xs]"
+    });
+    ans = org.get_answer().get_answer();
+    org.get_unification_tree();
+    has_all_of_these(ans, {
+        "Zs", "[Y3,Y6,a,Xs1]"
+    });
+}
