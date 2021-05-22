@@ -148,6 +148,22 @@ auto setup_org = [&](string query) {
             REQUIRE(actual_substs.at(subst.var_name) == subst.binding);
         }
     }
+
+    //https://github.com/LhKipp/Prolog_BFS/issues/27
+    /* SECTION("Append list properly coded - append 5") { */
+    /*     setup_org("append([a,b],[c|Xs], Z)."); */
+
+    /*     auto found_answer = org.get_answer().get_answer(); */
+
+    /*     map<std::string, std::string> actual_substs; */
+    /*     actual_substs["Z"] = "[a,b,c|Xs]"; */
+    /*     REQUIRE(found_answer.has_value()); */
+    /*     REQUIRE(found_answer->size() == 1); */
+    /*     for (auto &subst : *found_answer) { */
+    /*         REQUIRE(actual_substs.at(subst.var_name) == subst.binding); */
+    /*     } */
+    /* } */
+
     SECTION("List of list") {
         program_code.emplace_back("f([[a]]).");
 

@@ -70,16 +70,16 @@ TEST_CASE("istdrin") {
     auto ans = org.get_answer().get_answer();
     org.get_unification_tree();
     has_all_of_these(ans, {
-        "Zs", "[a,Xs]"
+        "Zs", "[a|Xs]"
     });
     ans = org.get_answer().get_answer();
     org.get_unification_tree();
     has_all_of_these(ans, {
-        "Zs", "[Y3,a,Xs]"
+        "Zs", "[Y3,a|Xs]"
     });
     ans = org.get_answer().get_answer();
     org.get_unification_tree();
     has_all_of_these(ans, {
-        "Zs", "[Y3,Y6,a,Xs1]"
+        "Zs", "[Y3,Y6,a|Xs1]"
     });
 }

@@ -126,8 +126,18 @@ wam::string_representation_of(const executor &executor,
                 if (!is_contigous_list) {
                     result = "[";
                 }
-                result += string_representation_of(executor, derefed_index + 1, storage, user_entered_var_heap_subs, false) + ",";
-                result += string_representation_of(executor, derefed_index + 2, storage, user_entered_var_heap_subs, true);
+                //Append front element to list
+                result += string_representation_of(executor, derefed_index + 1, storage, user_entered_var_heap_subs, false);
+
+                //If rest is variable it is variable list end, which is shown in the output as:
+                // |<VarName>
+                auto list_rest = derefed_reg(executor, derefed_index + 2);
+                if(list_rest.is_REF()){
+                    result += '|' + string_representation_of(executor, derefed_index + 2, storage, user_entered_var_heap_subs, true);
+                }else{
+                    //The list continues with ,Elem ...
+                    result += ',' + string_representation_of(executor, derefed_index + 2, storage, user_entered_var_heap_subs, true);
+                }
 
                 //If the list has been completly built, replace the last "," with an "]"
                 if (!is_contigous_list) {

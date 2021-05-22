@@ -10,9 +10,6 @@
 using namespace std;
 using namespace wam;
 
-//These tests are not working yet
-
-// Currently disabled as it doesnt work
 TEST_CASE("Visual: Vars don't have index appended") {
     bfs_organizer org;
 
