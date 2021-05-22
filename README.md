@@ -33,7 +33,7 @@ There are 2 different build scripts. "build_native" builds the cli application a
 If you first build wasm, then native (or the other way around) make sure to delete the `CMakeCache.txt` file! Otherwise the build might fail.
 
 ## Building native
-Run `build_native.sh`. Currently, this only runs test cases.
+Run `build_native.sh`. This runs currently only test cases.
 
 ## Building for WebAssembly
 1. Source your emsdk environment
