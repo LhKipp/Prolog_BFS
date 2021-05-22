@@ -3,11 +3,19 @@
 //
 
 #include "substitution_util.h"
-#include <map>
-#include <iostream>
 #include <wam/instructions/util/instructions_util.h>
 #include <wam/visual/unification_tree/util/node_binding.h>
 #include <wam/built_in_predicates/arithmetic/util/arith_functor.h>
+
+
+bool is_user_entered_var(
+    const std::vector<wam::var_heap_substitution>& user_entered_var_heap_subs,
+    const std::string_view var_name){
+    return (std::find_if(user_entered_var_heap_subs.begin(), user_entered_var_heap_subs.end(),
+                    [&](const auto& var_subst){
+                        return var_subst.var_name == var_name;
+                    }) != user_entered_var_heap_subs.end());
+}
 
 
 node wam::node_representation_of(const wam::executor &exec, size_t index, const wam::storage &storage) {
@@ -61,6 +69,7 @@ std::string
 wam::string_representation_of(const executor &executor,
                               size_t index,
                               const wam::storage& storage,
+                              const std::vector<wam::var_heap_substitution>& user_entered_var_heap_subs,
         //TODO Better Naming: is_contigous_list should be is_list_start
         //Need to negate part of the logic
                               bool is_contigous_list) {
@@ -71,15 +80,14 @@ wam::string_representation_of(const executor &executor,
     std::string var;
 
     //If the register is still a ref it is an unbound ref cell
-    /* std::cout << "reg type is ref: " << (reg.type == heap_tag::REF ? "true" : "false") << std::endl; */
     switch(reg.type){
         case heap_tag::REF:
             var = storage.variables[reg.var_index].name;
-            std::cout << "REF: " << var << " index: " << index << " derefed_index: " <<derefed_index << std::endl;
-            if(index == derefed_index){var += std::to_string(reg.index);}
-            /* std::cout << "Reg type is ref. Orig index: "<< index << std::endl; */
-            //use variable first index as number
-            /* return storage.variables[reg.var_index].name + std::to_string(index); */
+            // If the index user is interested in represents unbound REF
+            // and the REF is not a usere enterd var, append the index 
+            // to make the REF unique
+            if(index == derefed_index && !is_user_entered_var(user_entered_var_heap_subs, var))
+                {var += std::to_string(index);}
             return var;
         case heap_tag::INT:
             return std::to_string(reg.get_int_val());
@@ -118,8 +126,8 @@ wam::string_representation_of(const executor &executor,
                 if (!is_contigous_list) {
                     result = "[";
                 }
-                result += string_representation_of(executor, derefed_index + 1, storage, false) + ",";
-                result += string_representation_of(executor, derefed_index + 2, storage, true);
+                result += string_representation_of(executor, derefed_index + 1, storage, user_entered_var_heap_subs, false) + ",";
+                result += string_representation_of(executor, derefed_index + 2, storage, user_entered_var_heap_subs, true);
 
                 //If the list has been completly built, replace the last "," with an "]"
                 if (!is_contigous_list) {
@@ -132,20 +140,20 @@ wam::string_representation_of(const executor &executor,
             result += functor.name + '(';
             //-1 for correct formatting of the ,
             for (int i = 1; i <= functor.arity - 1; ++i) {
-                result += string_representation_of(executor, derefed_index + i, storage) + ',';
+                result += string_representation_of(executor, derefed_index + i, storage, user_entered_var_heap_subs) + ',';
             }
-            return result + string_representation_of(executor, derefed_index + functor.arity, storage) + ")";
+            return result + string_representation_of(executor, derefed_index + functor.arity, storage, user_entered_var_heap_subs) + ")";
         }
         case heap_tag::EVAL_FUN: {
             const auto functor = wam::arithmetic::functor_of(reg.get_eval_fun_i());
             std::string result;
             if(functor.arity == 2){
-                return '(' + string_representation_of(executor, derefed_index + 1, storage)
+                return '(' + string_representation_of(executor, derefed_index + 1, storage, user_entered_var_heap_subs)
                 + ' ' + functor.name + ' '
-                + string_representation_of(executor, derefed_index + 2, storage) + ')';
+                + string_representation_of(executor, derefed_index + 2, storage, user_entered_var_heap_subs) + ')';
             }else if(functor.arity == 1){
                 return '(' + functor.name + '('
-                + string_representation_of(executor, derefed_index + 1, storage)
+                + string_representation_of(executor, derefed_index + 1, storage, user_entered_var_heap_subs)
                 + "))";
             }else{
                 assert(false);
@@ -193,30 +201,17 @@ std::vector<wam::var_heap_substitution> wam::point_var_reg_substs_to_heap(const 
 
 std::vector<wam::var_binding> wam::find_substitutions_from_orig_query(const wam::executor& executor,
         const wam::storage& storage) {
-    std::vector<wam::var_binding> result;
-    //normally user have 1 to 5 vars in their queries. so using vector should be more efficient than set
-
     //This exec is an empty executor. According to impl of proceed instruction, the father will have
     //unified a term. So we can skip this exec and his father
 
+    std::vector<wam::var_heap_substitution> user_entered_var_heap_subs;
     const wam::executor* parent = &executor.get_parent();
     while(true){
         if(parent->is_from_user_entered_query()){
             auto var_heap_subs = wam::point_var_reg_substs_to_heap(*parent);
-            for(const auto& var_heap_sub : var_heap_subs){
-                //If the var has been found in a parent exe already continue
-                if(std::find_if(result.begin(), result.end(),
-                                [&](const var_binding& var_subst){
-                                    return var_subst.var_name == var_heap_sub.var_name;
-                                }) != result.end()){
-                    continue;
-                }
-
-                result.emplace_back(
-                        var_heap_sub.var_name,
-                        wam::string_representation_of(executor, var_heap_sub.heap_index, storage)
-                );
-            }
+            user_entered_var_heap_subs.insert(
+                user_entered_var_heap_subs.end(),
+                var_heap_subs.begin(),var_heap_subs.end());
         }
         if(!parent->has_parent()){
             break;
@@ -226,6 +221,30 @@ std::vector<wam::var_binding> wam::find_substitutions_from_orig_query(const wam:
         //So we can skip the fact execs
         parent = &parent->get_parent();
         parent = &parent->get_parent();
+    }
+
+
+    /* std::sort(user_entered_var_heap_subs.begin(), user_entered_var_heap_subs.end(), [](const auto& a, const auto& b){return a.var_name == b.var_name;}); */
+    /* user_entered_var_heap_subs.erase( */
+    /*         std::unique(user_entered_var_heap_subs.begin(), */
+    /*                     user_entered_var_heap_subs.end()), */
+    /*         user_entered_var_heap_subs.end()); */
+
+    std::vector<wam::var_binding> result;
+    for(const auto& var_heap_sub : user_entered_var_heap_subs){
+        //If the var has been found in a parent exe already continue
+        // TODO This if is necessary
+        if(std::find_if(result.begin(), result.end(),
+                        [&](const var_binding& var_subst){
+                            return var_subst.var_name == var_heap_sub.var_name;
+                        }) != result.end()){
+            continue;
+        }
+
+        result.emplace_back(
+                var_heap_sub.var_name,
+                wam::string_representation_of(executor, var_heap_sub.heap_index, storage, user_entered_var_heap_subs)
+        );
     }
     return result;
 }

@@ -15,6 +15,7 @@
 namespace wam {
     std::string
     string_representation_of(const executor &executor, size_t index, const storage& storage,
+            const std::vector<wam::var_heap_substitution>& user_entered_var_heap_subs,
             bool is_contigous_list = false);
 
     node node_representation_of(const executor& exec, size_t index, const storage& storage);

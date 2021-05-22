@@ -12,6 +12,7 @@ using namespace wam;
 
 //These tests are not working yet
 
+// Currently disabled as it doesnt work
 TEST_CASE("Visual: Vars don't have index appended") {
     bfs_organizer org;
 
@@ -22,8 +23,8 @@ TEST_CASE("Visual: Vars don't have index appended") {
     auto ans = org.get_answer().get_answer();
     org.get_unification_tree();
     has_all_of_these(ans, {
-            "Z1", "Z21",
-            "Z2", "Z1"
+            "Z1", "Z2",
+            "Z2", "Z2"
     });
     org.get_unification_tree();
 }

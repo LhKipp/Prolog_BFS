@@ -19,7 +19,7 @@ TEST_CASE("Hard append") {
     auto ans = org.get_answer().get_answer();
     org.get_unification_tree();
     REQUIRE(ans.has_value());
-    REQUIRE(ans->at(0).binding == "[a,[X6],c,1]");
+    REQUIRE(ans->at(0).binding == "[a,[X],c,1]");
 }
 
 TEST_CASE("Redefinition of append"){
