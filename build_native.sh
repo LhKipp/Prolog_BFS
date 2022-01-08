@@ -8,6 +8,6 @@
 
 # the filename is hardcoded in cmake so we need to do
 # some ugly hacks here
-cp CMakeLists.txt.native CMakeLists.txt
+# cp CMakeLists.txt.native CMakeLists.txt
 
 cmake --build build -j 8 && cmake --install build
