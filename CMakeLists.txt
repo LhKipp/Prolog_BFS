@@ -16,8 +16,6 @@ add_subdirectory(apps)
 #         "test/*.h"
 #         "test/*.cpp"
 #         )
-# add_executable(prolog_bfs main.cpp ${prolog_bfs_src})
 
 #make include from src possible
 # target_include_directories(prolog_bfs PRIVATE ${PROJECT_SOURCE_DIR}/src)
-
