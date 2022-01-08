@@ -13,7 +13,6 @@ cmake_install.cmake
 CMakeCache.txt
 build/*
 bfs
-CMakeLists.txt
 
 # this can be removed as soon as https://github.com/emscripten-core/emscripten/issues/9637#issuecomment-632742739 is fixed
 web/prolog_bfs.data 
