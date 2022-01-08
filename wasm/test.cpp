@@ -1,7 +1,7 @@
 #define CATCH_CONFIG_RUNNER
 #include <iostream>
 #include <emscripten/bind.h>
-#include "../../catch.hpp"
+#include <catch2/catch.hpp>
 #include <filesystem>
 #include <string>
 namespace fs = std::filesystem;

@@ -2,12 +2,12 @@
 // Created by leonhard on 22.03.20.
 //
 
-#include "node_util.h"
+#include "prolog_bfs/wam/compiler/util/node_util.h"
 #include <vector>
 #include <string>
 #include <set>
-#include <wam/visual/unification_tree/util/node_var_util.h>
-#include "node_iteration.h"
+#include <prolog_bfs/wam/visual/unification_tree/util/node_var_util.h>
+#include "prolog_bfs/wam/compiler/util/node_iteration.h"
 
 
 std::vector<wam::var_reg_substitution>

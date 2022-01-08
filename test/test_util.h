@@ -9,7 +9,7 @@
 #include <vector>
 #include <optional>
 #include <map>
-#include <wam/data/var_binding.h>
+#include "prolog_bfs/wam/data/var_binding.h"
 
 std::string vec_to_string(const std::vector<std::string> &vec);
 

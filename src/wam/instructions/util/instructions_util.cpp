@@ -2,9 +2,9 @@
 // Created by leonhard on 29.07.19.
 //
 
-#include "instructions_util.h"
-#include "wam/data/heap_reg.h"
-#include "../../executor/executor.h"
+#include "prolog_bfs/wam/instructions/util/instructions_util.h"
+#include "prolog_bfs/wam/data/heap_reg.h"
+#include "prolog_bfs/wam/executor/executor.h"
 #include <vector>
 #include <cassert>
 

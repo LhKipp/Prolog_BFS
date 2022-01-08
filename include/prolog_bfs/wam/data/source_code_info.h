@@ -6,7 +6,7 @@
 #define PROLOG_BFS_SOURCE_CODE_INFO_H
 
 #include <string>
-#include <wam/config/config.h>
+#include <prolog_bfs/wam/config/config.h>
 namespace wam{
 
     struct source_code_info {

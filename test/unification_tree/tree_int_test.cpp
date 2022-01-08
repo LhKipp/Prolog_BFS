@@ -2,8 +2,8 @@
 // Created by leonhard on 08.05.20.
 //
 
-#include "../catch.hpp"
-#include "../src/wam/bfs_organizer/bfs_organizer.h"
+#include <catch2/catch.hpp>
+#include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
 
 using namespace std;
 using namespace wam;

@@ -6,7 +6,7 @@
 #define PROLOG_BFS_ERROR_HANDLER_H
 
 #include <boost/spirit/include/support_line_pos_iterator.hpp>
-#include <wam/compiler/error/compiler_error.h>
+#include <prolog_bfs/wam/compiler/error/compiler_error.h>
 
 namespace wam {
     template<typename=void>

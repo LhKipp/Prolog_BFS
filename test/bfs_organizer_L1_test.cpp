@@ -1,10 +1,10 @@
 //
 // Created by leonhard on 30.07.19.
 //
-#include "../catch.hpp"
+#include <catch2/catch.hpp>
 
-#include "../src/wam/bfs_organizer/bfs_organizer.h"
-#include "../src/wam/data/var_binding.h"
+#include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
+#include "prolog_bfs/wam/data/var_binding.h"
 #include <map>
 #include <string>
 #include<iostream>

@@ -19,9 +19,9 @@
 #include "../visual/unification_tree/query_node.h"
 #include "../data/rule.h"
 #include "data/storage.h"
-#include <wam/bfs_organizer/data/result.h>
-#include <wam/compiler/error/compiler_error.h>
-#include <wam/bfs_organizer/data/runtime_statistics.h>
+#include <prolog_bfs/wam/bfs_organizer/data/result.h>
+#include <prolog_bfs/wam/compiler/error/compiler_error.h>
+#include <prolog_bfs/wam/bfs_organizer/data/runtime_statistics.h>
 
 
 namespace wam {

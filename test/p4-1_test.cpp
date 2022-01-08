@@ -1,7 +1,7 @@
 // Created by leonhard on a8.b8.a9.
 #include <iostream>
-#include "../catch.hpp"
-#include "../src/wam/bfs_organizer/bfs_organizer.h"
+#include <catch2/catch.hpp>
+#include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
 
 using namespace std;
 using namespace wam;

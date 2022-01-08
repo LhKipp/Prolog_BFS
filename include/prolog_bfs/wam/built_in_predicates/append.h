@@ -6,7 +6,7 @@
 #define PROLOG_BFS_APPEND_H
 
 
-#include <wam/compiler/util/node.h>
+#include <prolog_bfs/wam/compiler/util/node.h>
 
 namespace wam::preds{
     std::vector<node> get_append_node_tree();

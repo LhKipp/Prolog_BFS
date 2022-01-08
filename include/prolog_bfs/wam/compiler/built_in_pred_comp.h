@@ -5,10 +5,10 @@
 #ifndef PROLOG_BFS_BUILT_IN_PRED_COMP_H
 #define PROLOG_BFS_BUILT_IN_PRED_COMP_H
 
-#include <wam/built_in_predicates/equals.h>
-#include <wam/built_in_predicates/not_equals.h>
-#include <wam/compiler/util/seen_register.h>
-#include <wam/bfs_organizer/data/storage.h>
+#include <prolog_bfs/wam/built_in_predicates/equals.h>
+#include <prolog_bfs/wam/built_in_predicates/not_equals.h>
+#include <prolog_bfs/wam/compiler/util/seen_register.h>
+#include <prolog_bfs/wam/bfs_organizer/data/storage.h>
 
 #include <utility>
 

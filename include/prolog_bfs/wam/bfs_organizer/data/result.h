@@ -8,8 +8,8 @@
 #include <variant>
 #include <optional>
 #include <vector>
-#include <wam/data/var_binding.h>
-#include <wam/bfs_organizer/data/error/runtime_error.h>
+#include <prolog_bfs/wam/data/var_binding.h>
+#include <prolog_bfs/wam/bfs_organizer/data/error/runtime_error.h>
 #include <cassert>
 #include "runtime_statistics.h"
 

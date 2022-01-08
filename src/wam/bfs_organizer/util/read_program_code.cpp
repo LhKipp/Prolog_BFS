@@ -2,7 +2,7 @@
 // Created by leonhard on 17.08.19.
 //
 
-#include "read_program_code.h"
+#include "prolog_bfs/wam/bfs_organizer/util/read_program_code.h"
 #include <fstream>
 #include <streambuf>
 

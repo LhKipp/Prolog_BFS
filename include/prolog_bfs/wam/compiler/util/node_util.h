@@ -5,7 +5,7 @@
 #ifndef PROLOG_BFS_NODE_UTIL_H
 #define PROLOG_BFS_NODE_UTIL_H
 
-#include "wam/executor/executor.h"
+#include "prolog_bfs/wam/executor/executor.h"
 #include "node.h"
 #include "../../data/var_reg_substitution.h"
 

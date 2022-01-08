@@ -2,8 +2,8 @@
 // Created by leonhard on 11.03.20.
 //
 
-#include "../../wam/visual/unification_tree/var_binding_node.h"
-#include "../../wam/visual/unification_tree/query_node.h"
+#include "prolog_bfs/wam/visual/unification_tree/var_binding_node.h"
+#include "prolog_bfs/wam/visual/unification_tree/query_node.h"
 
 #include <emscripten/bind.h>
 using namespace emscripten;

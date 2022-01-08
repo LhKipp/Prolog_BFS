@@ -7,8 +7,8 @@
 
 #include <vector>
 #include "../../data/var_binding.h"
-#include "wam/compiler/util/node.h"
-#include "wam/visual/unification_tree/util/node_var_util.h"
+#include "prolog_bfs/wam/compiler/util/node.h"
+#include "prolog_bfs/wam/visual/unification_tree/util/node_var_util.h"
 #include <unordered_map>
 
 namespace wam{

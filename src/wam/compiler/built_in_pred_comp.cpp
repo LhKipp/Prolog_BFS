@@ -2,10 +2,11 @@
 // Created by leonhard on 27.04.20.
 //
 
-#include "built_in_pred_comp.h"
-#include "compiler.h"
-#include <wam/built_in_predicates/arithmetic/is.h>
-#include <wam/built_in_predicates/append.h>
+#include "prolog_bfs/wam/compiler/built_in_pred_comp.h"
+#include "prolog_bfs/wam/compiler/compiler.h"
+
+#include <prolog_bfs/wam/built_in_predicates/arithmetic/is.h>
+#include <prolog_bfs/wam/built_in_predicates/append.h>
 
 node compiler::preds::get_binary_pred(const std::string& name){
     node pred{STORED_OBJECT_FLAG::FUNCTOR, name};

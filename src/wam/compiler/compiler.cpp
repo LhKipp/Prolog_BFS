@@ -2,23 +2,23 @@
 // Created by leonhard on 05.07.19.
 //
 
-#include "compiler.h"
+#include "prolog_bfs/wam/compiler/compiler.h"
 #include <unordered_map>
 #include <numeric>
-#include "util/node_iteration.h"
-#include "util/node_util.h"
+#include "prolog_bfs/wam/compiler/util/node_iteration.h"
+#include "prolog_bfs/wam/compiler/util/node_util.h"
 
-#include "../instructions/instructions.h"
-#include "util/seen_register.h"
+#include "prolog_bfs/wam/instructions/instructions.h"
+#include "prolog_bfs/wam/compiler/util/seen_register.h"
 
-#include "parser/parser.h"
-#include "../data/rule.h"
-#include "../bfs_organizer/data/storage.h"
+#include "prolog_bfs/wam/compiler/parser/parser.h"
+#include "prolog_bfs/wam/data/rule.h"
+#include "prolog_bfs/wam/bfs_organizer/data/storage.h"
 
-#include <wam/compiler/built_in_pred_comp.h>
-#include <wam/built_in_predicates/arithmetic/util/arith_functor.h>
-#include <wam/compiler/checks/undefined_var.h>
-#include <wam/compiler/checks/redefinition_of_built_in_pred.h>
+#include <prolog_bfs/wam/compiler/built_in_pred_comp.h>
+#include <prolog_bfs/wam/built_in_predicates/arithmetic/util/arith_functor.h>
+#include <prolog_bfs/wam/compiler/checks/undefined_var.h>
+#include <prolog_bfs/wam/compiler/checks/redefinition_of_built_in_pred.h>
 
 /*
  * Assigns register to an functor (constant is also viable)

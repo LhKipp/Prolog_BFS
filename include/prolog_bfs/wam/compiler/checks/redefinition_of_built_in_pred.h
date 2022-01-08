@@ -6,7 +6,7 @@
 #define PROLOG_BFS_REDEFINITION_OF_BUILT_IN_PRED_H
 
 
-#include <wam/executor/executor.h>
+#include <prolog_bfs/wam/executor/executor.h>
 
 namespace compiler{
     void check_and_throw_redefinition_of_built_in_pred(const node& head_func);

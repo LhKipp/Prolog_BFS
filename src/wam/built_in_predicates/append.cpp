@@ -2,7 +2,7 @@
 // Created by leonhard on 16.05.20.
 //
 
-#include "append.h"
+#include "prolog_bfs/wam/built_in_predicates/append.h"
 
 std::vector<node> wam::preds::get_append_node_tree() {
     node fact{STORED_OBJECT_FLAG ::NONE};

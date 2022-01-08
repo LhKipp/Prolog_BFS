@@ -2,9 +2,9 @@
 // Created by leonhard on 28.04.20.
 //
 
-#include <wam/instructions/util/instructions_util.h>
-#include "not_equals.h"
-#include "equals.h"
+#include <prolog_bfs/wam/instructions/util/instructions_util.h>
+#include "prolog_bfs/wam/built_in_predicates/not_equals.h"
+#include "prolog_bfs/wam/built_in_predicates/equals.h"
 
 void wam::preds::not_equals_check(wam::executor &executor, size_t lhs_x_reg_i, size_t rhs_x_reg_i) {
 #ifdef DEBUG

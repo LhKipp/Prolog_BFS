@@ -2,9 +2,9 @@
 // Created by leonhard on 24.07.19.
 //
 
-#include "executor.h"
+#include "prolog_bfs/wam/executor/executor.h"
 
-#include "../bfs_organizer/bfs_organizer.h"
+#include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
 
 wam::functor_view &wam::executor::functor_of(FUN_index FUN_index) {
     return organizer->storage.functors.operator[](heap_at(FUN_index.get()).index);

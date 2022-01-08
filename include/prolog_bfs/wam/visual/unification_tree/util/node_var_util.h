@@ -6,7 +6,7 @@
 #define PROLOG_BFS_NODE_VAR_UTIL_H
 
 #include <cstddef>
-#include <wam/compiler/util/node.h>
+#include <prolog_bfs/wam/compiler/util/node.h>
 
 struct node_var_hasher{
     size_t operator()(const node& node)const{

@@ -5,8 +5,8 @@
 #ifndef PROLOG_BFS_NOT_EQUALS_H
 #define PROLOG_BFS_NOT_EQUALS_H
 
-#include <wam/compiler/util/node.h>
-#include <wam/executor/executor.h>
+#include <prolog_bfs/wam/compiler/util/node.h>
+#include <prolog_bfs/wam/executor/executor.h>
 
 namespace wam{
     namespace preds{

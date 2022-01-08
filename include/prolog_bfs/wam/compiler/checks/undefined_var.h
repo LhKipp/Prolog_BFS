@@ -6,9 +6,9 @@
 #define PROLOG_BFS_UNDEFINED_VAR_H
 
 
-#include <wam/compiler/util/node.h>
+#include <prolog_bfs/wam/compiler/util/node.h>
 #include <unordered_map>
-#include <wam/compiler/util/seen_register.h>
+#include <prolog_bfs/wam/compiler/util/seen_register.h>
 
 namespace compiler{
     void check_and_throw_undefined_var(

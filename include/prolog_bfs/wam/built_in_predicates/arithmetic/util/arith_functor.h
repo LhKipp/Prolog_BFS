@@ -6,9 +6,9 @@
 #define PROLOG_BFS_ARITH_FUNCTOR_H
 
 #include <string_view>
-#include <wam/data/heap_reg.h>
+#include <prolog_bfs/wam/data/heap_reg.h>
 #include <functional>
-#include <wam/data/functor_view.h>
+#include <prolog_bfs/wam/data/functor_view.h>
 
 namespace wam::arithmetic{
 

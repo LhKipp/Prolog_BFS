@@ -2,7 +2,7 @@
 // Created by leonhard on 09.05.20.
 //
 
-#include "bfs_util.h"
+#include "prolog_bfs/wam/bfs_organizer/util/bfs_util.h"
 #include <algorithm>
 
 std::string append_dot_if_not_present(std::string query) {

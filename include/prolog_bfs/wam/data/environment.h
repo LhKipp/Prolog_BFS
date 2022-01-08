@@ -5,7 +5,7 @@
 #ifndef PROLOG_BFS_ENVIRONMENT_H
 #define PROLOG_BFS_ENVIRONMENT_H
 
-#include <wam/data/heap_reg.h>
+#include <prolog_bfs/wam/data/heap_reg.h>
 #include <vector>
 namespace wam {
     struct environment {

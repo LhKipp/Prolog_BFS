@@ -3,13 +3,13 @@
 //
 
 
-#include "arith_functor.h"
-#include "arith_functor_impl.h"
+#include "prolog_bfs/wam/built_in_predicates/arithmetic/util/arith_functor.h"
+#include "prolog_bfs/wam/built_in_predicates/arithmetic/util/arith_functor_impl.h"
 #include <boost/bimap.hpp>
 #include <unordered_map>
 #include <functional>
 #include <cmath>
-#include <wam/data/heap_reg.h>
+#include <prolog_bfs/wam/data/heap_reg.h>
 
 
 const std::unordered_map<std::string, int> arith_func_to_index = {

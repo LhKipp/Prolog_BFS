@@ -2,5 +2,5 @@
 // Created by leonhard on 07.03.20.
 //
 
-#include "query_node.h"
+#include "prolog_bfs/wam/visual/unification_tree/query_node.h"
 

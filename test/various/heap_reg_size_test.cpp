@@ -2,8 +2,8 @@
 // Created by leonhard on 24.05.20.
 //
 
-#include "../../catch.hpp"
-#include <wam/data/heap_reg.h>
+#include <catch2/catch.hpp>
+#include "prolog_bfs/wam/data/heap_reg.h"
 
 using namespace std;
 

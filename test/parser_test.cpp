@@ -2,9 +2,9 @@
 // Created by leonhard on 27.07.19.
 //
 //#include <iostream>
-//#include "../catch.hpp"
-//#include "../src/wam/compiler/compiler.h"
-//#include "../src/wam/compiler/util/data_enums.h"
+//#include <catch2/catch.hpp>
+//#include "prolog_bfs/wam/compiler/compiler.h"
+//#include "prolog_bfs/wam/compiler/util/data_enums.h"
 //
 //
 //TEST_CASE("Parser tree_build", "[Parser]") {

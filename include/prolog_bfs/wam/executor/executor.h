@@ -6,7 +6,7 @@
 #define PROLOG_BFS_EXECUTOR_H
 
 
-#include "wam/data/heap_reg.h"
+#include "prolog_bfs/wam/data/heap_reg.h"
 #include "../data/functor_view.h"
 #include "util/mode.h"
 #include "../data/var_reg_substitution.h"
@@ -23,7 +23,7 @@
 #include <cassert>
 #include <iostream>
 #include <variant>
-#include <wam/bfs_organizer/data/error/runtime_error.h>
+#include <prolog_bfs/wam/bfs_organizer/data/error/runtime_error.h>
 
 namespace wam {
 

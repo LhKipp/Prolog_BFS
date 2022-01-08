@@ -4,9 +4,9 @@
 //
 
 #include <iostream>
-#include "normal_mode.h"
-#include "../program_arguments/parser.h"
-#include "../wam/bfs_organizer/bfs_organizer.h"
+#include "prolog_bfs/app_runner/normal_mode.h"
+#include "prolog_bfs/program_arguments/parser.h"
+#include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
 
 namespace app_runner {
 

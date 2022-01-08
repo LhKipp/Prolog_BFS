@@ -3,7 +3,7 @@
 //
 
 
-#include "heap_reg.h"
+#include "prolog_bfs/wam/data/heap_reg.h"
 
 std::string wam::heap_reg::type_as_str() {
     return std::string(((const char *[]) {

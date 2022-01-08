@@ -2,8 +2,8 @@
 // Created by leonhard on 08.05.20.
 //
 
-#include "../../catch.hpp"
-#include <wam/compiler/parser/query_grammar.h>
+#include <catch2/catch.hpp>
+#include "prolog_bfs/wam/compiler/parser/query_grammar.h"
 #include <boost/spirit/include/support_line_pos_iterator.hpp>
 #include <string_view>
 

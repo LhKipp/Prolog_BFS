@@ -1,10 +1,10 @@
 //
 // Created by leonhard on 19.08.19.
 //
-#include "../catch.hpp"
+#include <catch2/catch.hpp>
 #include <iostream>
 #include <map>
-#include "../src/wam/bfs_organizer/bfs_organizer.h"
+#include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
 
 using namespace std;
 using namespace wam;

@@ -4,7 +4,7 @@
 
 #include "test_util.h"
 #include <numeric>
-#include "../catch.hpp"
+#include <catch2/catch.hpp>
 
 std::string vec_to_string(const std::vector <std::string> &vec) {
     return std::accumulate(std::begin(vec), std::end(vec), std::string(),

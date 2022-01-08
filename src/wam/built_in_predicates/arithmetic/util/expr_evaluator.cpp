@@ -2,12 +2,12 @@
 // Created by leonhard on 08.05.20.
 //
 
-#include "expr_evaluator.h"
-#include "arith_functor.h"
+#include "prolog_bfs/wam/built_in_predicates/arithmetic/util/expr_evaluator.h"
+#include "prolog_bfs/wam/built_in_predicates/arithmetic/util/arith_functor.h"
 #include <cmath>
-#include <wam/instructions/util/instructions_util.h>
-#include <wam/runtime_errors/err_handling.h>
-#include <wam/built_in_predicates/arithmetic/checks/arithmetic_checks.h>
+#include <prolog_bfs/wam/instructions/util/instructions_util.h>
+#include <prolog_bfs/wam/runtime_errors/err_handling.h>
+#include <prolog_bfs/wam/built_in_predicates/arithmetic/checks/arithmetic_checks.h>
 
 wam::heap_reg wam::arithmetic::eval_arithmetic_reg(executor &exec, size_t rhs_heap_i){
     rhs_heap_i = deref(exec, rhs_heap_i);

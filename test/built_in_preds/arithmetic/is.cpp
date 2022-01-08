@@ -1,6 +1,6 @@
-#include "../../../catch.hpp"
-#include "../../test_util.h"
-#include <wam/bfs_organizer/bfs_organizer.h>
+#include <catch2/catch.hpp>
+#include "test_util.h"
+#include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
 #include <string>
 
 

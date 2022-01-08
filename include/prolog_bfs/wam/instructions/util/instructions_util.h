@@ -5,7 +5,7 @@
 #ifndef PROLOG_BFS_INSTRUCTIONS_UTIL_H
 #define PROLOG_BFS_INSTRUCTIONS_UTIL_H
 
-#include "wam/data/heap_reg.h"
+#include "prolog_bfs/wam/data/heap_reg.h"
 #include "../../executor/executor.h"
 
 namespace wam{

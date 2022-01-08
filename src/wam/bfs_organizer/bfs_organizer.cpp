@@ -2,13 +2,13 @@
 // Created by leonhard on 29.07.19.
 //
 
-#include <wam/bfs_organizer/util/bfs_util.h>
-#include "bfs_organizer.h"
-#include "../visual/substitution_util.h"
-#include "../compiler/compiler.h"
-#include "util/read_program_code.h"
-#include "../compiler/parser/parser.h"
-#include "../visual/unification_tree/unification_tree.h"
+#include <prolog_bfs/wam/bfs_organizer/util/bfs_util.h>
+#include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
+#include "prolog_bfs/wam/visual/substitution_util.h"
+#include "prolog_bfs/wam/compiler/compiler.h"
+#include "prolog_bfs/wam/bfs_organizer/util/read_program_code.h"
+#include "prolog_bfs/wam/compiler/parser/parser.h"
+#include "prolog_bfs/wam/visual/unification_tree/unification_tree.h"
 
 //#define DEBUG
 

@@ -2,10 +2,10 @@
 // Created by leonhard on 09.05.20.
 //
 
-#include "../catch.hpp"
-#include <wam/bfs_organizer/bfs_organizer.h>
+#include <catch2/catch.hpp>
+#include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
 #include <string>
-#include <wam/compiler/error/compiler_error.h>
+#include "prolog_bfs/wam/compiler/error/compiler_error.h"
 
 
 using namespace wam;

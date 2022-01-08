@@ -2,8 +2,8 @@
 // Created by leonhard on 07.03.20.
 //
 
-#include "../../catch.hpp"
-#include "../../src/wam/bfs_organizer/bfs_organizer.h"
+#include <catch2/catch.hpp>
+#include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
 #include <map>
 #include <string>
 #include<iostream>

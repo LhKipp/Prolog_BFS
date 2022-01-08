@@ -5,7 +5,7 @@
 #ifndef PROLOG_BFS_RUNTIME_ERROR_H
 #define PROLOG_BFS_RUNTIME_ERROR_H
 
-#include <wam/data/source_code_info.h>
+#include <prolog_bfs/wam/data/source_code_info.h>
 #include "runtime_error_type.h"
 
 namespace wam{

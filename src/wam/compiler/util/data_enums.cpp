@@ -2,7 +2,7 @@
 // Created by leonhard on 08.05.20.
 //
 
-#include "data_enums.h"
+#include "prolog_bfs/wam/compiler/util/data_enums.h"
 std::ostream& operator <<(std::ostream& stream,STORED_OBJECT_FLAG matrix){
     stream << "outputing STORED_OBJECT_FLAG DEBUG ONLY" << std::endl;
     return stream;

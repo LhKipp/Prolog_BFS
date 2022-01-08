@@ -1,9 +1,9 @@
 //
 // Created by leonhard on 05.08.19.
 //
-#include "../catch.hpp"
-#include "../src/wam/bfs_organizer/bfs_organizer.h"
-#include "../src/wam/data/var_binding.h"
+#include <catch2/catch.hpp>
+#include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
+#include "prolog_bfs/wam/data/var_binding.h"
 
 #include <iostream>
 #include <string>

@@ -2,9 +2,9 @@
 // Created by leonhard on 08.05.20.
 //
 
-#include <wam/built_in_predicates/arithmetic/util/expr_evaluator.h>
-#include <wam/instructions/util/instructions_util.h>
-#include "is.h"
+#include <prolog_bfs/wam/built_in_predicates/arithmetic/util/expr_evaluator.h>
+#include <prolog_bfs/wam/instructions/util/instructions_util.h>
+#include "prolog_bfs/wam/built_in_predicates/arithmetic/is.h"
 
 void wam::preds::is(wam::executor &exec, size_t lhs_x_reg_i, size_t rhs_x_reg_i){
     const heap_reg& rhs_value = wam::arithmetic::eval_arithmetic_reg(exec,

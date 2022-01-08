@@ -9,12 +9,12 @@
 #include <boost/spirit/repository/include/qi_iter_pos.hpp>
 #include <boost/phoenix/phoenix.hpp>
 
-#include <wam/compiler/parser/parsed_helper_types/binary_arithmetic_predicate.h>
-#include <wam/compiler/parser/parsed_helper_types/expressions.h>
-#include <wam/compiler/parser/parsed_helper_types/prolog_data_types.h>
-#include <wam/compiler/error/compiler_error.h>
-#include <wam/compiler/parser/util/parser_util.h>
-#include <wam/compiler/parser/util/error_handler.h>
+#include <prolog_bfs/wam/compiler/parser/parsed_helper_types/binary_arithmetic_predicate.h>
+#include <prolog_bfs/wam/compiler/parser/parsed_helper_types/expressions.h>
+#include <prolog_bfs/wam/compiler/parser/parsed_helper_types/prolog_data_types.h>
+#include <prolog_bfs/wam/compiler/error/compiler_error.h>
+#include <prolog_bfs/wam/compiler/parser/util/parser_util.h>
+#include <prolog_bfs/wam/compiler/parser/util/error_handler.h>
 
 BOOST_FUSION_ADAPT_STRUCT(
         node,

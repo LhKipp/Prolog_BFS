@@ -5,7 +5,7 @@
 #ifndef PROLOG_BFS_NODE_BINDING_H
 #define PROLOG_BFS_NODE_BINDING_H
 
-#include "wam/compiler/util/node.h"
+#include "prolog_bfs/wam/compiler/util/node.h"
 
 namespace wam{
     struct node_binding{

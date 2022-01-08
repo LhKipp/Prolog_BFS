@@ -2,8 +2,10 @@
 // Created by leonhard on 07.03.20.
 //
 
-#include "query_node.h"
-#include "var_binding_node.h"
+#include "prolog_bfs/wam/visual/unification_tree/query_node.h"
+#include "prolog_bfs/wam/visual/unification_tree/var_binding_node.h"
+
+
 
 wam::var_binding_node::var_binding_node(const wam::var_binding_node &other) {
     first_fact_binding = other.first_fact_binding;
