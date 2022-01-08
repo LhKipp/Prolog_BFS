@@ -1,10 +1,16 @@
 #!/bin/sh
 
-TEMP=$(getopt -o rw --long release,wasm -- "$@")
+usage() { # Function: Print a help message.
+  echo "Usage: $0 [ --release -r ] [ --wasm -w ]" 1>&2 
+  echo "--release: Build in relase mode (debug mode is the default)" 1>&2 
+  echo "--wasm: Build for wasm (Normal build is the default)" 1>&2 
+  echo "        Be sure to have your emsdk environment sourced!" 1>&2 
+}
 
-if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+TEMP=$(getopt -o rwh --long release,wasm,help -- "$@")
 
-# Note the quotes around '$TEMP': they are essential!
+if [ $? != 0 ]; then usage ; exit 1 ; fi
+
 eval set -- "$TEMP"
 
 RELEASE=false
@@ -13,8 +19,9 @@ while true; do
   case "$1" in
     -r | --release ) RELEASE=true; shift ;;
     -w | --wasm ) WASM=true; shift ;;
+    -h | --help ) usage; exit 0 ;;
     -- ) shift; break ;;
-    * ) break ;;
+    * ) usage; exit 1 ;;
   esac
 done
 
@@ -54,4 +61,6 @@ else
     cmake .. $OPTS && make -j $(($(nproc) + 1))
     popd
 fi
+
+echo "Created: $TARGET_DIR"
 

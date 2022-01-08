@@ -29,24 +29,9 @@ git clone https://github.com/LhKipp/Prolog_BFS.git
 cd Prolog_BFS
 ./build_xxx.sh
 ```
-There are 2 different build scripts. "build_native" builds the cli application and "build_wasm" builds the WebAssembly files.
-If you first build wasm, then native (or the other way around) make sure to delete the `CMakeCache.txt` file! Otherwise the build might fail.
 
-## Building native
-Run `build_native.sh`. This runs currently only test cases.
-
-## Building for WebAssembly
-1. Source your emsdk environment
-2. Run `./build_wasm.sh <env>` where <env> can be either
-    * `dev` for a development build (fast compilation, no optimization, no test suite)
-    * `prod` for a production build (slow compilation, O3 optimization, no test suite) 
-    * `test` for a testing build (even slower compilation, O3 optimization, with test suite) 
-You may omit <env>, resulting in a dev build.
-
-### Running tests in the browser
-1. Run a test build
-2. Open your browser's javascript console while being on the prolog bfs site
-3. Run `runTests()` in the console. You should see the test output there
+## Building
+Run `./build.sh --help` for help on how to build the program
 
 # Known Limitations
 1. Only integer arithmetic is supported.
