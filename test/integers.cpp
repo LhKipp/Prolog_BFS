@@ -1,6 +1,7 @@
 //
 // Created by leonhard on 07.05.20.
 //
+#define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 #include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
 #include "./test_util.h"
