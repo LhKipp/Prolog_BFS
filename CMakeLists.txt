@@ -20,7 +20,7 @@ file(GLOB_RECURSE prolog_bfs_test
         "test/*.h"
         "test/*.cpp"
         )
-add_executable(prolog_bfs main.cpp catch.hpp ${prolog_bfs_src} ${prolog_bfs_test})
+add_executable(prolog_bfs main.cpp ${prolog_bfs_src})
 
 #make include from src possible
 target_include_directories(prolog_bfs PRIVATE ${PROJECT_SOURCE_DIR}/src)
