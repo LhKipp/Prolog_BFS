@@ -60,9 +60,11 @@ node wam::node_representation_of(const wam::executor &exec, size_t index, const 
         return func;
     }
 
+#pragma GCC diagnostic ignored "-Wreturn-type"
     //Assert everything handled
     assert(false);
 }
+#pragma GCC diagnostic pop
 
 //TODO recursive function, could be optimized through use of stack
 std::string
