@@ -27,7 +27,7 @@ the commands accordingly.
 sudo apt-get install libboost-all-dev
 git clone https://github.com/LhKipp/Prolog_BFS.git
 cd Prolog_BFS
-./build_xxx.sh
+./build.sh
 ```
 
 ## Building
