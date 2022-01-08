@@ -10,5 +10,4 @@
 # some ugly hacks here
 cp CMakeLists.txt.native CMakeLists.txt
 
-cmake CMakeLists.txt
-make prolog_bfs -j $(($(nproc) + 1)) 
+cmake --build build -j 8 && cmake --install build
