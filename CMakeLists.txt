@@ -13,11 +13,7 @@ find_package(Boost 1.60 COMPONENTS program_options REQUIRED )
 
 add_subdirectory(src)
 add_subdirectory(apps)
-
-# file(GLOB_RECURSE prolog_bfs_test
-#         "test/*.h"
-#         "test/*.cpp"
-#         )
+add_subdirectory(test)
 
 #make include from src possible
 # target_include_directories(prolog_bfs PRIVATE ${PROJECT_SOURCE_DIR}/src)
