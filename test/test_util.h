@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 #include <map>
 #include <wam/data/var_binding.h>
 
