@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
-project(prolog_bfs)
+cmake_minimum_required(VERSION 3.13)
+
+project(prolog_bfs VERSION 1.0
+                   DESCRIPTION "A prolog bfs compiler"
+                   LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
