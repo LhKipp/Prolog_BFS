@@ -6,6 +6,8 @@ project(PrologBfs VERSION 1.0
 
 set(CMAKE_CXX_STANDARD 17)
 
+include(FetchContent)
+
 # set where the build output should go
 find_package(Boost 1.60 COMPONENTS program_options REQUIRED )
 
