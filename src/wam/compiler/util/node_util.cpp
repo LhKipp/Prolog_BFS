@@ -6,7 +6,7 @@
 #include <vector>
 #include <string>
 #include <set>
-#include <prolog_bfs/wam/visual/unification_tree/util/node_var_util.h>
+#include "prolog_bfs/wam/visual/unification_tree/util/node_var_util.h"
 #include "prolog_bfs/wam/compiler/util/node_iteration.h"
 
 

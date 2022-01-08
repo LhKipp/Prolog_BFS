@@ -6,9 +6,9 @@
 #include "prolog_bfs/wam/compiler/util/node.h"
 #include <string>
 #include <algorithm>
-#include <prolog_bfs/wam/compiler/parser/parsed_helper_types/binary_arithmetic_predicate.h>
-#include <prolog_bfs/wam/compiler/parser/parsed_helper_types/expressions.h>
-#include <prolog_bfs/wam/compiler/parser/parsed_helper_types/prolog_data_types.h>
+#include "prolog_bfs/wam/compiler/parser/parsed_helper_types/binary_arithmetic_predicate.h"
+#include "prolog_bfs/wam/compiler/parser/parsed_helper_types/expressions.h"
+#include "prolog_bfs/wam/compiler/parser/parsed_helper_types/prolog_data_types.h"
 
 std::string node::to_string() const {
     if(is_variable() || is_constant() || is_int()) return name;

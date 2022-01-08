@@ -6,7 +6,7 @@
 #include "prolog_bfs/wam/instructions/instructions.h"
 #include "prolog_bfs/wam/instructions/util/instructions_util.h"
 #include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
-#include <prolog_bfs/wam/built_in_predicates/arithmetic/util/arith_functor.h>
+#include "prolog_bfs/wam/built_in_predicates/arithmetic/util/arith_functor.h"
 
 //#define DEBUG
 #ifdef DEBUG

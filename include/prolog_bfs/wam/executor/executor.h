@@ -23,7 +23,7 @@
 #include <cassert>
 #include <iostream>
 #include <variant>
-#include <prolog_bfs/wam/bfs_organizer/data/error/runtime_error.h>
+#include "prolog_bfs/wam/bfs_organizer/data/error/runtime_error.h"
 
 namespace wam {
 

@@ -2,7 +2,7 @@
 // Created by leonhard on 16.05.20.
 //
 
-#include <prolog_bfs/wam/compiler/error/compiler_error.h>
+#include "prolog_bfs/wam/compiler/error/compiler_error.h"
 #include "prolog_bfs/wam/compiler/checks/redefinition_of_built_in_pred.h"
 
 void compiler::check_and_throw_redefinition_of_built_in_pred(const node& head_func) {

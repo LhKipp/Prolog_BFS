@@ -1,7 +1,7 @@
 //
 // Created by Martin Weber 2020-05-09
 //
-#include <prolog_bfs/wam/bfs_organizer/data/result.h>
+#include "prolog_bfs/wam/bfs_organizer/data/result.h"
 #include <emscripten/bind.h>
 using namespace emscripten;
 

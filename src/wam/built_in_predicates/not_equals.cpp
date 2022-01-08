@@ -2,7 +2,7 @@
 // Created by leonhard on 28.04.20.
 //
 
-#include <prolog_bfs/wam/instructions/util/instructions_util.h>
+#include "prolog_bfs/wam/instructions/util/instructions_util.h"
 #include "prolog_bfs/wam/built_in_predicates/not_equals.h"
 #include "prolog_bfs/wam/built_in_predicates/equals.h"
 

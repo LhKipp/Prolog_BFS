@@ -3,7 +3,7 @@
 //
 
 #include "prolog_bfs/wam/runtime_errors/err_handling.h"
-#include <prolog_bfs/wam/instructions/util/instructions_util.h>
+#include "prolog_bfs/wam/instructions/util/instructions_util.h"
 
 void err_handling::check_and_throw_is_evaluable(wam::executor &exec, wam::heap_reg reg) {
     if(reg.is_FUN() || reg.is_CONS()){

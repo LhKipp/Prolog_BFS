@@ -2,10 +2,9 @@
 /* #include "catch.hpp" */
 #include <iostream>
 
-#include "src/program_arguments/parser.h"
-
-#include "src/app_runner/normal_mode.h"
-#include "wam/data/heap_reg.h"
+#include "prolog_bfs/program_arguments/parser.h"
+#include "prolog_bfs/app_runner/normal_mode.h"
+#include "prolog_bfs/wam/data/heap_reg.h"
 
 int main(int argc, const char *argv[]) {
     using namespace std;

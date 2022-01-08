@@ -5,8 +5,8 @@
 #ifndef PROLOG_BFS_BINARY_ARITHMETIC_PREDICATE_H
 #define PROLOG_BFS_BINARY_ARITHMETIC_PREDICATE_H
 
-#include <prolog_bfs/wam/compiler/util/data_enums.h>
-#include <prolog_bfs/wam/compiler/util/node.h>
+#include "prolog_bfs/wam/compiler/util/data_enums.h"
+#include "prolog_bfs/wam/compiler/util/node.h"
 #include <boost/fusion/include/adapt_struct.hpp>
 
 namespace parser {

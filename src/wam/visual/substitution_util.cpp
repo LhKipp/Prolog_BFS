@@ -3,9 +3,9 @@
 //
 
 #include "prolog_bfs/wam/visual/substitution_util.h"
-#include <prolog_bfs/wam/instructions/util/instructions_util.h>
-#include <prolog_bfs/wam/visual/unification_tree/util/node_binding.h>
-#include <prolog_bfs/wam/built_in_predicates/arithmetic/util/arith_functor.h>
+#include "prolog_bfs/wam/instructions/util/instructions_util.h"
+#include "prolog_bfs/wam/visual/unification_tree/util/node_binding.h"
+#include "prolog_bfs/wam/built_in_predicates/arithmetic/util/arith_functor.h"
 
 
 bool is_user_entered_var(

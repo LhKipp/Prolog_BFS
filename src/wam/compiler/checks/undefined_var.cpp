@@ -2,8 +2,8 @@
 // Created by leonhard on 09.05.20.
 //
 
-#include <prolog_bfs/wam/compiler/util/node_iteration.h>
-#include <prolog_bfs/wam/compiler/error/compiler_error.h>
+#include "prolog_bfs/wam/compiler/util/node_iteration.h"
+#include "prolog_bfs/wam/compiler/error/compiler_error.h"
 #include "prolog_bfs/wam/compiler/checks/undefined_var.h"
 
 void compiler::check_and_throw_undefined_var(

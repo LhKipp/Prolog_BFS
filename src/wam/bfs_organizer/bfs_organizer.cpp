@@ -2,7 +2,7 @@
 // Created by leonhard on 29.07.19.
 //
 
-#include <prolog_bfs/wam/bfs_organizer/util/bfs_util.h>
+#include "prolog_bfs/wam/bfs_organizer/util/bfs_util.h"
 #include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
 #include "prolog_bfs/wam/visual/substitution_util.h"
 #include "prolog_bfs/wam/compiler/compiler.h"

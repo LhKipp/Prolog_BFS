@@ -9,8 +9,8 @@
 #include "prolog_bfs/wam/bfs_organizer/data/storage.h"
 
 
-#include <prolog_bfs/wam/compiler/util/node_iteration.h>
-#include <prolog_bfs/wam/compiler/util/node_util.h>
+#include "prolog_bfs/wam/compiler/util/node_iteration.h"
+#include "prolog_bfs/wam/compiler/util/node_util.h"
 
 wam::query_node wam::make_tree(const wam::executor &top_exec, const wam::storage& storage) {
     int node_id_counter = 0;

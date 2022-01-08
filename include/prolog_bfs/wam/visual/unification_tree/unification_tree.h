@@ -5,7 +5,7 @@
 #ifndef PROLOG_BFS_UNIFICATION_TREE_H
 #define PROLOG_BFS_UNIFICATION_TREE_H
 
-#include <prolog_bfs/wam/visual/unification_tree/util/node_binding.h>
+#include "prolog_bfs/wam/visual/unification_tree/util/node_binding.h"
 #include "prolog_bfs/wam/executor/executor.h"
 #include "query_node.h"
 #include "rule_bindings.h"

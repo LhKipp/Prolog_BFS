@@ -5,7 +5,7 @@
 #ifndef PROLOG_BFS_COMPILER_ERROR_H
 #define PROLOG_BFS_COMPILER_ERROR_H
 
-#include <prolog_bfs/wam/data/source_code_info.h>
+#include "prolog_bfs/wam/data/source_code_info.h"
 #include <limits>
 #include "compiler_error_type.h"
 

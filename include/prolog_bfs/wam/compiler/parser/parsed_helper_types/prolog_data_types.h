@@ -6,8 +6,8 @@
 #define PROLOG_BFS_PROLOG_DATA_TYPES_H
 
 #include <vector>
-#include <prolog_bfs/wam/compiler/util/data_enums.h>
-#include <prolog_bfs/wam/compiler/util/node.h>
+#include "prolog_bfs/wam/compiler/util/data_enums.h"
+#include "prolog_bfs/wam/compiler/util/node.h"
 #include <boost/fusion/include/adapt_struct.hpp>
 
 namespace parser{

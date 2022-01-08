@@ -7,7 +7,7 @@
 
 #include <string>
 #include <vector>
-#include <prolog_bfs/wam/compiler/util/node.h>
+#include "prolog_bfs/wam/compiler/util/node.h"
 
 namespace wam {
     void make_to_children(node& top_node, std::vector<node>& children);

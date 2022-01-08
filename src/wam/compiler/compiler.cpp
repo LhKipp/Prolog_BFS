@@ -15,10 +15,10 @@
 #include "prolog_bfs/wam/data/rule.h"
 #include "prolog_bfs/wam/bfs_organizer/data/storage.h"
 
-#include <prolog_bfs/wam/compiler/built_in_pred_comp.h>
-#include <prolog_bfs/wam/built_in_predicates/arithmetic/util/arith_functor.h>
-#include <prolog_bfs/wam/compiler/checks/undefined_var.h>
-#include <prolog_bfs/wam/compiler/checks/redefinition_of_built_in_pred.h>
+#include "prolog_bfs/wam/compiler/built_in_pred_comp.h"
+#include "prolog_bfs/wam/built_in_predicates/arithmetic/util/arith_functor.h"
+#include "prolog_bfs/wam/compiler/checks/undefined_var.h"
+#include "prolog_bfs/wam/compiler/checks/redefinition_of_built_in_pred.h"
 
 /*
  * Assigns register to an functor (constant is also viable)

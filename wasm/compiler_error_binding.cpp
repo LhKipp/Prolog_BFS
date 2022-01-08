@@ -2,7 +2,7 @@
 // Created by leonhard on 06.03.20.
 //
 #include <emscripten/bind.h>
-#include <prolog_bfs/wam/compiler/error/compiler_error.h>
+#include "prolog_bfs/wam/compiler/error/compiler_error.h"
 
 using namespace emscripten;
 

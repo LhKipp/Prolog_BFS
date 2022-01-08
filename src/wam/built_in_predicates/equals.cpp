@@ -4,7 +4,7 @@
 
 #include "prolog_bfs/wam/built_in_predicates/equals.h"
 
-#include <prolog_bfs/wam/instructions/util/instructions_util.h>
+#include "prolog_bfs/wam/instructions/util/instructions_util.h"
 
 bool wam::preds::functor_equals(const executor& exec, int arity, size_t lhs, size_t rhs) {
     for (int i = 0; i < arity; ++i) {

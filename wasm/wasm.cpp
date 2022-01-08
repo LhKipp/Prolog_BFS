@@ -2,7 +2,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
-#include <prolog_bfs/wam/bfs_organizer/bfs_organizer.h>
+#include "prolog_bfs/wam/bfs_organizer/bfs_organizer.h"
 #include <emscripten/bind.h>
 #include <chrono>
 

@@ -5,7 +5,7 @@
 #ifndef PROLOG_BFS_EXPR_EVALUATOR_H
 #define PROLOG_BFS_EXPR_EVALUATOR_H
 
-#include <prolog_bfs/wam/executor/executor.h>
+#include "prolog_bfs/wam/executor/executor.h"
 
 namespace wam::arithmetic{
     /*

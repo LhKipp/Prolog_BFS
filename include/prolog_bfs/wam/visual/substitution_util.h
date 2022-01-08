@@ -10,7 +10,7 @@
 #include "../data/var_binding.h"
 #include "../bfs_organizer/data/storage.h"
 #include <string>
-#include <prolog_bfs/wam/visual/unification_tree/util/node_binding.h>
+#include "prolog_bfs/wam/visual/unification_tree/util/node_binding.h"
 
 namespace wam {
     std::string

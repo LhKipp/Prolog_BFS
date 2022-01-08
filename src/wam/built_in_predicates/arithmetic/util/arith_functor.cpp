@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <functional>
 #include <cmath>
-#include <prolog_bfs/wam/data/heap_reg.h>
+#include "prolog_bfs/wam/data/heap_reg.h"
 
 
 const std::unordered_map<std::string, int> arith_func_to_index = {
