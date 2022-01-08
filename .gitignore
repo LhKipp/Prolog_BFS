@@ -10,10 +10,12 @@ TAGS
 compile_commands.json
 cmake_install.cmake
 CMakeCache.txt
-build/*
 bfs
-debug
-release
+wasm_out/
+wasm_out_release/
+build/
+build_release/
+web/build
 
 # this can be removed as soon as https://github.com/emscripten-core/emscripten/issues/9637#issuecomment-632742739 is fixed
 web/prolog_bfs.data 
