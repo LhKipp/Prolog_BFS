@@ -235,7 +235,7 @@ class TreeView {
                             from: current_query_node_id, 
                             to: var_binding_nodes.get(i).getContinuingQuery().getNodeID(),
                             title: current_fact_line_string
-                                    + ": " + var_binding_nodes.get(i).getFactAsString() + "<br>"
+                                    + ": " + var_binding_nodes.get(i).getFactAsString() + "\n"
                                     + var_binding_nodes.get(i).getVarBindingsAsString()
                         });
 
@@ -276,7 +276,7 @@ class TreeView {
                             to: additional_node_counter,
                             //The edge still shows the immediate var_bindings and with which rule unific. happend
                             title: current_fact_line_string
-                                    + ": " + var_binding_nodes.get(i).getFactAsString() + "<br>"
+                                    + ": " + var_binding_nodes.get(i).getFactAsString() + "\n"
                                     + var_binding_nodes.get(i).getVarBindingsAsString(),
                             color: {
                                 color: "green"
